@@ -1,0 +1,170 @@
+/* ================================
+   TOKENS
+   --color-bg: #1A2318
+   --color-panel: #253220
+   --color-text: #F2ECD8
+   --color-text-muted: #B8AD8A
+   --color-accent: #C9A84C
+   --color-accent-hover: #DDB85A
+   --space-xs: 8px
+   --space-sm: 12px
+   --space-md: 16px
+   --space-lg: 24px
+   --space-xl: 32px
+   --space-xxl: 48px
+   --radius-sm: 4px
+   --radius-md: 8px
+================================ */
+
+/* ================================
+   SCREEN LAYOUT
+================================ */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-menu-screen {
+    background-color: rgb(26, 35, 24);
+}
+
+.menu-container {
+    align-items: center;
+    justify-content: center;
+    padding: 48px 64px;
+    min-width: 420px;
+    max-width: 520px;
+    background-color: rgb(37, 50, 32);
+    border-radius: 8px;
+    border-width: 1px;
+    border-color: rgba(201, 168, 76, 0.15);
+}
+
+/* ================================
+   TYPOGRAPHY
+================================ */
+.game-title {
+    font-size: 36px;
+    -unity-font-style: bold;
+    color: rgb(242, 236, 216);
+    margin-bottom: 8px;
+    -unity-text-align: middle-center;
+}
+
+.game-subtitle {
+    font-size: 16px;
+    color: rgb(184, 173, 138);
+    margin-bottom: 32px;
+    -unity-text-align: middle-center;
+    -unity-font-style: italic;
+}
+
+.version-label {
+    font-size: 11px;
+    color: rgba(184, 173, 138, 0.5);
+    margin-top: 16px;
+    -unity-text-align: middle-center;
+}
+
+/* ================================
+   ACCENT LINES
+================================ */
+.accent-line {
+    height: 2px;
+    width: 80px;
+    background-color: rgb(201, 168, 76);
+    margin-bottom: 24px;
+    border-radius: 1px;
+}
+
+.accent-line-bottom {
+    margin-top: 32px;
+    margin-bottom: 0;
+    width: 60px;
+    opacity: 0.4;
+}
+
+/* ================================
+   BUTTON STACK
+================================ */
+.menu-button-stack {
+    align-items: center;
+    width: 100%;
+}
+
+/* ================================
+   BUTTONS — BASE
+================================ */
+.btn {
+    font-size: 15px;
+    -unity-font-style: bold;
+    padding: 12px 0;
+    margin-bottom: 10px;
+    width: 260px;
+    border-radius: 4px;
+    -unity-text-align: middle-center;
+}
+
+.btn-last {
+    margin-bottom: 0;
+}
+
+/* ================================
+   BUTTON — PRIMARY
+================================ */
+.btn-primary {
+    background-color: rgb(201, 168, 76);
+    color: rgb(26, 35, 24);
+    border-width: 0;
+}
+
+.btn-primary:hover {
+    background-color: rgb(221, 184, 90);
+}
+
+.btn-primary:active {
+    background-color: rgb(180, 150, 65);
+}
+
+/* ================================
+   BUTTON — SECONDARY
+================================ */
+.btn-secondary {
+    background-color: transparent;
+    color: rgb(201, 168, 76);
+    border-width: 1px;
+    border-color: rgb(201, 168, 76);
+}
+
+.btn-secondary:hover {
+    background-color: rgba(201, 168, 76, 0.1);
+    border-color: rgb(221, 184, 90);
+    color: rgb(221, 184, 90);
+}
+
+.btn-secondary:active {
+    background-color: rgba(201, 168, 76, 0.2);
+}
+
+/* ================================
+   BUTTON — GHOST
+================================ */
+.btn-ghost {
+    background-color: transparent;
+    color: rgb(184, 173, 138);
+    border-width: 0;
+}
+
+.btn-ghost:hover {
+    color: rgb(242, 236, 216);
+    background-color: rgba(242, 236, 216, 0.05);
+}
+
+.btn-ghost:active {
+    color: rgb(201, 168, 76);
+}

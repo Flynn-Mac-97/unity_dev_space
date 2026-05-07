@@ -1,0 +1,480 @@
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    flex-direction: column;
+}
+
+.village-hub-screen {
+    background-color: rgb(43, 40, 32);
+    padding: 40px 44px 30px 44px;
+}
+
+.top-bar {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.top-bar-left {
+    flex-direction: column;
+}
+
+.village-title {
+    font-size: 34px;
+    -unity-font-style: bold;
+    color: rgb(240, 232, 213);
+    margin-bottom: 10px;
+}
+
+.hub-badge {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgb(201, 168, 76);
+    background-color: rgba(201, 168, 76, 0.1);
+    padding: 8px 18px;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: rgba(201, 168, 76, 0.25);
+}
+
+.mood-row {
+    flex-direction: row;
+    align-items: center;
+}
+
+.mood-label {
+    font-size: 14px;
+    color: rgb(184, 173, 152);
+    margin-right: 10px;
+}
+
+.mood-meter {
+    width: 200px;
+    height: 12px;
+    background-color: rgb(58, 53, 44);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.mood-fill {
+    width: 72%;
+    height: 12px;
+    background-color: rgb(123, 168, 126);
+    border-radius: 5px;
+}
+
+.mood-value {
+    font-size: 15px;
+    -unity-font-style: bold;
+    color: rgb(123, 168, 126);
+    margin-left: 10px;
+}
+
+.resource-bar {
+    flex-direction: row;
+    background-color: rgb(61, 56, 46);
+    border-radius: 8px;
+    padding: 14px 24px;
+    margin-bottom: 36px;
+    border-width: 1px;
+    border-color: rgba(201, 168, 76, 0.12);
+}
+
+.resource-item {
+    flex-direction: row;
+    align-items: center;
+    margin-right: 34px;
+}
+
+.resource-icon-img {
+    width: 32px;
+    height: 32px;
+    margin-right: 7px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.resource-count {
+    font-size: 18px;
+    -unity-font-style: bold;
+    color: rgb(240, 232, 213);
+    margin-right: 4px;
+}
+
+.resource-label {
+    font-size: 14px;
+    color: rgb(184, 173, 152);
+}
+
+.task-cards-row {
+    flex-direction: row;
+    margin-bottom: 30px;
+}
+
+.task-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    background-color: rgb(61, 56, 46);
+    border-radius: 10px;
+    padding: 22px;
+    margin-right: 14px;
+    border-width: 1px;
+    border-color: rgba(201, 168, 76, 0.1);
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 420px;
+}
+
+.task-card-last {
+    margin-right: 0;
+}
+
+.task-card:hover {
+    background-color: rgb(74, 68, 56);
+    border-color: rgba(201, 168, 76, 0.3);
+}
+
+.task-card-selected {
+    background-color: rgb(74, 68, 56);
+    border-color: rgb(201, 168, 76);
+    border-width: 2px;
+}
+
+.task-card-disabled {
+    opacity: 0.5;
+}
+
+.task-card-disabled:hover {
+    background-color: rgb(61, 56, 46);
+    border-color: rgba(201, 168, 76, 0.1);
+}
+
+.card-illustration {
+    width: 100%;
+    height: 178px;
+    margin-bottom: 14px;
+    border-radius: 6px;
+    -unity-background-scale-mode: scale-and-crop;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.card-accent {
+    height: 3px;
+    margin-bottom: 12px;
+    border-radius: 2px;
+}
+
+.card-accent-water {
+    background-color: rgb(130, 170, 200);
+}
+
+.card-accent-greenhouse {
+    background-color: rgb(123, 168, 126);
+}
+
+.card-accent-robot {
+    background-color: rgb(200, 160, 100);
+}
+
+.card-title {
+    font-size: 22px;
+    -unity-font-style: bold;
+    color: rgb(240, 232, 213);
+    margin-bottom: 8px;
+}
+
+.card-desc {
+    font-size: 15px;
+    color: rgb(184, 173, 152);
+    margin-bottom: 14px;
+    white-space: normal;
+}
+
+.card-npcs {
+    flex-direction: row;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.npc-badge {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px 8px 8px;
+    border-radius: 8px;
+    margin-right: 10px;
+    margin-bottom: 8px;
+}
+
+.npc-portrait {
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    margin-right: 10px;
+    -unity-background-scale-mode: scale-and-crop;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.npc-name {
+    font-size: 15px;
+    -unity-font-style: bold;
+}
+
+.npc-botanist {
+    background-color: rgba(123, 168, 126, 0.2);
+}
+
+.npc-botanist .npc-name {
+    color: rgb(140, 190, 140);
+}
+
+.npc-builder {
+    background-color: rgba(180, 160, 130, 0.2);
+}
+
+.npc-builder .npc-name {
+    color: rgb(200, 180, 150);
+}
+
+.npc-cook {
+    background-color: rgba(210, 160, 100, 0.2);
+}
+
+.npc-cook .npc-name {
+    color: rgb(220, 180, 120);
+}
+
+.npc-child {
+    background-color: rgba(200, 150, 180, 0.2);
+}
+
+.npc-child .npc-name {
+    color: rgb(220, 170, 200);
+}
+
+.npc-engineer {
+    background-color: rgba(160, 180, 200, 0.2);
+}
+
+.npc-engineer .npc-name {
+    color: rgb(180, 200, 220);
+}
+
+.card-cost-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.cost-item {
+    font-size: 13px;
+    -unity-font-style: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-right: 8px;
+    margin-bottom: 6px;
+}
+
+.cost-affordable {
+    background-color: rgba(123, 168, 126, 0.15);
+    color: rgb(140, 190, 140);
+}
+
+.cost-unaffordable {
+    background-color: rgba(196, 107, 93, 0.15);
+    color: rgb(210, 130, 120);
+}
+
+.task-detail {
+    background-color: rgb(74, 68, 56);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    flex-direction: row;
+    overflow: hidden;
+    border-width: 1px;
+    border-color: rgba(201, 168, 76, 0.2);
+}
+
+.task-detail-hidden {
+    display: none;
+}
+
+.detail-accent-bar {
+    width: 4px;
+    background-color: rgb(201, 168, 76);
+}
+
+.detail-content {
+    flex-direction: row;
+    flex-grow: 1;
+    padding: 16px 20px;
+}
+
+.detail-left {
+    flex-grow: 1;
+    margin-right: 32px;
+}
+
+.detail-title {
+    font-size: 20px;
+    -unity-font-style: bold;
+    color: rgb(240, 232, 213);
+    margin-bottom: 6px;
+}
+
+.detail-benefit {
+    font-size: 13px;
+    color: rgb(123, 168, 126);
+    margin-bottom: 14px;
+    -unity-font-style: italic;
+}
+
+.detail-npcs {
+    flex-direction: column;
+}
+
+.detail-npc-label {
+    font-size: 11px;
+    color: rgb(184, 173, 152);
+    margin-bottom: 6px;
+}
+
+.detail-npc-row {
+    flex-direction: row;
+}
+
+.detail-right {
+    min-width: 220px;
+}
+
+.detail-requirements-title {
+    font-size: 12px;
+    -unity-font-style: bold;
+    color: rgb(184, 173, 152);
+    margin-bottom: 10px;
+}
+
+.detail-requirements {
+    flex-direction: column;
+}
+
+.requirement-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.req-icon {
+    font-size: 10px;
+    margin-right: 8px;
+}
+
+.req-icon-scrap {
+    color: rgb(180, 160, 130);
+}
+
+.req-icon-filter {
+    color: rgb(130, 170, 200);
+}
+
+.req-icon-wood {
+    color: rgb(160, 130, 90);
+}
+
+.req-icon-seed {
+    color: rgb(140, 180, 120);
+}
+
+.req-icon-glass {
+    color: rgb(170, 200, 210);
+}
+
+.req-icon-core {
+    color: rgb(200, 160, 100);
+}
+
+.req-icon-battery {
+    color: rgb(210, 180, 100);
+}
+
+.req-name {
+    font-size: 13px;
+    color: rgb(240, 232, 213);
+    flex-grow: 1;
+}
+
+.req-count {
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.req-met {
+    color: rgb(123, 168, 126);
+}
+
+.req-unmet {
+    color: rgb(196, 107, 93);
+}
+
+.bottom-bar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tooltip-area {
+    flex-grow: 1;
+    align-items: flex-end;
+    margin-left: 20px;
+}
+
+.tooltip-text {
+    font-size: 12px;
+    color: rgba(184, 173, 152, 0.6);
+    -unity-font-style: italic;
+}
+
+.btn {
+    font-size: 16px;
+    -unity-font-style: bold;
+    padding: 12px 28px;
+    border-radius: 8px;
+    -unity-text-align: middle-center;
+}
+
+.btn-back {
+    background-color: transparent;
+    color: rgb(184, 173, 152);
+    border-width: 1px;
+    border-color: rgba(184, 173, 152, 0.3);
+}
+
+.btn-back:hover {
+    background-color: rgba(184, 173, 152, 0.08);
+    color: rgb(240, 232, 213);
+    border-color: rgba(184, 173, 152, 0.5);
+}
+
+.btn-back:active {
+    background-color: rgba(184, 173, 152, 0.15);
+}
+
+.btn-confirm {
+    background-color: rgb(201, 168, 76);
+    color: rgb(43, 40, 32);
+    border-width: 0;
+}
+
+.btn-confirm:hover {
+    background-color: rgb(221, 184, 90);
+}
+
+.btn-confirm:active {
+    background-color: rgb(180, 150, 65);
+}
+
+.btn-confirm:disabled {
+    background-color: rgb(100, 90, 70);
+    color: rgba(43, 40, 32, 0.5);
+}

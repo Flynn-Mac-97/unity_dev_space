@@ -1,0 +1,27 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" editor-extension-mode="False">
+    <ui:Style src="project://database/Assets/UI/Concepts/EmberValley/MainMenu.uss" />
+    <ui:Style src="project://database/Assets/UI/Screens/MainMenu/MainMenu.uss" />
+    <ui:VisualElement name="MainMenuScreen" class="screen main-menu-screen">
+        <ui:VisualElement class="menu-container">
+            <!-- Decorative top accent -->
+            <ui:VisualElement class="accent-line" />
+
+            <!-- Title & Subtitle -->
+            <ui:Label name="GameTitle" text="Ember Valley" class="game-title" />
+            <ui:Label name="GameSubtitle" text="Rebuild the machines. Restore the land." class="game-subtitle" />
+
+            <!-- Button Stack -->
+            <ui:VisualElement class="menu-button-stack">
+                <ui:Button name="ContinueButton" text="Continue" class="btn btn-primary" />
+                <ui:Button name="NewGameButton" text="New Journey" class="btn btn-secondary" />
+                <ui:Button name="SettingsButton" text="Settings" class="btn btn-ghost btn-last" />
+            </ui:VisualElement>
+
+            <!-- Bottom accent -->
+            <ui:VisualElement class="accent-line accent-line-bottom" />
+
+            <!-- Footer -->
+            <ui:Label name="VersionLabel" text="v0.1.0  —  Solarpunk" class="version-label" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,0 +1,163 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI/Concepts/VillageHub/VillageHub.uss?fileID=7433441132597879392&amp;guid=6e6810d158becd542b99239b0f92afac&amp;type=3#VillageHub" />
+    <ui:VisualElement name="VillageHubScreen" class="screen village-hub-screen">
+        <ui:VisualElement class="top-bar">
+            <ui:VisualElement class="top-bar-left">
+                <ui:Label name="VillageName" text="Cliffside Haven" class="village-title" />
+                <ui:VisualElement class="mood-row">
+                    <ui:Label text="Village Mood" class="mood-label" />
+                    <ui:VisualElement name="MoodMeter" class="mood-meter">
+                        <ui:VisualElement name="MoodFill" class="mood-fill" />
+                    </ui:VisualElement>
+                    <ui:Label name="MoodValue" text="72%" class="mood-value" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="top-bar-right">
+                <ui:Label text="Restoration Hub" class="hub-badge" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="resource-bar">
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-scrap.png?fileID=21300000&amp;guid=43303ee8edc5c6e439222071c990dc50&amp;type=3#icon-scrap&quot;);" />
+                <ui:Label name="ScrapCount" text="18" class="resource-count" />
+                <ui:Label text="Scrap" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-wood.png?fileID=21300000&amp;guid=378f9b9943408114f8e7aa87c58ed042&amp;type=3#icon-wood&quot;);" />
+                <ui:Label name="WoodCount" text="12" class="resource-count" />
+                <ui:Label text="Wood" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-seeds.png?fileID=21300000&amp;guid=7902028329f8d5543a1bc1e1e1e6a9b6&amp;type=3#icon-seeds&quot;);" />
+                <ui:Label name="SeedsCount" text="15" class="resource-count" />
+                <ui:Label text="Seeds" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-cores.png?fileID=21300000&amp;guid=cc6c2f1c4f08cd84496a6ddd7f30e04a&amp;type=3#icon-cores&quot;);" />
+                <ui:Label name="CoresCount" text="7" class="resource-count" />
+                <ui:Label text="M. Cores" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-filters.png?fileID=21300000&amp;guid=99d6c32d52568284184d5cbc4dafd313&amp;type=3#icon-filters&quot;);" />
+                <ui:Label name="FiltersCount" text="5" class="resource-count" />
+                <ui:Label text="W. Filters" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-glass.png?fileID=21300000&amp;guid=d2d23667b2db6d5418a5b121279f228a&amp;type=3#icon-glass&quot;);" />
+                <ui:Label name="GlassCount" text="4" class="resource-count" />
+                <ui:Label text="Glass" class="resource-label" />
+            </ui:VisualElement>
+            <ui:VisualElement class="resource-item">
+                <ui:Image class="resource-icon-img" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/icon-battery.png?fileID=21300000&amp;guid=75f3ce034259d374bb4d06f5b4046818&amp;type=3#icon-battery&quot;);" />
+                <ui:Label name="BatteryCount" text="2" class="resource-count" />
+                <ui:Label text="S. Battery" class="resource-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="task-cards-row">
+            <ui:VisualElement name="CardWater" class="task-card">
+                <ui:VisualElement class="card-accent card-accent-water" />
+                <ui:Image name="ImgWater" class="card-illustration" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/card-water.png?fileID=21300000&amp;guid=6070e31e707e76f458a454b673f74df9&amp;type=3#card-water&quot;);" />
+                <ui:Label text="Repair Water Channel" class="card-title" />
+                <ui:Label text="Restore irrigation to the lower terraces and unlock new garden plots." class="card-desc" />
+                <ui:VisualElement class="card-npcs">
+                    <ui:VisualElement class="npc-badge npc-botanist">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-botanist.png?fileID=21300000&amp;guid=3a5830a1ec596414880c3c83862581cc&amp;type=3#npc-botanist&quot;);" />
+                        <ui:Label text="Botanist" class="npc-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-badge npc-builder">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-builder.png?fileID=21300000&amp;guid=6b108ecaa5a962c4eba60ebbc672e8c4&amp;type=3#npc-builder&quot;);" />
+                        <ui:Label text="Builder" class="npc-name" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="card-cost-row">
+                    <ui:Label text="12 Scrap" class="cost-item cost-affordable" />
+                    <ui:Label text="4 W. Filters" class="cost-item cost-affordable" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="CardGreenhouse" class="task-card">
+                <ui:VisualElement class="card-accent card-accent-greenhouse" />
+                <ui:Image name="ImgGreenhouse" class="card-illustration" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/card-greenhouse.png?fileID=21300000&amp;guid=ec23dc1713aebb4489a33d1ddf5d8957&amp;type=3#card-greenhouse&quot;);" />
+                <ui:Label text="Rebuild Greenhouse" class="card-title" />
+                <ui:Label text="Construct a rooftop greenhouse to boost food and village happiness." class="card-desc" />
+                <ui:VisualElement class="card-npcs">
+                    <ui:VisualElement class="npc-badge npc-cook">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-cook.png?fileID=21300000&amp;guid=7435ade1ddb8ba1408a8c0062b01eb57&amp;type=3#npc-cook&quot;);" />
+                        <ui:Label text="Cook" class="npc-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-badge npc-botanist">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-botanist.png?fileID=21300000&amp;guid=3a5830a1ec596414880c3c83862581cc&amp;type=3#npc-botanist&quot;);" />
+                        <ui:Label text="Botanist" class="npc-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-badge npc-child">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-child.png?fileID=21300000&amp;guid=f7dc51e6ffe09f94aaea61a15f49a730&amp;type=3#npc-child&quot;);" />
+                        <ui:Label text="Mochi" class="npc-name" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="card-cost-row">
+                    <ui:Label text="8 Wood" class="cost-item cost-affordable" />
+                    <ui:Label text="10 Seeds" class="cost-item cost-unaffordable" />
+                    <ui:Label text="3 Glass" class="cost-item cost-affordable" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement name="CardRobot" class="task-card task-card-last">
+                <ui:VisualElement class="card-accent card-accent-robot" />
+                <ui:Image name="ImgRobot" class="card-illustration" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/card-robot.png?fileID=21300000&amp;guid=e98fe625a1480d945ba86862fd511695&amp;type=3#card-robot&quot;);" />
+                <ui:Label text="Wake Helper Robot" class="card-title" />
+                <ui:Label text="Reactivate an ancient helper bot to assist with village repairs." class="card-desc" />
+                <ui:VisualElement class="card-npcs">
+                    <ui:VisualElement class="npc-badge npc-engineer">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-engineer.png?fileID=21300000&amp;guid=c09b05f4534f3234b8324e82afaaa067&amp;type=3#npc-engineer&quot;);" />
+                        <ui:Label text="Engineer" class="npc-name" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="npc-badge npc-builder">
+                        <ui:Image class="npc-portrait" style="background-image: url(&quot;project://database/Assets/UI/Concepts/VillageHub/Sprites/npc-builder.png?fileID=21300000&amp;guid=6b108ecaa5a962c4eba60ebbc672e8c4&amp;type=3#npc-builder&quot;);" />
+                        <ui:Label text="Builder" class="npc-name" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="card-cost-row">
+                    <ui:Label text="5 M. Cores" class="cost-item cost-affordable" />
+                    <ui:Label text="6 Scrap" class="cost-item cost-affordable" />
+                    <ui:Label text="1 S. Battery" class="cost-item cost-affordable" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="TaskDetail" class="task-detail task-detail-hidden">
+            <ui:VisualElement class="detail-accent-bar" />
+            <ui:VisualElement class="detail-content">
+                <ui:VisualElement class="detail-left">
+                    <ui:Label name="DetailTitle" text="Repair Water Channel" class="detail-title" />
+                    <ui:Label name="DetailBenefit" text="Restores irrigation and unlocks new garden plots" class="detail-benefit" />
+                    <ui:VisualElement class="detail-npcs">
+                        <ui:Label text="Interested NPCs:" class="detail-npc-label" />
+                        <ui:VisualElement name="DetailNPCs" class="detail-npc-row">
+                            <ui:Label text="Botanist" class="npc-badge npc-botanist" />
+                            <ui:Label text="Builder" class="npc-badge npc-builder" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+                <ui:VisualElement class="detail-right">
+                    <ui:Label text="Required Resources" class="detail-requirements-title" />
+                    <ui:VisualElement name="DetailRequirements" class="detail-requirements">
+                        <ui:VisualElement class="requirement-row">
+                            <ui:Label text="◆" class="req-icon req-icon-scrap" />
+                            <ui:Label text="Scrap" class="req-name" />
+                            <ui:Label text="12 / 18" class="req-count req-met" />
+                        </ui:VisualElement>
+                        <ui:VisualElement class="requirement-row">
+                            <ui:Label text="◆" class="req-icon req-icon-filter" />
+                            <ui:Label text="Water Filters" class="req-name" />
+                            <ui:Label text="4 / 5" class="req-count req-met" />
+                        </ui:VisualElement>
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement class="bottom-bar">
+            <ui:Button name="BackButton" text="←  Back to Village" class="btn btn-back" />
+            <ui:Button name="ConfirmButton" text="Begin Restoration" class="btn btn-confirm" />
+            <ui:VisualElement class="tooltip-area">
+                <ui:Label name="TooltipText" text="Select a project to see details" class="tooltip-text" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
