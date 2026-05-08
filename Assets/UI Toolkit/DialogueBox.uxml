@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="DialogueBox.uss" />
+
+    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
+        <ui:Label name="npc-name" class="npc-name-badge" text="Stranger" />
+        <ui:Label name="dialogue-text" class="dialogue-text" text="Hello, traveller. What brings you here?" />
+
+        <ui:VisualElement class="input-row">
+            <ui:TextField name="player-input" class="player-input" />
+            <ui:Button name="send-button" class="send-button" text="Send" />
+        </ui:VisualElement>
+
+        <ui:Button name="close-button" class="close-button" text="X" />
+    </ui:VisualElement>
+</ui:UXML>
