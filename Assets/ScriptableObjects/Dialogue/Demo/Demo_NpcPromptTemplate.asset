@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3736757979e49884ea934d97f74679fe, type: 3}
+  m_Name: Demo_NpcPromptTemplate
+  m_EditorClassIdentifier: 
+  coreSystemPrompt: 'You are {npc_name}, an NPC in a hopeful solarpunk settlement.
+
+
+    Role:
+    {role_description}
+
+    Style: {speaking_style}
+
+    Traits: {personality_traits}
+
+
+    Do:
+
+    {do_rules}
+
+
+    Do
+    Not:
+
+    {dont_rules}
+
+
+    Reply as {npc_name} in 1-4 lines. Text only. No
+    action markup.'
+  memorySummaryTemplate: 'Memory summary:
+
+    {memory_summary}'
+  optionalWorldContext: The settlement values cooperation, repair culture, and low-waste
+    living.
+  _legacyPersonaSection: 'Role: {role_description}
+
+    Style: {speaking_style}
+
+    Traits:
+    {personality_traits}'
+  _legacyRulesSection: 'Do:
+
+    {do_rules}
+
+
+    Do Not:
+
+    {dont_rules}'
+  _legacyMemorySection: 'Relevant memory:
+
+    {memory_facts}
+
+
+    Recent chat:
+
+    {recent_turns}'
+  _legacyResponseSection: Reply as {npc_name} in 1-4 lines. Text only. No action
+    markup.
+  _legacyWorldContext: The settlement values cooperation, repair culture, and low-waste
+    living.

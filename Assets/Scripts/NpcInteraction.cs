@@ -33,8 +33,34 @@ public class NpcInteraction : MonoBehaviour
 
     public void OnTalk()
     {
-        if (DialogueManager.Instance != null && dialogueData != null)
-            DialogueManager.Instance.Open(dialogueData);
+        DialogueManager dialogueManager = DialogueManager.Instance != null
+            ? DialogueManager.Instance
+            : FindObjectOfType<DialogueManager>();
+
+        if (dialogueManager == null)
+        {
+            Debug.LogWarning("[NPC] Talk clicked but no DialogueManager was found in scene.");
+            return;
+        }
+
+        var authoringLink = GetComponent<NpcDialogueAuthoringLink>();
+        if (authoringLink != null && authoringLink.agentConfig != null)
+        {
+            NpcDialogueData fallbackData = authoringLink.legacyDialogueData != null
+                ? authoringLink.legacyDialogueData
+                : dialogueData;
+
+            dialogueManager.OpenAgent(authoringLink.agentConfig, fallbackData);
+            return;
+        }
+
+        if (dialogueData != null)
+        {
+            dialogueManager.Open(dialogueData);
+            return;
+        }
+
+        Debug.LogWarning("[NPC] Talk clicked but no dialogue data is assigned.");
     }
 
     public void OnTrade()  => Debug.Log("[NPC] Trade");

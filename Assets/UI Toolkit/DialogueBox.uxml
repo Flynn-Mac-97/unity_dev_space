@@ -3,7 +3,11 @@
 
     <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
         <ui:Label name="npc-name" class="npc-name-badge" text="Stranger" />
-        <ui:Label name="dialogue-text" class="dialogue-text" text="Hello, traveller. What brings you here?" />
+
+        <ui:VisualElement class="dialogue-content-row">
+            <ui:VisualElement name="npc-portrait" class="npc-portrait hidden" />
+            <ui:Label name="dialogue-text" class="dialogue-text" text="Hello, traveller. What brings you here?" />
+        </ui:VisualElement>
 
         <ui:VisualElement class="input-row">
             <ui:TextField name="player-input" class="player-input" />

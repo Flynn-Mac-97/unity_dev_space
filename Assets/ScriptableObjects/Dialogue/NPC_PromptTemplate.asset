@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3736757979e49884ea934d97f74679fe, type: 3}
+  m_Name: NPC_PromptTemplate
+  m_EditorClassIdentifier: 
+  coreSystemPrompt: 'You are {npc_name}, an NPC in this world.
+
+    Role: {role_description}
+
+    Style:
+    {speaking_style}
+
+    Traits: {personality_traits}
+
+    Do: {do_rules}
+
+    Do
+    Not: {dont_rules}
+
+    Reply in text only, 1-4 lines.'
+  memorySummaryTemplate: 'Memory summary:
+
+    {memory_summary}'
+  optionalWorldContext: 
+  _legacyPersonaSection: 
+  _legacyRulesSection: 
+  _legacyMemorySection: 
+  _legacyResponseSection: 
+  _legacyWorldContext: 

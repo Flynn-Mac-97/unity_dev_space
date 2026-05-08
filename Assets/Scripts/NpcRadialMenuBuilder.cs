@@ -6,6 +6,7 @@ using TMPro;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEditor.Events;
 #endif
 
 /// <summary>
@@ -17,16 +18,25 @@ using UnityEditor.SceneManagement;
 [RequireComponent(typeof(GraphicRaycaster))]
 public class NpcRadialMenuBuilder : MonoBehaviour
 {
+    private enum MenuAction
+    {
+        Talk,
+        Trade,
+        Attack
+    }
+
     [Header("Interaction Events")]
     public UnityEvent onTalk;
     public UnityEvent onTrade;
     public UnityEvent onAttack;
 
+    [Header("Play Mode")]
+    [Tooltip("If enabled, rebuild the menu at play start so runtime onClick handlers are guaranteed.")]
+    public bool rebuildMenuOnPlay = true;
+
     // ── Design Tokens ────────────────────────────────────────────────────────
-    static readonly Color k_PanelBg    = new Color(0.08f, 0.08f, 0.12f, 0.88f);
-    static readonly Color k_TalkColor  = new Color(0.18f, 0.52f, 0.28f, 1f);
-    static readonly Color k_TradeColor = new Color(0.18f, 0.35f, 0.62f, 1f);
-    static readonly Color k_AtkColor   = new Color(0.58f, 0.18f, 0.18f, 1f);
+    static readonly Color k_PanelBg    = new Color(0.11f, 0.11f, 0.12f, 0.90f);
+    static readonly Color k_ButtonColor = new Color(0.24f, 0.24f, 0.27f, 1f);
 
     const float k_PanelW   = 130f;
     const float k_PanelH   = 160f;
@@ -39,6 +49,19 @@ public class NpcRadialMenuBuilder : MonoBehaviour
     // 20 px top/bottom margin inside 160 panel.
     static readonly float[] k_BtnY = { 42f, 0f, -42f };
 
+    private void Awake()
+    {
+        if (!Application.isPlaying) return;
+
+        if (rebuildMenuOnPlay)
+        {
+            BuildMenu();
+            return;
+        }
+
+        RebindExistingButtonsForPlay();
+    }
+
     // ── Public API ───────────────────────────────────────────────────────────
 
     [ContextMenu("Build Menu")]
@@ -47,10 +70,14 @@ public class NpcRadialMenuBuilder : MonoBehaviour
         // 1. Destroy all existing children
         for (int i = transform.childCount - 1; i >= 0; i--)
         {
+            var child = transform.GetChild(i).gameObject;
 #if UNITY_EDITOR
-            DestroyImmediate(transform.GetChild(i).gameObject);
+            if (Application.isPlaying)
+                Destroy(child);
+            else
+                DestroyImmediate(child);
 #else
-            Destroy(transform.GetChild(i).gameObject);
+            Destroy(child);
 #endif
         }
 
@@ -73,15 +100,18 @@ public class NpcRadialMenuBuilder : MonoBehaviour
             type: Image.Type.Simple, raycast: false);
 
         // 4. Build the three action buttons
-        BuildButton(panelRt, "TalkButton",   new Vector2(0f, k_BtnY[0]), k_TalkColor,  "Talk",   () => onTalk?.Invoke());
-        BuildButton(panelRt, "TradeButton",  new Vector2(0f, k_BtnY[1]), k_TradeColor, "Trade",  () => onTrade?.Invoke());
-        BuildButton(panelRt, "AttackButton", new Vector2(0f, k_BtnY[2]), k_AtkColor,   "Attack", () => onAttack?.Invoke());
+        BuildButton(panelRt, "TalkButton",   new Vector2(0f, k_BtnY[0]), k_ButtonColor, "Talk",   MenuAction.Talk);
+        BuildButton(panelRt, "TradeButton",  new Vector2(0f, k_BtnY[1]), k_ButtonColor, "Trade",  MenuAction.Trade);
+        BuildButton(panelRt, "AttackButton", new Vector2(0f, k_BtnY[2]), k_ButtonColor, "Attack", MenuAction.Attack);
 
         Debug.Log("[NpcRadialMenuBuilder] Menu rebuilt.");
 
 #if UNITY_EDITOR
+    if (!Application.isPlaying)
+    {
         EditorUtility.SetDirty(gameObject);
         EditorSceneManager.MarkSceneDirty(gameObject.scene);
+    }
 #endif
     }
 
@@ -89,7 +119,7 @@ public class NpcRadialMenuBuilder : MonoBehaviour
 
     void BuildButton(RectTransform parent, string btnName,
                      Vector2 anchoredPos, Color btnColor,
-                     string labelText, System.Action onClick)
+                     string labelText, MenuAction action)
     {
         // Root: Image + Button
         var go = new GameObject(btnName, typeof(RectTransform), typeof(Image), typeof(Button));
@@ -104,7 +134,7 @@ public class NpcRadialMenuBuilder : MonoBehaviour
         img.sprite = null;
         img.type   = Image.Type.Simple;
 
-        // Colour states: dim at rest, full colour on hover, darker on press
+        // Color states: subtle graybox lift on hover, darker on press.
         var btn = go.GetComponent<Button>();
         var cb  = ColorBlock.defaultColorBlock;
         cb.normalColor      = new Color(0.85f, 0.85f, 0.85f, 1f);
@@ -116,7 +146,7 @@ public class NpcRadialMenuBuilder : MonoBehaviour
         cb.fadeDuration     = 0.08f;
         btn.colors = cb;
 
-        btn.onClick.AddListener(() => onClick?.Invoke());
+        WireButtonClick(btn, action);
 
         // Left accent strip — 10 px wide, full height, slightly brighter
         var accentGo = new GameObject("Accent", typeof(RectTransform), typeof(Image));
@@ -151,6 +181,98 @@ public class NpcRadialMenuBuilder : MonoBehaviour
         tmp.alignment        = TextAlignmentOptions.MidlineLeft;
         tmp.raycastTarget    = false;
         tmp.overflowMode     = TextOverflowModes.Ellipsis;
+    }
+
+    void RebindExistingButtonsForPlay()
+    {
+        WireExistingButton("TalkButton", MenuAction.Talk);
+        WireExistingButton("TradeButton", MenuAction.Trade);
+        WireExistingButton("AttackButton", MenuAction.Attack);
+    }
+
+    void WireExistingButton(string buttonName, MenuAction action)
+    {
+        Button btn = FindButtonRecursive(transform, buttonName);
+        if (btn == null)
+            return;
+
+        btn.onClick.RemoveAllListeners();
+        btn.onClick.AddListener(() => InvokeAction(action));
+    }
+
+    static Button FindButtonRecursive(Transform root, string buttonName)
+    {
+        if (root == null || string.IsNullOrWhiteSpace(buttonName))
+            return null;
+
+        if (string.Equals(root.name, buttonName, System.StringComparison.Ordinal))
+        {
+            Button selfButton = root.GetComponent<Button>();
+            if (selfButton != null)
+                return selfButton;
+        }
+
+        for (int i = 0; i < root.childCount; i++)
+        {
+            Button found = FindButtonRecursive(root.GetChild(i), buttonName);
+            if (found != null)
+                return found;
+        }
+
+        return null;
+    }
+
+    void WireButtonClick(Button btn, MenuAction action)
+    {
+        if (btn == null) return;
+
+        btn.onClick.RemoveAllListeners();
+
+        if (Application.isPlaying)
+        {
+            btn.onClick.AddListener(() => InvokeAction(action));
+            return;
+        }
+
+#if UNITY_EDITOR
+        while (btn.onClick.GetPersistentEventCount() > 0)
+            UnityEventTools.RemovePersistentListener(btn.onClick, 0);
+
+        switch (action)
+        {
+            case MenuAction.Talk:
+                UnityEventTools.AddPersistentListener(btn.onClick, InvokeTalk);
+                break;
+            case MenuAction.Trade:
+                UnityEventTools.AddPersistentListener(btn.onClick, InvokeTrade);
+                break;
+            case MenuAction.Attack:
+                UnityEventTools.AddPersistentListener(btn.onClick, InvokeAttack);
+                break;
+        }
+
+        EditorUtility.SetDirty(btn);
+#endif
+    }
+
+    public void InvokeTalk() => onTalk?.Invoke();
+    public void InvokeTrade() => onTrade?.Invoke();
+    public void InvokeAttack() => onAttack?.Invoke();
+
+    void InvokeAction(MenuAction action)
+    {
+        switch (action)
+        {
+            case MenuAction.Talk:
+                InvokeTalk();
+                break;
+            case MenuAction.Trade:
+                InvokeTrade();
+                break;
+            case MenuAction.Attack:
+                InvokeAttack();
+                break;
+        }
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────

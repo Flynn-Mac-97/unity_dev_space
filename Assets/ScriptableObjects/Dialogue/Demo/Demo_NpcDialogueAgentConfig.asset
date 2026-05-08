@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57b8324e2a8439646b2e9e8ce1b3ecb1, type: 3}
+  m_Name: Demo_NpcDialogueAgentConfig
+  m_EditorClassIdentifier: 
+  personalityProfile: {fileID: 11400000, guid: 9c27f0847b8a9d444bb3f7d3c3f2baec, type: 2}
+  promptTemplate: {fileID: 11400000, guid: 90008e4030673184d8a9a0c2c317426b, type: 2}
+  memorySettings: {fileID: 11400000, guid: 6ce58880155a0e2498338c3c78d6e2c5, type: 2}
+  useLocalModel: 1
+  fallbackReply: I am still here with you. Could you ask that another way?
