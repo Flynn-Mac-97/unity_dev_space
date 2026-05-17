@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="IntroSequence.uss" />
+
+    <ui:VisualElement name="intro-sequence-root" class="intro-sequence is-hidden">
+        <ui:VisualElement name="intro-sequence-frame" class="intro-frame">
+            <ui:Label name="intro-story-label" class="intro-story-label" text="" />
+            <ui:Label name="intro-skip-hint-label" class="intro-skip-hint-label" text="Press Space to skip" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

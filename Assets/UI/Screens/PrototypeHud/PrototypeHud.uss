@@ -1,0 +1,180 @@
+/* ============================================================
+   PrototypeHud.uss
+   Pixel-clean prototype HUD for 2D runner
+
+   Tokens (comment-only, USS has no CSS variables):
+   --space-1: 6px
+   --space-2: 10px
+   --space-3: 14px
+   --space-4: 18px
+
+   --panel-navy: #111b34
+   --panel-navy-deep: #0a1124
+   --inactive-fill: #1f2b45
+   --inactive-fill-hover: #273554
+   --inactive-fill-pressed: #1a253d
+   --active-fill: #2e86ff
+   --active-fill-hover: #3a95ff
+   --active-fill-pressed: #2479eb
+   --active-border: #79b6ff
+   --pixel-border: #ffffff
+   --text-main: #ffffff
+   ============================================================ */
+
+.hud-hidden {
+    display: none;
+}
+
+.hud-visible {
+    display: flex;
+}
+
+.prototype-hud-root {
+    position: absolute;
+    left: 20px;
+    right: 20px;
+    top: 20px;
+
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    column-gap: 16px;
+    pointer-events: auto;
+}
+
+.hud-panel {
+    background-color: #111b34;
+
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-color: #ffffff;
+
+    padding-top: 10px;
+    padding-right: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+.hud-panel-left {
+    min-width: 150px;
+    max-width: 180px;
+    align-items: center;
+    row-gap: 8px;
+}
+
+.hud-panel-right {
+    min-width: 280px;
+    max-width: 320px;
+    row-gap: 8px;
+}
+
+.hud-title {
+    color: #ffffff;
+    font-size: 18px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 0.9);
+}
+
+.item-slot {
+    width: 64px;
+    height: 64px;
+    background-color: #0a1124;
+
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-color: #ffffff;
+}
+
+.mode-button {
+    min-height: 38px;
+    background-color: #1f2b45;
+
+    border-top-width: 4px;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    border-left-width: 4px;
+    border-color: #ffffff;
+
+    color: #ffffff;
+    padding-top: 0;
+    padding-right: 0;
+    padding-bottom: 0;
+    padding-left: 0;
+}
+
+.mode-button:hover {
+    background-color: #273554;
+}
+
+.mode-button:active {
+    background-color: #1a253d;
+}
+
+.mode-button:disabled {
+    background-color: #121a2d;
+    color: rgba(255, 255, 255, 0.45);
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+.mode-button-content {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+    padding-top: 4px;
+    padding-right: 8px;
+    padding-bottom: 4px;
+    padding-left: 8px;
+}
+
+.mode-badge {
+    width: 24px;
+    min-width: 24px;
+    height: 24px;
+    min-height: 24px;
+
+    margin-right: 8px;
+
+    background-color: #0a1124;
+    color: #ffffff;
+    -unity-font-style: bold;
+    font-size: 13px;
+    -unity-text-align: middle-center;
+
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-color: #ffffff;
+}
+
+.mode-button-label {
+    color: #ffffff;
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-left;
+    flex-grow: 1;
+}
+
+.mode-button--active {
+    background-color: #2e86ff;
+    border-color: #79b6ff;
+}
+
+.mode-button--active:hover {
+    background-color: #3a95ff;
+}
+
+.mode-button--active:active {
+    background-color: #2479eb;
+}
+
+.mode-badge--active {
+    background-color: #79b6ff;
+    border-color: #ffffff;
+    color: #001733;
+}

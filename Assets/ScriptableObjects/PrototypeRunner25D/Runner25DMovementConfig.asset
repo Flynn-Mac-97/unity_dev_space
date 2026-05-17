@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea742243531d96949981307350dc862a, type: 3}
+  m_Name: Runner25DMovementConfig
+  m_EditorClassIdentifier: 
+  moveSpeed: 3
+  acceleration: 55
+  deceleration: 65
+  gravity: 30
+  groundedStickForce: 2
+  rotationLerp: 18
+  enableBounds: 1
+  boundsMinXZ: {x: -12, y: -8}
+  boundsMaxXZ: {x: 16, y: 10}
+  walkProbeRadius: 0.2
+  walkMask:
+    serializedVersion: 2
+    m_Bits: 4294967295

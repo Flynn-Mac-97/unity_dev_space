@@ -1,0 +1,148 @@
+/* ============================================================
+   IntroSequence.uss
+   Prototype intro text panel (UI Toolkit)
+   ============================================================
+
+   Design tokens (inlined values):
+   --bg-overlay      : rgba(6, 8, 10, 0.30)
+   --panel-bg        : rgba(14, 18, 24, 0.88)
+   --panel-border    : rgba(102, 170, 150, 0.95)
+   --text-main       : rgba(234, 239, 243, 1.00)
+   --text-hint       : rgba(197, 208, 214, 0.86)
+   --hint-pill-bg    : rgba(102, 170, 150, 0.20)
+
+   Spacing scale: 8 / 12 / 16 / 24 / 32 px
+   Type scale:    16px / 20px / 22px
+   ============================================================ */
+
+/* Visibility toggles for C# class switching */
+.is-hidden {
+    display: none;
+}
+
+.is-visible {
+    display: flex;
+}
+
+.skip-hint-hidden {
+    display: none;
+}
+
+/* Fullscreen anchor layer */
+.intro-sequence {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 0;
+
+    background-color: rgba(0, 0, 0, 1);
+}
+
+/* Story card */
+.intro-frame {
+    width: 88%;
+    max-width: 1480px;
+    min-height: 360px;
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-in-out;
+
+    padding-top: 40px;
+    padding-right: 44px;
+    padding-bottom: 30px;
+    padding-left: 44px;
+
+    background-color: rgba(0, 0, 0, 0.12);
+    border-top-width: 6px;
+    border-right-width: 6px;
+    border-bottom-width: 6px;
+    border-left-width: 6px;
+    border-color: rgba(255, 255, 255, 1);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.intro-frame.frame-faded {
+    opacity: 0;
+}
+
+/* Main typewriter text */
+.intro-story-label {
+    flex-grow: 1;
+    min-height: 220px;
+    opacity: 1;
+    transition-property: opacity;
+    transition-duration: 0.22s;
+    transition-timing-function: ease-in-out;
+
+    color: rgba(255, 255, 255, 1.0);
+    font-size: 52px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 2px;
+    -unity-text-outline-color: rgba(0, 0, 0, 1.0);
+    -unity-text-align: middle-center;
+    white-space: normal;
+}
+
+.intro-story-label.story-faded {
+    opacity: 0;
+}
+
+/* Bottom-right skip hint */
+.intro-skip-hint-label {
+    align-self: center;
+    margin-top: 18px;
+
+    padding-top: 6px;
+    padding-right: 14px;
+    padding-bottom: 6px;
+    padding-left: 14px;
+
+    background-color: rgba(0, 0, 0, 0.35);
+    border-top-width: 2px;
+    border-right-width: 2px;
+    border-bottom-width: 2px;
+    border-left-width: 2px;
+    border-color: rgba(255, 255, 255, 0.75);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 20px;
+    -unity-font-style: bold;
+    -unity-text-outline-width: 1px;
+    -unity-text-outline-color: rgba(0, 0, 0, 1.0);
+    -unity-text-align: middle-center;
+    white-space: nowrap;
+}
+
+/* Lightweight responsive adjustment for 720p-ish layouts */
+.intro-sequence.compact .intro-frame {
+    min-height: 260px;
+    padding-top: 24px;
+    padding-right: 24px;
+    padding-bottom: 20px;
+    padding-left: 24px;
+}
+
+.intro-sequence.compact .intro-story-label {
+    min-height: 150px;
+    font-size: 36px;
+}
+
+.intro-sequence.compact .intro-skip-hint-label {
+    font-size: 16px;
+}

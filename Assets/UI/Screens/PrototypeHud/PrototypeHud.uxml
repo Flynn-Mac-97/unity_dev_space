@@ -1,0 +1,35 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="PrototypeHud.uss" />
+
+    <ui:VisualElement name="prototype-hud-root" class="prototype-hud-root hud-hidden">
+        <ui:VisualElement name="hud-left-panel" class="hud-panel hud-panel-left">
+            <ui:Label name="item-title-label" class="hud-title" text="ITEM" />
+            <ui:VisualElement name="item-slot" class="item-slot" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="hud-right-panel" class="hud-panel hud-panel-right">
+            <ui:Label name="mode-title-label" class="hud-title" text="MODE" />
+
+            <ui:Button name="mode-collect-button" class="mode-button">
+                <ui:VisualElement class="mode-button-content">
+                    <ui:Label name="mode-collect-badge" class="mode-badge" text="1" />
+                    <ui:Label class="mode-button-label" text="Collect" />
+                </ui:VisualElement>
+            </ui:Button>
+
+            <ui:Button name="mode-restore-button" class="mode-button">
+                <ui:VisualElement class="mode-button-content">
+                    <ui:Label name="mode-restore-badge" class="mode-badge" text="2" />
+                    <ui:Label class="mode-button-label" text="Restore" />
+                </ui:VisualElement>
+            </ui:Button>
+
+            <ui:Button name="mode-scan-button" class="mode-button">
+                <ui:VisualElement class="mode-button-content">
+                    <ui:Label name="mode-scan-badge" class="mode-badge" text="3" />
+                    <ui:Label class="mode-button-label" text="Scan" />
+                </ui:VisualElement>
+            </ui:Button>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
