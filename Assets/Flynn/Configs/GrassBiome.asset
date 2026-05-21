@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a1f4bb6e45b60f44b1bb151a5ed9b17, type: 3}
+  m_Name: GrassBiome
+  m_EditorClassIdentifier: 
+  entries:
+  - prefab: {fileID: 766166576029820161, guid: e36246370832d2849afdbb46a97a532e, type: 3}
+    weight: 5
+  densityPerUnit: 0.15
+  maxDecals: 300
+  scaleMin: 1
+  scaleMax: 1.3
+  randomYRotation: 0
+  yOffset: -0.15
+  minSpacing: 0.4

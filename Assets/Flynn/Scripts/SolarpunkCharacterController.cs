@@ -8,6 +8,13 @@ public class SolarpunkCharacterController : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.12f;
     [SerializeField] private LayerMask groundLayers = ~0;
 
+    public Vector3 MoveInput => moveInput;
+    public bool IsGrounded => isGrounded;
+    /// <summary>Horizontal speed normalized 0-1 relative to moveSpeed.</summary>
+    public float NormalizedSpeed => rb != null
+        ? Mathf.Clamp01(new Vector2(rb.velocity.x, rb.velocity.z).magnitude / moveSpeed)
+        : 0f;
+
     private Rigidbody rb;
     private Collider bodyCollider;
     private bool isGrounded;

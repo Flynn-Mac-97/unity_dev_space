@@ -24,7 +24,7 @@ namespace David
         }
     }
 
-    enum Terrain : byte { Sky = 0, Land = 1, Mountain = 2, Lake = 3, Forest = 4 }
+    public enum Terrain : byte { Sky = 0, Land = 1, Mountain = 2, Lake = 3, Forest = 4 }
 
     static class MapGen
     {
@@ -152,23 +152,28 @@ namespace David
         public int forestRadiusMin = 2;
         public int forestRadiusMax = 6;
 
+        public Terrain[,] Grid { get; private set; }
+
+        public void Generate()
+        {
+            Grid = MapGen.Generate(width, height, seed, islands, mountains, lakes, forests, islandRadiusMin, islandRadiusMax, mountainRadiusMin, mountainRadiusMax, lakeRadiusMin, lakeRadiusMax, forestRadiusMin, forestRadiusMax, out _);
+        }
+
         [ContextMenu("Generate And Print")]
         public void GenerateAndPrint()
         {
-            var grid = MapGen.Generate(width, height, seed, islands, mountains, lakes, forests, islandRadiusMin, islandRadiusMax, mountainRadiusMin, mountainRadiusMax, lakeRadiusMin, lakeRadiusMax, forestRadiusMin, forestRadiusMax, out var islandInfo);
-            // Build a simple text representation: '#' for land (any non-sky), ' ' for ocean
+            Generate();
             var rows = new string[height];
             for (int y = 0; y < height; y++)
             {
                 var chars = new char[width];
-                for (int x = 0; x < width; x++) chars[x] = grid[y, x] == Terrain.Sky ? ' ' : '#';
+                for (int x = 0; x < width; x++) chars[x] = Grid[y, x] == Terrain.Sky ? ' ' : '#';
                 rows[y] = new string(chars);
             }
             var sb = string.Join("\n", rows);
             Debug.Log($"Island map (seed={seed}) {width}x{height}:\n" + sb);
         }
 
-        // Optional: generate on start for quick testing
         void Start() { GenerateAndPrint(); }
     }
 }
