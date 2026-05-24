@@ -14,24 +14,9 @@ public class IsleGenerator : MonoBehaviour
     [SerializeField, Range(0f,    0.5f)] private float bulgeNoise   = 0.2f;
     [SerializeField, Range(1, 6)]        private int   subsPerSegment = 3;
 
-    [Header("Rock Layers")]
-    [SerializeField] private Sprite rockTestSprite;
-    [SerializeField, Range(1, 8)]     private int   rockLayerCount     = 4;
-    [SerializeField]                  private float rockDropY          = 0.4f;
-    [SerializeField]                  private float rockExpandX = 0f;
-    // X=0 is a side rock (|outward.x|≈1), X=1 is a center rock (|outward.x|≈0).
-    // Y scales how much rockExpandX is applied at that position.
-    [SerializeField] private AnimationCurve rockExpandXCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-    [SerializeField]                  private float rockExpandZ = 0f;
-    // X=0 is a side rock (|outward.z|≈0), X=1 is a top/bottom rock (|outward.z|≈1).
-    // Y scales how much rockExpandZ is applied at that position.
-    [SerializeField] private AnimationCurve rockExpandZCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
-    [SerializeField]                  private float rockFaceHeight     = 1.2f;
-    [SerializeField]                  private Color rockBaseColor      = new Color(0.55f, 0.50f, 0.45f, 1f);
-    [SerializeField, Range(0f, 0.3f)] private float rockColorDarken   = 0.06f;
-    [SerializeField]                  private float rockSpriteSize     = 0.25f;
-    [SerializeField]                  private float rockMinSpacing     = 0.5f;
-    [SerializeField]                  private float frontArcZThreshold = 0f;
+    [Header("Debug")]
+    [SerializeField] private bool  showSplineDebugPoints = true;
+    [SerializeField] private float debugPointSize        = 0.2f;
 
     private const int WaterIndex = 0;
     private const int SandIndex = 1;
@@ -50,7 +35,8 @@ public class IsleGenerator : MonoBehaviour
 
     private int[,] island2D;
     private List<Vector3> _detailPoints;
-    private GameObject _rocksRoot;
+    private GameObject _debugRoot;
+    private bool _regenPending;
 
     private void Awake()
     {
@@ -109,48 +95,67 @@ public class IsleGenerator : MonoBehaviour
             }
         }
     }
-    // Returns sand tile centers sorted clockwise by angle from the island center
-    // and draws connected debug lines to visualise the perimeter.
-    private List<Vector3> GetOuterRimPoints()
+    // Traces the actual outer grid boundary of all non-water tiles and returns the
+    // ordered corner points as world-space positions. Each point is a tile corner
+    // where land meets water, giving a pixel-accurate island outline.
+    private List<Vector3> GetGridPerimeter()
     {
-        var rimPoints = new List<Vector3>();
+        int w = island2D.GetLength(0);
+        int h = island2D.GetLength(1);
 
-        for (int x = 0; x < island2D.GetLength(0); x++)
+        bool IsLand(int x, int y) =>
+            x >= 0 && x < w && y >= 0 && y < h && island2D[x, y] != WaterIndex;
+
+        // Directed edge map: startCorner -> endCorner.
+        // Each edge is oriented so that land is to its left (counter-clockwise winding).
+        var edgeMap = new Dictionary<Vector2Int, Vector2Int>();
+
+        for (int x = 0; x < w; x++)
         {
-            for (int y = 0; y < island2D.GetLength(1); y++)
+            for (int y = 0; y < h; y++)
             {
-                if (island2D[x, y] == SandIndex)
-                {
-                    rimPoints.Add(TileToWorld(x, y));
-                }
+                if (!IsLand(x, y)) continue;
+
+                if (!IsLand(x,     y - 1)) edgeMap[new Vector2Int(x + 1, y    )] = new Vector2Int(x,     y    ); // bottom
+                if (!IsLand(x + 1, y    )) edgeMap[new Vector2Int(x + 1, y + 1)] = new Vector2Int(x + 1, y    ); // right
+                if (!IsLand(x,     y + 1)) edgeMap[new Vector2Int(x,     y + 1)] = new Vector2Int(x + 1, y + 1); // top
+                if (!IsLand(x - 1, y    )) edgeMap[new Vector2Int(x,     y    )] = new Vector2Int(x,     y + 1); // left
             }
         }
 
-        if (rimPoints.Count < 2)
+        if (edgeMap.Count == 0)
         {
-            Debug.LogWarning("GetOuterRimPoints: not enough sand tiles to draw a perimeter.");
-            return rimPoints;
+            Debug.LogWarning("GetGridPerimeter: no boundary edges found.");
+            return new List<Vector3>();
         }
 
-        // Sort clockwise by angle around the island center (XZ plane).
-        Vector3 center = Vector3.zero;
-        rimPoints.Sort((a, b) =>
-        {
-            float angleA = Mathf.Atan2(a.z - center.z, a.x - center.x);
-            float angleB = Mathf.Atan2(b.z - center.z, b.x - center.x);
-            return angleB.CompareTo(angleA);
-        });
+        // Trace the single outermost loop starting from the first available edge.
+        Vector2Int startCorner = default;
+        foreach (var key in edgeMap.Keys) { startCorner = key; break; }
 
-        // Draw connected debug lines between consecutive perimeter points.
+        var perimeter = new List<Vector3>();
+        Vector2Int current = startCorner;
+        do
+        {
+            perimeter.Add(TileCornerToWorld(current.x, current.y));
+            if (!edgeMap.TryGetValue(current, out current))
+            {
+                Debug.LogWarning("GetGridPerimeter: broken edge chain.");
+                break;
+            }
+        }
+        while (current != startCorner);
+
+        // Draw connected debug lines to visualise the perimeter.
         float drawDuration = 10f;
-        for (int i = 0; i < rimPoints.Count; i++)
+        for (int i = 0; i < perimeter.Count; i++)
         {
-            Vector3 current = rimPoints[i] + Vector3.up * 0.1f;
-            Vector3 next    = rimPoints[(i + 1) % rimPoints.Count] + Vector3.up * 0.1f;
-            Debug.DrawLine(current, next, Color.red, drawDuration);
+            Vector3 a = perimeter[i] + Vector3.up * 0.1f;
+            Vector3 b = perimeter[(i + 1) % perimeter.Count] + Vector3.up * 0.1f;
+            Debug.DrawLine(a, b, Color.red, drawDuration);
         }
 
-        return rimPoints;
+        return perimeter;
     }
 
     // Inserts sub-points between each rim pair so the spline has enough anchors
@@ -196,38 +201,60 @@ public class IsleGenerator : MonoBehaviour
         return new Vector3(x - (mapWidth - 1) * 0.5f, 0f, y - (mapHeight - 1) * 0.5f);
     }
 
-    private void Start()
+    // Maps a tile corner index to world space. Corner (cx, cy) sits at the intersection
+    // of tiles (cx-1,cy-1), (cx,cy-1), (cx-1,cy), and (cx,cy).
+    private Vector3 TileCornerToWorld(int cx, int cy)
     {
-        List<Vector3> rimPoints = GetOuterRimPoints();
-        _detailPoints = SubdivideRimPoints(rimPoints);
-        UpdateGrassShapeToOuterRim(_detailPoints);
-        BuildRockLayers(_detailPoints);
+        return new Vector3(cx - mapWidth * 0.5f, 0f, cy - mapHeight * 0.5f);
     }
 
-    // Clears the existing rock layer visuals and rebuilds them from the current
-    // serialized settings. Safe to call repeatedly — ideal for live Inspector tweaking.
-    [ContextMenu("Regenerate Rocks")]
-    private void RegenerateRocks()
+    private void Start()
     {
-        if (_detailPoints == null || _detailPoints.Count < 3) return;
+        List<Vector3> rimPoints = GetGridPerimeter();
+        _detailPoints = SubdivideRimPoints(rimPoints);
+        UpdateGrassShapeToOuterRim(_detailPoints);
+        DrawSplineDebugPoints();
+    }
 
-        // Destroy all existing layer children in-place so the root GO is reused.
-        // This avoids the Find + DestroyImmediate timing issues in OnValidate.
-        if (_rocksRoot != null)
-        {
-            for (int i = _rocksRoot.transform.childCount - 1; i >= 0; i--)
-                Destroy(_rocksRoot.transform.GetChild(i).gameObject);
-        }
+    // Regenerates the entire island — tile map, rim points, spline, and rock layers.
+    // Call this when noise or shape parameters change.
+    [ContextMenu("Regenerate All")]
+    private void RegenerateAll()
+    {
+        GenerateIslandMap();
 
-        BuildRockLayers(_detailPoints);
+        List<Vector3> rimPoints = GetGridPerimeter();
+        _detailPoints = SubdivideRimPoints(rimPoints);
+        UpdateGrassShapeToOuterRim(_detailPoints);
+        DrawSplineDebugPoints();
     }
 
     private void OnValidate()
     {
-        // Only regenerate while playing so OnValidate in edit mode doesn't
-        // fire before the island has been generated.
-        if (!Application.isPlaying) return;
-        RegenerateRocks();
+        if (Application.isPlaying)
+        {
+            // Defer to Update — direct calls are forbidden inside OnValidate.
+            _regenPending = true;
+        }
+        else
+        {
+#if UNITY_EDITOR
+            // Edit mode: regenerate immediately via a delayed call so Unity has
+            // finished applying the property change before we read it.
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if (this == null) return;   // guard against destroyed object
+                RegenerateAll();
+            };
+#endif
+        }
+    }
+
+    private void Update()
+    {
+        if (!_regenPending) return;
+        _regenPending = false;
+        RegenerateAll();
     }
 
     // Updates the grass SpriteShape spline using Continuous tangents derived from the
@@ -274,125 +301,59 @@ public class IsleGenerator : MonoBehaviour
         spline.isOpenEnded = false;
     }
 
-    // TEST: Spawns a small square sprite at each front-arc point per rock layer so
-    // the positions and layer offsets can be validated before the SpriteShape is wired up.
-    private void BuildRockLayers(List<Vector3> detailPoints)
+    // Spawns bright magenta dots at every actual spline control point so you can
+    // verify that rock sprites align with the SpriteShape anchor positions.
+    private void DrawSplineDebugPoints()
     {
-        // Collect every front-facing candidate first (no distance cull here — the
-        // greedy sequential cull would drop the dense bottom-center cluster).
-        var candidates = new List<Vector3>();
-        foreach (var p in detailPoints)
+        // Rebuild the debug root every time.
+        if (_debugRoot != null)
         {
-            if (p.z <= frontArcZThreshold)
-                candidates.Add(p);
+            for (int i = _debugRoot.transform.childCount - 1; i >= 0; i--)
+                Destroy(_debugRoot.transform.GetChild(i).gameObject);
         }
 
-        if (candidates.Count < 3) return;
+        if (!showSplineDebugPoints || grassSpriteShape == null) return;
 
-        // Compute the cumulative arc-length along the candidate chain so we can
-        // resample at perfectly even intervals regardless of local point density.
-        var arcLengths = new float[candidates.Count];
-        arcLengths[0] = 0f;
-        for (int k = 1; k < candidates.Count; k++)
-            arcLengths[k] = arcLengths[k - 1] + Vector3.Distance(candidates[k - 1], candidates[k]);
-
-        float totalArc = arcLengths[arcLengths.Length - 1];
-        int   sampleCount = Mathf.Max(3, Mathf.RoundToInt(totalArc / rockMinSpacing));
-
-        var frontArc = new List<Vector3>(sampleCount);
-        for (int s = 0; s < sampleCount; s++)
+        if (_debugRoot == null)
         {
-            float target = (s / (float)(sampleCount - 1)) * totalArc;
-
-            // Binary-search for the segment that contains this arc-length target.
-            int lo = 0, hi = candidates.Count - 2;
-            while (lo < hi)
-            {
-                int mid = (lo + hi) / 2;
-                if (arcLengths[mid + 1] < target) lo = mid + 1;
-                else hi = mid;
-            }
-
-            float segLen = arcLengths[lo + 1] - arcLengths[lo];
-            float t      = segLen > 0f ? (target - arcLengths[lo]) / segLen : 0f;
-            frontArc.Add(Vector3.Lerp(candidates[lo], candidates[lo + 1], t));
+            _debugRoot = new GameObject("SplineDebugPoints");
+            _debugRoot.transform.SetParent(transform);
+            _debugRoot.transform.localPosition = Vector3.zero;
         }
 
-        if (frontArc.Count < 3) return;
+        // Read actual spline control points so these markers are ground-truth.
+        Spline spline  = grassSpriteShape.spline;
+        int    count   = spline.GetPointCount();
+        Transform t    = grassSpriteShape.transform;
+
+        var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+        tex.SetPixel(0, 0, Color.white);
+        tex.Apply();
+        Sprite dot = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
+
+        float spriteWorldWidth = dot.rect.width / dot.pixelsPerUnit;
+        float scale = spriteWorldWidth > 0f ? debugPointSize / spriteWorldWidth : debugPointSize;
 
         var grassRenderer = grassSpriteShape.GetComponent<SpriteShapeRenderer>();
-        int baseOrder     = grassRenderer != null ? grassRenderer.sortingOrder : 0;
+        int topOrder = (grassRenderer != null ? grassRenderer.sortingOrder : 0) + 50;
 
-        // Use assigned sprite, or create a 1x1 white fallback that works across Unity versions.
-        Sprite dot;
-        if (rockTestSprite != null)
+        for (int i = 0; i < count; i++)
         {
-            dot = rockTestSprite;
-        }
-        else
-        {
-            var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
-            tex.SetPixel(0, 0, Color.white);
-            tex.Apply();
-            dot = Sprite.Create(tex, new Rect(0, 0, 1, 1), new Vector2(0.5f, 0.5f), 1f);
-        }
+            // GetPosition returns local space — transform back to world so the marker
+            // sits exactly where the spline anchor lives in the scene.
+            Vector3 worldPos = t.TransformPoint(spline.GetPosition(i));
 
-        if (_rocksRoot == null)
-        {
-            _rocksRoot = new GameObject("RockLayers_TEST");
-            _rocksRoot.transform.SetParent(transform);
-            _rocksRoot.transform.localPosition = Vector3.zero;
-            _rocksRoot.transform.localRotation = Quaternion.identity;
-        }
+            GameObject marker = new GameObject($"DbgPt_{i}");
+            marker.transform.SetParent(_debugRoot.transform);
+            marker.transform.position    = worldPos;
+            marker.transform.localScale  = Vector3.one * scale;
 
-        for (int i = 0; i < rockLayerCount; i++)
-        {
-            float dropY  = (i + 1) * rockDropY;
-            float darken = rockColorDarken * i;
-            Color color  = new Color(
-                Mathf.Clamp01(rockBaseColor.r - darken),
-                Mathf.Clamp01(rockBaseColor.g - darken),
-                Mathf.Clamp01(rockBaseColor.b - darken),
-                rockBaseColor.a);
-
-            GameObject layerRoot = new GameObject($"RockLayer_{i}");
-            layerRoot.transform.SetParent(_rocksRoot.transform);
-            layerRoot.transform.localPosition = Vector3.zero;
-            layerRoot.transform.localRotation = Quaternion.identity;
-
-            // Derive the local scale that makes the sprite exactly rockSpriteSize world units wide.
-            float spriteWorldWidth = dot.rect.width / dot.pixelsPerUnit;
-            float spriteScale      = spriteWorldWidth > 0f ? rockSpriteSize / spriteWorldWidth : rockSpriteSize;
-
-            float expandX = rockExpandX;
-            float expandZ = rockExpandZ;
-
-            foreach (var p in frontArc)
-            {
-                // Inset the sprite centre by half its width along the full outward normal
-                // (both X and Z) so the visual edge aligns to the grass perimeter on all
-                // sides of the arc, not just the left/right extremes.
-                Vector3 outward       = new Vector3(p.x, 0f, p.z).normalized;
-                float   halfSize      = rockSpriteSize * 0.5f;
-                float   centeredness  = 1f - Mathf.Abs(outward.x);   // 0 at sides, 1 at center
-                float   zedness       = Mathf.Abs(outward.z);         // 0 at sides, 1 at top/bottom
-                float   xCurveScale   = rockExpandXCurve.Evaluate(centeredness);
-                float   zCurveScale   = rockExpandZCurve.Evaluate(zedness);
-                Vector3 worldPos = new Vector3(
-                    p.x - outward.x * halfSize - outward.x * expandX * xCurveScale,
-                    -dropY,
-                    p.z - outward.z * halfSize - outward.z * expandZ * zCurveScale);
-
-                GameObject marker = new GameObject($"L{i}_pt");
-                marker.transform.SetParent(layerRoot.transform);
-                marker.transform.position = worldPos;
-                marker.transform.localScale = Vector3.one * spriteScale;
-
-                var sr = marker.AddComponent<SpriteRenderer>();
-                sr.sprite       = dot;
-                sr.color        = color;
-                sr.sortingOrder = baseOrder - (i + 1);
-            }
+            var sr         = marker.AddComponent<SpriteRenderer>();
+            sr.sprite      = dot;
+            sr.color       = Color.magenta;
+            sr.sortingOrder = topOrder;
         }
     }
+
+    // Rebuilds GPU-instanced rock layer data from the current perimeter points.
 }

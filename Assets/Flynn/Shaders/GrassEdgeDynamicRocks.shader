@@ -1,17 +1,8 @@
 // GrassEdge.shader
 // Built-in render pipeline.
-// Companion to GrassFill — designed for the SpriteShape *edge* strip.
-//
-// The SpriteShape edge is a flat quad strip that looks unnaturally rigid.
-// _Droop offsets vertices downward (in object space) proportional to their
-// V texcoord (0 = top edge seam, 1 = bottom of the strip).  The result is
-// a gentle curve that makes the grass fronds appear to hang and overhang
-// the terrain edge rather than sitting on a flat plane.
-//
-// All other layers (detail, variation, wind) match GrassFill so both
-// materials can share the same textures and look cohesive.
+// Edge strip for a 2.5D SpriteShape: grass on top, rock sprite cards hanging from the seam.
 
-Shader "Custom/GrassEdge"
+Shader "Custom/GrassEdgeDynamicRocks"
 {
     Properties
     {
@@ -44,15 +35,15 @@ Shader "Custom/GrassEdge"
         _ShadowOffset       ("Shadow Offset (XY world units)",  Vector) = (0.08, -0.35, 0, 0)
         _ShadowDroopMult    ("Shadow Droop Multiplier",         Float)  = 1.2
 
-        [Header(Rock Cliff)]
-        _RockTex            ("Rock Texture",                    2D)         = "white" {}
-        _RockColor          ("Rock Base Color",                 Color)      = (0.55, 0.50, 0.45, 1)
-        _RockTopOffset      ("Cliff Top Offset (world units)",  Float)      = 0.0
-        _RockCliffHeight    ("Cliff Height (world units)",      Float)      = 1.5
-        _RockLayerCount     ("Darkening Band Count",            Range(1,8)) = 4
-        _RockColorDarken    ("Per-Band Darken",                 Range(0,0.3)) = 0.06
-        _RockTexScale       ("Rock Texture World Scale",        Float)      = 2.0
-        _RockTopFade        ("Cliff Top Fade Sharpness",        Range(0,10)) = 4.0
+        [Header(Rock Sprite Cards)]
+        _RockSpriteTex      ("Rock Sprite Atlas (RGBA)",        2D)     = "white" {}
+        _RockSpriteCols     ("Atlas Columns",                   Float)  = 4
+        _RockSpriteRows     ("Atlas Rows",                      Float)  = 1
+        _RockSpacing        ("Spacing Between Sprites (world)", Float)  = 0.7
+        _RockSize           ("Sprite Size (world units)",       Float)  = 0.9
+        _RockTopOffset      ("Vertical Offset from Seam",       Float)  = 0.0
+        _RockYJitter        ("Random Vertical Jitter",          Float)  = 0.1
+        _RockTint           ("Rock Tint",                       Color)  = (1,1,1,1)
     }
 
     SubShader
@@ -70,38 +61,26 @@ Shader "Custom/GrassEdge"
         ZWrite Off
         Blend SrcAlpha OneMinusSrcAlpha
 
+        // ---------------------------------------------------------------
+        // ROCK SPRITE CARDS
+        // ---------------------------------------------------------------
+        // Renders flat, front-facing rock sprite cards spaced evenly along
+        // the top seam of the edge strip. No bending, no droop — they hang
+        // straight down in world XY and follow the seam wherever it goes.
         Pass
         {
-            // --- Rock Cliff Pass ---
-            // Uses the SAME edge-strip geometry as the grass pass, so the cliff top
-            // is pixel-perfect under the grass fronds — no separate GameObjects needed.
-            //
-            // How the geometry stretch works:
-            //   UV.y = 0  →  top of cliff  (grass seam height, shifted by _RockTopOffset)
-            //   UV.y = 1  →  bottom of cliff (pushed down by _RockCliffHeight)
-            // The same droop formula as the grass pass is applied first, so the cliff
-            // exactly follows the drooped edge shape.
-            //
-            // "Layers" are a fragment-shader effect: frac(UV.y * _RockLayerCount) produces
-            // repeating bands that are darkened per-band to simulate cliff strata.
-            Name "ROCK_CLIFF"
+            Name "ROCK_SPRITES"
 
             CGPROGRAM
             #pragma vertex   rockVert
             #pragma fragment rockFrag
             #include "UnityCG.cginc"
 
-            sampler2D _RockTex;
-            fixed4    _RockColor;
-            float     _RockTopOffset;
-            float     _RockCliffHeight;
-            float     _RockLayerCount;
-            float     _RockColorDarken;
-            float     _RockTexScale;
-            float     _RockTopFade;
-
-            float     _Droop;
-            float     _DroopStart;
+            sampler2D _RockSpriteTex;
+            float     _RockSpriteCols, _RockSpriteRows;
+            float     _RockSpacing, _RockSize;
+            float     _RockTopOffset, _RockYJitter;
+            fixed4    _RockTint;
 
             struct appdata_r
             {
@@ -111,55 +90,100 @@ Shader "Custom/GrassEdge"
 
             struct v2r
             {
-                float4 pos    : SV_POSITION;
-                float2 worldXZ : TEXCOORD0;
-                float  localV  : TEXCOORD1;
+                float4 pos      : SV_POSITION;
+                float2 worldXY  : TEXCOORD0;
+                float  seamY    : TEXCOORD1; // world Y of the seam (top of strip) for this column
             };
+
+            float hash11(float n)
+            {
+                return frac(sin(n * 127.1) * 43758.5453);
+            }
 
             v2r rockVert(appdata_r v)
             {
-                // Identical droop to the grass pass so cliff top follows the frond geometry.
-                float droopFactor = saturate(v.uv.y) * saturate(1.0 - _DroopStart);
+                // World position of THIS vertex (no droop, no warping).
                 float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-                worldPos.y -= _Droop * droopFactor;
 
-                // Stretch the strip vertically to fill the cliff face.
-                // UV.y=0 stays near the grass seam; UV.y=1 is pushed down by _RockCliffHeight.
-                worldPos.y -= _RockTopOffset + v.uv.y * _RockCliffHeight;
+                // Reconstruct the seam world Y for this column:
+                //   uv.y = 0 is the top seam, uv.y = 1 is the bottom of the strip.
+                //   The strip is uniform height in object space, but we don't need
+                //   the exact height — we just need a Y that follows the seam.
+                //   Trick: pass the seam Y through by lifting the bottom verts up
+                //   to where the top seam would be. Since the strip is thin,
+                //   we approximate by: seamY = worldPos.y + uv.y * stripHeight.
+                //   We don't know stripHeight here, so instead we just expand the
+                //   strip's vertical extent ourselves and use the *top* row as the
+                //   anchor for everything.
+                //
+                // Simplest robust approach: render the strip as a fixed-height
+                // card hanging straight down from the seam. The seam itself is
+                // wherever uv.y == 0 verts naturally are. We push the bottom
+                // verts (uv.y == 1) down by _RockSize in WORLD space.
+
+                // Anchor the top row at its natural position; push bottom row down.
+                worldPos.y -= v.uv.y * _RockSize;
+                // Optional offset
+                worldPos.y -= _RockTopOffset;
 
                 v2r o;
                 o.pos     = mul(UNITY_MATRIX_VP, float4(worldPos, 1.0));
-                o.worldXZ = worldPos.xz;
-                o.localV  = v.uv.y;
+                o.worldXY = worldPos.xy;
+                // seamY for this fragment = the top edge of THIS card = worldPos.y when uv.y was 0
+                // i.e. worldPos.y + uv.y * _RockSize (undo the push we just did)
+                o.seamY   = worldPos.y + v.uv.y * _RockSize;
                 return o;
             }
 
             fixed4 rockFrag(v2r i) : SV_Target
             {
-                // World-space tiled rock texture.
-                float2 rockUV = i.worldXZ / _RockTexScale;
-                fixed4 rock   = tex2D(_RockTex, rockUV) * _RockColor;
+                // Which slot along X is this fragment in?
+                float slotF  = i.worldXY.x / _RockSpacing;
+                float slotI  = floor(slotF);
+                float slotFr = slotF - slotI;          // 0..1 within the slot
 
-                // Repeating darkening bands simulate cliff strata/layers.
-                float band   = frac(i.localV * _RockLayerCount);
-                float darken = 1.0 - band * _RockColorDarken;
+                // Per-slot random values
+                float r1 = hash11(slotI * 12.9898);    // atlas column
+                float r2 = hash11(slotI * 78.233);     // atlas row
+                float r3 = hash11(slotI * 39.425);     // Y jitter
 
-                // Fade the cliff top so it dissolves smoothly under the grass fronds.
-                float topFade = saturate(i.localV * _RockTopFade);
+                // Pick a random tile from the atlas
+                float ai = floor(r1 * _RockSpriteCols);
+                float aj = floor(r2 * _RockSpriteRows);
 
-                return fixed4(rock.rgb * darken, rock.a * topFade);
+                // Local UV within the sprite card.
+                //   X: slotFr already 0..1 across the slot, but we want the sprite
+                //      centered with size _RockSize within a slot of width _RockSpacing.
+                //   Y: based on distance from the seam (i.seamY) downward.
+                float halfRatio = 0.5 * _RockSize / _RockSpacing;
+                float spriteU   = (slotFr - 0.5) / (2.0 * halfRatio) + 0.5;
+
+                // Y jitter shifts the card up/down a bit per slot.
+                float yJit      = (r3 - 0.5) * 2.0 * _RockYJitter;
+                float yFromTop  = (i.seamY - i.worldXY.y) + yJit;  // 0 at seam, grows downward
+                float spriteV   = yFromTop / _RockSize;
+
+                // Outside the sprite card? discard.
+                if (spriteU < 0.0 || spriteU > 1.0 || spriteV < 0.0 || spriteV > 1.0)
+                    discard;
+
+                // Sample atlas tile.
+                // spriteV=0 is the top of the card, but Unity UVs have V=0 at the
+                // bottom, so flip it before indexing into the atlas.
+                float2 atlasUV = (float2(spriteU, 1.0 - spriteV) + float2(ai, aj))
+                               / float2(_RockSpriteCols, _RockSpriteRows);
+
+                fixed4 tex = tex2D(_RockSpriteTex, atlasUV) * _RockTint;
+                return tex;
             }
             ENDCG
         }
 
+        // ---------------------------------------------------------------
+        // DROP SHADOW
+        // ---------------------------------------------------------------
         Pass
         {
-            // --- Drop Shadow Pass ---
-            // Runs first so it renders behind the main grass edge.
-            // Displaces the same edge geometry by _ShadowOffset in world space
-            // and applies the same droop (scaled by _ShadowDroopMult) so the
-            // shadow silhouette matches the grass fronds exactly.
-            // Outputs a flat _ShadowColor, masked by the source texture alpha.
             Name "SHADOW"
 
             CGPROGRAM
@@ -175,17 +199,8 @@ Shader "Custom/GrassEdge"
             float     _Droop;
             float     _DroopStart;
 
-            struct appdata_s
-            {
-                float4 vertex   : POSITION;
-                float2 texcoord : TEXCOORD0;
-            };
-
-            struct v2s
-            {
-                float4 vertex : SV_POSITION;
-                float2 uv     : TEXCOORD0;
-            };
+            struct appdata_s { float4 vertex:POSITION; float2 texcoord:TEXCOORD0; };
+            struct v2s       { float4 vertex:SV_POSITION; float2 uv:TEXCOORD0; };
 
             v2s shadowVert(appdata_s v)
             {
@@ -210,6 +225,9 @@ Shader "Custom/GrassEdge"
             ENDCG
         }
 
+        // ---------------------------------------------------------------
+        // GRASS
+        // ---------------------------------------------------------------
         Pass
         {
             CGPROGRAM
@@ -255,12 +273,6 @@ Shader "Custom/GrassEdge"
 
             v2f vert(appdata_t v)
             {
-                // --- Droop ---
-                // SpriteShape edge geometry only has vertices at UV.y = 0 (top seam)
-                // and UV.y = 1 (bottom frond tip) — no intermediate rows.
-                // A UV threshold would always snap, so _DroopStart instead scales
-                // how far the bottom tip drops: 0 = full droop, 1 = no droop.
-                // This gives a smooth, continuous change to the tip position.
                 float droopFactor = saturate(v.texcoord.y) * saturate(1.0 - _DroopStart);
 
                 float3 worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
@@ -271,27 +283,22 @@ Shader "Custom/GrassEdge"
                 o.color   = v.color * _Color;
                 o.baseUV  = TRANSFORM_TEX(v.texcoord, _MainTex);
                 o.worldXZ = worldPos.xz;
-
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // --- Base ---
                 fixed4 base = tex2D(_MainTex, i.baseUV) * i.color;
 
-                // --- Wind drift (applied to detail UVs only) ---
                 float2 windDir    = normalize(_WindDirection.xz + float2(0.001, 0));
                 float  windDrift  = _Time.y * _WindSpeed;
                 float2 windOffset = windDir * windDrift * _WindStrength
                                   + sin(_Time.y * _WindSpeed * 0.7 + i.worldXZ.x * 0.5) * _WindStrength * float2(0.5, 0.5);
 
-                // --- Detail overlay (world-space tiled) ---
                 float2 detailUV  = i.worldXZ / _DetailScale + windOffset;
                 fixed4 detail    = tex2D(_DetailTex, detailUV);
                 fixed3 withDetail = lerp(base.rgb, base.rgb * detail.rgb * 2.0, _DetailStrength);
 
-                // --- Colour variation (large-scale world-space noise) ---
                 float2 varUV     = i.worldXZ / _VariationScale;
                 float  varNoise  = tex2D(_VariationTex, varUV).r;
                 fixed3 varColour = lerp(_VariationDark.rgb, _VariationLight.rgb, varNoise);

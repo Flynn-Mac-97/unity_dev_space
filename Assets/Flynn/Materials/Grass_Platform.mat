@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grass_Edge
-  m_Shader: {fileID: 4800000, guid: 80ea0afbdec40994fa603b800fc96a54, type: 3}
+  m_Name: Grass_Platform
+  m_Shader: {fileID: 4800000, guid: 259289a3989c32848ad098e8b25fe5e8, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -16,7 +16,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 3200
   stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
@@ -63,18 +63,6 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _RockSpriteAtlas:
-        m_Texture: {fileID: 2800000, guid: cbdaac9cf3b34444b8998d6c12d95a53, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RockSpriteTex:
-        m_Texture: {fileID: 2800000, guid: cbdaac9cf3b34444b8998d6c12d95a53, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _RockTex:
-        m_Texture: {fileID: 2800000, guid: 2365f801979221648a2276f93e74516e, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - _VariationTex:
         m_Texture: {fileID: 2800000, guid: 4f8ce0888ecf9e2498dbd7052aa00daf, type: 3}
         m_Scale: {x: 1, y: 1}
@@ -86,8 +74,6 @@ Material:
     - _DetailNormalMapScale: 1
     - _DetailScale: 2
     - _DetailStrength: 0.542
-    - _Droop: -0.01
-    - _DroopStart: 0.763
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -96,36 +82,6 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _RockBandHeight: 1.4
-    - _RockBandTopOffset: 0
-    - _RockCellSize: 0.31
-    - _RockChance: 0.7
-    - _RockCliffHeight: 0.41
-    - _RockColorDarken: 0.3
-    - _RockDarkenDepth: 0.25
-    - _RockLayerCount: 2.68
-    - _RockLayerOffset: 0.35
-    - _RockLayers: 3
-    - _RockOffsetV: 0
-    - _RockPosJitter: 0.7
-    - _RockRotJitter: 0.6
-    - _RockRotation: 90
-    - _RockScale: 1
-    - _RockSize: 0.91
-    - _RockSizeJitter: 0.35
-    - _RockSpacing: 0.7
-    - _RockSpriteCols: 1
-    - _RockSpriteCount: 4
-    - _RockSpriteRows: 1
-    - _RockSpriteSize: 0.45
-    - _RockSpriteTiling: 0.5
-    - _RockTexScale: 0.63
-    - _RockTopFade: 10
-    - _RockTopOffset: 0
-    - _RockYJitter: -0.01
-    - _ShadowDroopMult: 1.2
-    - _ShadowOffsetY: 0.04
-    - _ShadowSpread: 0.01
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
@@ -138,10 +94,6 @@ Material:
     m_Colors:
     - _Color: {r: 0.48235294, g: 0.6901961, b: 0.16078432, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _RockColor: {r: 1, g: 1, b: 1, a: 1}
-    - _RockTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadowColor: {r: 0.19179763, g: 0.5377358, b: 0.03804734, a: 0.98039216}
-    - _ShadowOffset: {r: 0, g: -0.04, b: 0, a: 0}
     - _VariationDark: {r: 0.16943567, g: 0.3207547, b: 0.09229262, a: 1}
     - _VariationLight: {r: 0.6, g: 0.85, b: 0.29999998, a: 1}
     - _WindDirection: {r: 1, g: 0, b: 0, a: 0}

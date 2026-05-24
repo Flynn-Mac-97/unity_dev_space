@@ -74,8 +74,8 @@ Material:
     - _DetailNormalMapScale: 1
     - _DetailScale: 2
     - _DetailStrength: 0.542
-    - _Droop: 0.04
-    - _DroopStart: 0
+    - _Droop: 0.22
+    - _DroopStart: 0.775
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -96,7 +96,7 @@ Material:
     - _WindStrength: 0.015
     - _ZWrite: 1
     m_Colors:
-    - _Color: {r: 0.23673905, g: 0.5283019, b: 0.2737978, a: 1}
+    - _Color: {r: 0.025453899, g: 0.49056602, b: 0.2993477, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShadowColor: {r: 0.049999982, g: 0.11999995, b: 0.02, a: 0.55}
     - _VariationDark: {r: 0.16943567, g: 0.3207547, b: 0.09229262, a: 1}
