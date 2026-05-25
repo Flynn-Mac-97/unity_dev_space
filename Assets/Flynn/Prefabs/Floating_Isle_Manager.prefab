@@ -75,7 +75,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1154827840562579426
 Transform:
   m_ObjectHideFlags: 0
@@ -114,8 +114,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4086599400720982223}
+  - component: {fileID: 8073593334110403317}
   - component: {fileID: 1730154535667171253}
-  - component: {fileID: 3272082056056664258}
   m_Layer: 0
   m_Name: Floating_Isle_Manager
   m_TagString: Ground
@@ -141,6 +141,27 @@ Transform:
   - {fileID: 1154827840562579426}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8073593334110403317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3549475110196729301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78c0e4b11c9a1264aa0bdbb07a669c8b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grassSpriteShape: {fileID: 0}
+  tangentMode: 0
+  _mapGenerator: {fileID: 5775838597054933396}
+  bulgeScale: 0.139
+  bulgeNoise: 0.065
+  subsPerSegment: 2
+  debugTileSprite: {fileID: 0}
+  _lakeGenerator: {fileID: 2446244123247125504}
+  _rockBandGenerator: {fileID: 2359633950003174690}
 --- !u!54 &1730154535667171253
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -168,29 +189,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
---- !u!114 &3272082056056664258
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3549475110196729301}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 562a3b1b0f8e0b648b4ee7dc960d8636, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  grassSpriteShape: {fileID: 0}
-  cliffPrefab: {fileID: 2684792431857029102, guid: 08c69c3f1cc788c4ca3c44b91a432f3b, type: 3}
-  mapWidth: 5
-  mapHeight: 5
-  edgeNoise: 0
-  randomSeed: 0
-  bulgeScale: 0.195
-  bulgeNoise: 0
-  subsPerSegment: 3
-  showSplineDebugPoints: 0
-  debugPointSize: 0.2
 --- !u!1 &4556105068055506195
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,7 +205,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7183832007869576013
 Transform:
   m_ObjectHideFlags: 0
