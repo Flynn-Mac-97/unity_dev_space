@@ -1,0 +1,53 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements">
+    <ui:VisualElement name="Root" class="token-bg" style="flex-grow: 1;">
+
+        <ui:VisualElement name="Header" class="row" style="padding-left: 12px; padding-right: 12px; padding-top: 8px; padding-bottom: 8px; border-bottom-width: 1px; border-bottom-color: rgb(255,255,255); align-items: center;">
+            <ui:Label text="NPC CRAFTING STUDIO" class="text-lg token-text" style="-unity-font-style: bold; letter-spacing: 2px;" />
+            <ui:VisualElement style="flex-grow: 1;" />
+            <ui:DropdownField name="NpcPicker" label="" tooltip="Active NPC" style="min-width: 220px; margin-right: 8px;" />
+            <ui:Button name="BtnNew" text="+ New" class="btn" />
+            <ui:Button name="BtnDuplicate" text="Duplicate" class="btn" />
+            <ui:Button name="BtnReveal" text="Reveal" class="btn" />
+            <ui:Button name="BtnRefresh" text="Refresh" class="btn" />
+            <ui:Button name="BtnSave" text="Save" class="btn btn-primary" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="EmptyState" class="col token-text" style="padding: 24px; display: none;">
+            <ui:Label text="No NPC selected." class="text-xl" />
+            <ui:Label text="Pick one from the dropdown above, or click + New to create one." class="text-base token-text-muted" style="margin-top: 8px;" />
+        </ui:VisualElement>
+
+        <ui:VisualElement name="Body" class="row" style="flex-grow: 1;">
+
+            <ui:VisualElement name="Tabs" class="col" style="width: 160px; border-right-width: 1px; border-right-color: rgb(255,255,255);">
+                <ui:Button name="TabIdentity" text="IDENTITY" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabKnowledge" text="KNOWLEDGE" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabTriggers" text="TRIGGERS" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabRelationships" text="RELATIONSHIPS" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabAi" text="AI &amp; MEMORY" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabDashboard" text="DASHBOARD" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Content" class="col" style="flex-grow: 1; padding: 12px;">
+                <ui:IMGUIContainer name="TabContent" style="flex-grow: 1;" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="PreviewRail" class="col" style="width: 240px; border-left-width: 1px; border-left-color: rgb(255,255,255); padding: 12px;">
+                <ui:Label text="PREVIEW" class="text-sm token-text-muted" style="margin-bottom: 8px;" />
+                <ui:VisualElement name="PortraitFrame" class="outline" style="width: 200px; height: 200px; background-color: rgb(0,0,0); align-items: center; justify-content: center; margin-bottom: 8px;">
+                    <ui:Image name="PortraitImage" style="width: 196px; height: 196px;" />
+                    <ui:Label name="PortraitEmpty" text="(no portrait)" class="token-text-faint text-sm" />
+                </ui:VisualElement>
+                <ui:Label name="PreviewName" text="—" class="text-lg token-text" />
+                <ui:Label name="PreviewId" text="—" class="text-sm token-text-muted" />
+                <ui:Label name="PreviewRole" text="—" class="text-sm token-text-muted" style="margin-top: 4px; white-space: normal;" />
+
+                <ui:VisualElement class="divider-faint" />
+
+                <ui:Label text="Status" class="text-sm token-text-muted" />
+                <ui:Label name="PreviewStatus" text="—" class="text-sm token-text" style="white-space: normal; margin-top: 4px;" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

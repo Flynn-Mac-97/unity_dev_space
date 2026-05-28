@@ -1,0 +1,176 @@
+.hud-root {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    width: 380px;
+}
+
+.hud-root.hidden { display: none; }
+
+.panel {
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+    padding: 16px;
+}
+
+.header-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.token-text { color: rgb(255, 255, 255); }
+.token-text-muted { color: rgba(255, 255, 255, 0.6); }
+.token-text-faint { color: rgba(255, 255, 255, 0.35); }
+
+.text-xs { font-size: 13px; }
+.text-sm { font-size: 15px; }
+.text-base { font-size: 17px; }
+.text-xl { font-size: 28px; -unity-font-style: bold; }
+.text-mono { -unity-font-style: bold; letter-spacing: 1px; }
+
+.hotkey-hint {
+    color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    padding: 4px 8px;
+    font-size: 13px;
+    -unity-font-style: bold;
+}
+
+.role-tag {
+    margin-top: 2px;
+    -unity-font-style: italic;
+}
+
+.divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.4);
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.section-header {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.section-header.faint { color: rgba(255, 255, 255, 0.35); margin-top: 8px; }
+.section-header.hidden { display: none; }
+
+.relationship-block { }
+
+.bar-row {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.bar-label {
+    width: 90px;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+}
+
+.bar-track {
+    flex-grow: 1;
+    height: 12px;
+    background-color: rgba(255, 255, 255, 0.15);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.6);
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+.bar-fill {
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+    width: 0;
+}
+
+.bar-fill.suspicion {
+    background-color: rgb(255, 59, 48);
+}
+
+.bar-value {
+    width: 36px;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    -unity-text-align: middle-right;
+}
+
+.chip-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.chip {
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    color: rgb(255, 255, 255);
+    padding: 4px 10px;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.chip.avoided {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.chip.locked {
+    border-color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.memory-row {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.last-turn {
+    margin-top: 6px;
+    font-size: 13px;
+    -unity-font-style: italic;
+    white-space: normal;
+}
+
+.debug-update {
+    flex-direction: column;
+}
+
+.debug-line {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.debug-deltas {
+    flex-direction: row;
+}
+
+.debug-delta {
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.6);
+    color: rgb(255, 255, 255);
+    padding: 2px 8px;
+    margin-right: 6px;
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+.debug-delta.pos {
+    border-color: rgb(52, 199, 89);
+    color: rgb(52, 199, 89);
+}
+
+.debug-delta.neg {
+    border-color: rgb(255, 59, 48);
+    color: rgb(255, 59, 48);
+}

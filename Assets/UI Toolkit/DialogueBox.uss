@@ -1,87 +1,56 @@
-/* ============================================================
-   DialogueBox.uss
-   NPC Dialogue Panel — isometric pixel-art RPG
-   ============================================================
+/* Flynn wireframe palette — black surfaces, 1px white outlines, square corners. */
 
-   Token reference (USS variables not supported; values inlined):
-     panel-bg       : rgba(12, 12, 20, 0.92)
-     accent         : rgb(80, 140, 200)
-     text-primary   : rgb(220, 220, 220)
-     text-white     : rgb(255, 255, 255)
-     input-bg       : rgba(255, 255, 255, 0.08)
-     danger-hover   : rgb(200, 70, 70)
-
-   Spacing scale: 6 / 10 / 16 / 24 px
-   Font sizes:    14px (name) / 15px (dialogue) / 13px (input)
-   ============================================================ */
-
-
-/* ── Utility ─────────────────────────────────────────────── */
-
-.hidden {
-    display: none;
-}
-
-
-/* ── Root panel ──────────────────────────────────────────── */
+.hidden { display: none; }
 
 .dialogue-panel {
-    /* Dimensions & position */
     position: absolute;
     width: 940px;
     left: 50%;
-    translate: -470px 0;      /* horizontal-center: half of 940px */
+    translate: -470px 0;
     bottom: 40px;
 
-    /* Appearance */
-    background-color: rgba(12, 12, 20, 0.92);
-    border-color: rgb(80, 140, 200);
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
     border-width: 1px;
-    border-radius: 4px;
+    border-radius: 0;
 
-    /* Layout */
     flex-direction: column;
-    padding: 20px;
-    padding-top: 14px;
+    padding: 24px;
 }
-
-
-/* ── NPC name badge ──────────────────────────────────────── */
 
 .npc-name-badge {
     align-self: flex-start;
-    background-color: rgb(80, 140, 200);
-    border-radius: 3px;
-    padding: 5px 12px;
-    margin-bottom: 12px;
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-radius: 0;
+    padding: 6px 14px;
+    margin-bottom: 16px;
 
-    /* Typography */
     color: rgb(255, 255, 255);
-    font-size: 17px;
+    font-size: 18px;
     -unity-font-style: bold;
     -unity-text-align: middle-left;
     white-space: nowrap;
+    letter-spacing: 1px;
 }
-
-
-/* ── Dialogue text ───────────────────────────────────────── */
 
 .dialogue-content-row {
     flex-direction: row;
     align-items: flex-start;
     width: 100%;
     min-width: 0;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
 }
 
 .npc-portrait {
     width: 128px;
     height: 128px;
-    margin-right: 14px;
-    border-color: rgb(80, 140, 200);
+    margin-right: 16px;
+    border-color: rgb(255, 255, 255);
     border-width: 1px;
-    border-radius: 3px;
-    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 0;
+    background-color: rgb(0, 0, 0);
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
@@ -93,123 +62,104 @@
     width: 0;
     min-width: 0;
     max-width: 100%;
-    color: rgb(220, 220, 220);
-    font-size: 20px;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
     -unity-font-style: normal;
     -unity-text-align: upper-left;
     white-space: normal;
-    min-height: 126px;
-    margin-bottom: 0;
-    /* Slight left indent to align under name badge */
-    padding: 0 4px;
+    min-height: 128px;
+    padding: 4px 8px;
 }
-
-
-/* ── Input row container ─────────────────────────────────── */
 
 .input-row {
     flex-direction: row;
     align-items: center;
     width: 100%;
     min-width: 0;
-    height: 46px;
-    margin-top: 10px;
+    height: 44px;
+    margin-top: 8px;
 }
-
-
-/* ── Player text input ───────────────────────────────────── */
 
 .player-input {
     flex-grow: 1;
     min-width: 0;
-    margin-right: 10px;
-    height: 46px;
-}
-
-/* The inner text element Unity generates */
-.player-input > .unity-text-element,
-.player-input #unity-text-input {
-    background-color: rgba(255, 255, 255, 0.08);
-    border-color: rgb(80, 140, 200);
-    border-width: 1px;
-    border-radius: 3px;
-    color: rgb(255, 255, 255);
-    font-size: 16px;
-    -unity-text-align: middle-left;
-    padding: 0 10px;
-}
-
-/* Remove the outer wrapper's own border/bg so the inner element wins */
-.player-input {
+    margin-right: 8px;
+    height: 44px;
     background-color: rgba(0, 0, 0, 0);
     border-width: 0;
 }
 
-
-/* ── Send button ─────────────────────────────────────────── */
+.player-input > .unity-text-element,
+.player-input #unity-text-input {
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-radius: 0;
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    -unity-text-align: middle-left;
+    padding: 0 12px;
+}
 
 .send-button {
     width: 110px;
-    height: 46px;
-    background-color: rgb(80, 140, 200);
-    border-color: rgb(60, 110, 170);
+    height: 44px;
+    background-color: rgb(255, 255, 255);
+    border-color: rgb(255, 255, 255);
     border-width: 1px;
-    border-radius: 3px;
-    color: rgb(255, 255, 255);
-    font-size: 16px;
+    border-radius: 0;
+    color: rgb(0, 0, 0);
+    font-size: 14px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
-    /* Remove default padding so label stays centered */
+    letter-spacing: 1px;
     padding: 0;
     margin: 0;
-    cursor: link;
+    transition-duration: 0s;
 }
 
 .send-button:hover {
-    background-color: rgb(100, 160, 220);
-    border-color: rgb(100, 160, 220);
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
 }
 
 .send-button:active {
-    background-color: rgb(60, 110, 170);
-    border-color: rgb(50, 90, 140);
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgb(0, 0, 0);
 }
 
 .send-button:disabled {
-    background-color: rgba(80, 140, 200, 0.35);
-    color: rgba(255, 255, 255, 0.4);
-    border-color: rgba(80, 140, 200, 0.2);
-    cursor: arrow;
+    background-color: rgb(0, 0, 0);
+    color: rgba(255, 255, 255, 0.35);
+    border-color: rgba(255, 255, 255, 0.35);
 }
-
-
-/* ── Close button ────────────────────────────────────────── */
 
 .close-button {
     position: absolute;
     top: 8px;
-    right: 10px;
+    right: 8px;
 
     width: 28px;
     height: 28px;
-    background-color: rgba(0, 0, 0, 0);
-    border-width: 0;
-    border-radius: 3px;
-    color: rgba(220, 220, 220, 0.55);
-    font-size: 17px;
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-radius: 0;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
     -unity-font-style: bold;
     -unity-text-align: middle-center;
     padding: 0;
     margin: 0;
-    cursor: link;
+    transition-duration: 0s;
 }
 
 .close-button:hover {
-    background-color: rgba(200, 70, 70, 0.18);
-    color: rgb(200, 70, 70);
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
 }
 
 .close-button:active {
-    background-color: rgba(200, 70, 70, 0.30);
-    color: rgb(200, 70, 70);
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgb(0, 0, 0);
 }

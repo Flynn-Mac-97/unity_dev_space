@@ -1,0 +1,73 @@
+/* Flynn UI draft tokens — mono palette, 1px outlines, square corners. */
+
+.token-bg            { background-color: rgb(0, 0, 0); }
+.token-surface       { background-color: rgb(0, 0, 0); }
+.token-outline       { border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255); }
+.token-text          { color: rgb(255, 255, 255); }
+.token-text-muted    { color: rgba(255, 255, 255, 0.6); }
+.token-text-faint    { color: rgba(255, 255, 255, 0.35); }
+.token-inverse-bg    { background-color: rgb(255, 255, 255); }
+.token-inverse-text  { color: rgb(0, 0, 0); }
+.token-danger        { color: rgb(255, 59, 48); }
+.token-success       { color: rgb(52, 199, 89); }
+.token-warn          { color: rgb(255, 204, 0); }
+
+.outline {
+    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
+    border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+
+.text-xs   { font-size: 11px; }
+.text-sm   { font-size: 12px; }
+.text-base { font-size: 13px; }
+.text-lg   { font-size: 16px; }
+.text-xl   { font-size: 22px; -unity-font-style: bold; }
+.text-2xl  { font-size: 30px; -unity-font-style: bold; }
+
+.panel {
+    background-color: rgb(0, 0, 0);
+    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
+    border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+    padding-left: 12px; padding-right: 12px; padding-top: 8px; padding-bottom: 8px;
+}
+.panel-tight { padding-left: 6px; padding-right: 6px; padding-top: 4px; padding-bottom: 4px; }
+.panel-loose { padding-left: 20px; padding-right: 20px; padding-top: 14px; padding-bottom: 14px; }
+
+.divider     { height: 1px; background-color: rgb(255, 255, 255); margin-top: 8px; margin-bottom: 8px; }
+.divider-faint { height: 1px; background-color: rgba(255, 255, 255, 0.25); margin-top: 6px; margin-bottom: 6px; }
+
+.row         { flex-direction: row; }
+.col         { flex-direction: column; }
+
+.btn {
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
+    border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+    padding-left: 12px; padding-right: 12px; padding-top: 4px; padding-bottom: 4px;
+    font-size: 12px;
+    margin-left: 0; margin-right: 4px;
+}
+.btn:hover {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+.btn:active {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgb(0, 0, 0);
+}
+.btn:disabled {
+    border-left-color: rgba(255, 255, 255, 0.35); border-right-color: rgba(255, 255, 255, 0.35); border-top-color: rgba(255, 255, 255, 0.35); border-bottom-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.35);
+}
+.btn-primary {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+.btn-primary:hover {
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+}

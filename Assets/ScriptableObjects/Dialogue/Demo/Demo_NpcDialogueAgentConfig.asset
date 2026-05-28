@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5971180993574228710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38d8ef8ebaa154941af5c5acd52eb2ef, type: 3}
+  m_Name: Demo_NpcDialogueAgentConfig_Triggers
+  m_EditorClassIdentifier: 
+  triggers: []
+--- !u!114 &-637179658588137582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7e76ab5d5632cf488d0b5221ffb7bb5, type: 3}
+  m_Name: Demo_NpcDialogueAgentConfig_Relationship
+  m_EditorClassIdentifier: 
+  startingTrust: 25
+  startingAffection: 25
+  startingSuspicion: 25
+  initialPlayerStatus: 0
+  trustToShareClues: 50
+  trustToShareSecrets: 75
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15,5 +46,26 @@ MonoBehaviour:
   personalityProfile: {fileID: 11400000, guid: 9c27f0847b8a9d444bb3f7d3c3f2baec, type: 2}
   promptTemplate: {fileID: 11400000, guid: 90008e4030673184d8a9a0c2c317426b, type: 2}
   memorySettings: {fileID: 11400000, guid: 6ce58880155a0e2498338c3c78d6e2c5, type: 2}
+  roles: 512
+  knowledge: {fileID: 5691282034067618491}
+  triggers: {fileID: -5971180993574228710}
+  relationship: {fileID: -637179658588137582}
   useLocalModel: 1
   fallbackReply: I am still here with you. Could you ask that another way?
+--- !u!114 &5691282034067618491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ad88bbb0ce7b86478477c5086507618, type: 3}
+  m_Name: Demo_NpcDialogueAgentConfig_Knowledge
+  m_EditorClassIdentifier: 
+  knownFacts: []
+  beliefs: []
+  rumors: []
+  secrets: []
+  avoidedTopics: []
