@@ -44,11 +44,11 @@ MonoBehaviour:
   m_Name: Demo_NpcDialogueAgentConfig
   m_EditorClassIdentifier: 
   personalityProfile: {fileID: 11400000, guid: 9c27f0847b8a9d444bb3f7d3c3f2baec, type: 2}
-  promptTemplate: {fileID: 11400000, guid: 90008e4030673184d8a9a0c2c317426b, type: 2}
-  memorySettings: {fileID: 11400000, guid: 6ce58880155a0e2498338c3c78d6e2c5, type: 2}
+  promptTemplate: 
   roles: 512
   knowledge: {fileID: 5691282034067618491}
-  triggers: {fileID: -5971180993574228710}
+  triggers:
+  - {fileID: 0}
   relationship: {fileID: -637179658588137582}
   useLocalModel: 1
   fallbackReply: I am still here with you. Could you ask that another way?

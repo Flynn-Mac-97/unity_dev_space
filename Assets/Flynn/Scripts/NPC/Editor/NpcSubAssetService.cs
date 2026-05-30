@@ -17,10 +17,9 @@ public static class NpcSubAssetService
         AssetDatabase.CreateAsset(config, path);
 
         config.personalityProfile = AddSubAsset<NpcPersonalityProfile>(config, safe + "_Personality");
-        config.promptTemplate = AddSubAsset<NpcPromptTemplate>(config, safe + "_PromptTemplate");
-        config.memorySettings = AddSubAsset<NpcMemorySettings>(config, safe + "_MemorySettings");
         config.knowledge = AddSubAsset<NpcKnowledgeBase>(config, safe + "_Knowledge");
-        config.triggers = AddSubAsset<DialogueTriggerSet>(config, safe + "_Triggers");
+        // Triggers are now standalone DialogueTriggerDef assets the designer drops in by hand
+        // (or via the trigger tab's "Create trigger" button). No sub-asset to provision here.
         config.relationship = AddSubAsset<NpcRelationshipDefaults>(config, safe + "_Relationship");
 
         if (config.personalityProfile != null)
@@ -47,17 +46,11 @@ public static class NpcSubAssetService
         if (config.personalityProfile == null)
             config.personalityProfile = AddSubAsset<NpcPersonalityProfile>(config, baseName + "_Personality");
 
-        if (config.promptTemplate == null)
-            config.promptTemplate = AddSubAsset<NpcPromptTemplate>(config, baseName + "_PromptTemplate");
-
-        if (config.memorySettings == null)
-            config.memorySettings = AddSubAsset<NpcMemorySettings>(config, baseName + "_MemorySettings");
-
         if (config.knowledge == null)
             config.knowledge = AddSubAsset<NpcKnowledgeBase>(config, baseName + "_Knowledge");
 
         if (config.triggers == null)
-            config.triggers = AddSubAsset<DialogueTriggerSet>(config, baseName + "_Triggers");
+            config.triggers = new System.Collections.Generic.List<DialogueTriggerDef>();
 
         if (config.relationship == null)
             config.relationship = AddSubAsset<NpcRelationshipDefaults>(config, baseName + "_Relationship");

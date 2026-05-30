@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 public class NpcAuthoringStudioWindow : EditorWindow
 {
-    private enum Tab { Identity, Knowledge, Triggers, Relationships, Ai, Dashboard }
+    private enum Tab { Identity, Knowledge, Triggers, Relationships, Memory, Dashboard }
 
     private const string UxmlPath = "Assets/Flynn/Scripts/NPC/Editor/NpcAuthoringStudio.uxml";
     private const string UssPath = "Assets/Flynn/Scripts/NPC/Editor/NpcAuthoringStudio.uss";
@@ -34,7 +34,7 @@ public class NpcAuthoringStudioWindow : EditorWindow
     private NpcKnowledgeTabView _knowledgeView;
     private NpcTriggersTabView _triggersView;
     private NpcRelationshipsTabView _relationshipsView;
-    private NpcAiTabView _aiView;
+    private NpcMemoryTabView _memoryView;
     private NpcDashboardTabView _dashboardView;
 
     [MenuItem("Tools/Dialogue/NPC Crafting Studio")]
@@ -50,12 +50,6 @@ public class NpcAuthoringStudioWindow : EditorWindow
         Open();
         var window = GetWindow<NpcAuthoringStudioWindow>("NPC Crafting Studio");
         window.SetConfig(config);
-    }
-
-    public static void OpenWithTemplate(NpcPromptTemplate template)
-    {
-        var found = FindConfigByMember(c => c.promptTemplate == template);
-        if (found != null) OpenWithConfig(found);
     }
 
     public static void OpenWithProfile(NpcPersonalityProfile profile)
@@ -101,14 +95,14 @@ public class NpcAuthoringStudioWindow : EditorWindow
         BindTab("TabKnowledge", Tab.Knowledge);
         BindTab("TabTriggers", Tab.Triggers);
         BindTab("TabRelationships", Tab.Relationships);
-        BindTab("TabAi", Tab.Ai);
+        BindTab("TabMemory", Tab.Memory);
         BindTab("TabDashboard", Tab.Dashboard);
 
         _identityView = new NpcIdentityTabView();
         _knowledgeView = new NpcKnowledgeTabView();
         _triggersView = new NpcTriggersTabView();
         _relationshipsView = new NpcRelationshipsTabView();
-        _aiView = new NpcAiTabView();
+        _memoryView = new NpcMemoryTabView();
         _dashboardView = new NpcDashboardTabView();
 
         _tabContent.onGUIHandler = DrawActiveTab;
@@ -135,7 +129,7 @@ public class NpcAuthoringStudioWindow : EditorWindow
         SetTabHighlight("TabKnowledge", _activeTab == Tab.Knowledge);
         SetTabHighlight("TabTriggers", _activeTab == Tab.Triggers);
         SetTabHighlight("TabRelationships", _activeTab == Tab.Relationships);
-        SetTabHighlight("TabAi", _activeTab == Tab.Ai);
+        SetTabHighlight("TabMemory", _activeTab == Tab.Memory);
         SetTabHighlight("TabDashboard", _activeTab == Tab.Dashboard);
     }
 
@@ -156,7 +150,7 @@ public class NpcAuthoringStudioWindow : EditorWindow
             case Tab.Knowledge: _knowledgeView.Draw(_config); break;
             case Tab.Triggers: _triggersView.Draw(_config); break;
             case Tab.Relationships: _relationshipsView.Draw(_config); break;
-            case Tab.Ai: _aiView.Draw(_config); break;
+            case Tab.Memory: _memoryView.Draw(_config); break;
             case Tab.Dashboard: _dashboardView.Draw(_config); break;
         }
     }

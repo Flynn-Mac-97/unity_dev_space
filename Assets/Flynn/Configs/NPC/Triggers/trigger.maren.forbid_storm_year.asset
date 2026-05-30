@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8bd776f8976bed428c41c42924603a4, type: 3}
+  m_Name: trigger.maren.forbid_storm_year
+  m_EditorClassIdentifier: 
+  kind: 4
+  topic: {fileID: 11400000, guid: b1c4466993707c34aaf3f4db120ab6ff, type: 2}
+  description: Maren refuses to discuss the Storm Year directly. She changes the
+    subject to birds or weather.
+  draft: 0

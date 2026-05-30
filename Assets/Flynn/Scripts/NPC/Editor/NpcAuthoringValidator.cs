@@ -31,19 +31,13 @@ public static class NpcAuthoringValidator
         else
             ValidateProfile(config.personalityProfile, issues);
 
-        if (config.promptTemplate == null)
-            issues.Add(new Issue(Severity.Error, "Prompt template is missing."));
-
-        if (config.memorySettings == null)
-            issues.Add(new Issue(Severity.Warning, "Memory settings missing. Defaults will be used at runtime."));
-
         if (config.knowledge == null)
             issues.Add(new Issue(Severity.Warning, "No knowledge base. This NPC will have nothing to share."));
         else
             ValidateKnowledge(config, issues);
 
-        if (config.triggers == null)
-            issues.Add(new Issue(Severity.Info, "No dialogue trigger set. Triggers are optional but recommended for clue NPCs."));
+        if (config.triggers == null || config.triggers.Count == 0)
+            issues.Add(new Issue(Severity.Info, "No dialogue triggers assigned. Triggers are optional but recommended for clue NPCs."));
 
         if (config.relationship == null)
             issues.Add(new Issue(Severity.Warning, "No relationship defaults. NPC will start at neutral trust/affection/suspicion."));
@@ -119,8 +113,8 @@ public static class NpcAuthoringValidator
         if ((roles & NpcGameplayRoles.ClueGiver) != 0)
         {
             bool hasClue = config.knowledge != null && (config.knowledge.secrets.Count > 0 || config.knowledge.rumors.Count > 0);
-            bool hasClueTrigger = HasTriggerOfKind(config, DialogueTriggerSet.TriggerKind.ClueReveal)
-                                || HasTriggerOfKind(config, DialogueTriggerSet.TriggerKind.Secret);
+            bool hasClueTrigger = HasTriggerOfKind(config, DialogueTriggerDef.TriggerKind.ClueReveal)
+                                || HasTriggerOfKind(config, DialogueTriggerDef.TriggerKind.Secret);
 
             if (!hasClue && !hasClueTrigger)
                 issues.Add(new Issue(Severity.Warning, "Tagged ClueGiver but has no rumors, secrets, or clue triggers authored."));
@@ -137,13 +131,13 @@ public static class NpcAuthoringValidator
             issues.Add(new Issue(Severity.Info, "Trade profile is a v2 feature. Merchant role will be inert until that ships."));
     }
 
-    private static bool HasTriggerOfKind(NpcDialogueAgentConfig config, DialogueTriggerSet.TriggerKind kind)
+    private static bool HasTriggerOfKind(NpcDialogueAgentConfig config, DialogueTriggerDef.TriggerKind kind)
     {
         if (config.triggers == null) return false;
-        for (int i = 0; i < config.triggers.triggers.Count; i++)
+        for (int i = 0; i < config.triggers.Count; i++)
         {
-            if (config.triggers.triggers[i] != null && config.triggers.triggers[i].kind == kind && !config.triggers.triggers[i].draft)
-                return true;
+            var t = config.triggers[i];
+            if (t != null && t.kind == kind && !t.draft) return true;
         }
         return false;
     }

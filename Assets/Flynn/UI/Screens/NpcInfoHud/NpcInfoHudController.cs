@@ -20,8 +20,6 @@ public class NpcInfoHudController : MonoBehaviour
 
     private NpcInteraction _focused;
     private NpcRelationshipState _focusedRelationship;
-    private NpcLlmResponseParser.ParsedTurn _lastUpdate;
-    private NpcDialogueAgentConfig _lastUpdateConfig;
     private float _nextRefresh;
 
     private void Awake()
@@ -32,13 +30,11 @@ public class NpcInfoHudController : MonoBehaviour
     private void OnEnable()
     {
         NpcInteraction.RangeChanged += HandleRangeChanged;
-        DialogueManager.GameplayUpdateApplied += HandleGameplayUpdate;
     }
 
     private void OnDisable()
     {
         NpcInteraction.RangeChanged -= HandleRangeChanged;
-        DialogueManager.GameplayUpdateApplied -= HandleGameplayUpdate;
         UnsubscribeRelationship();
     }
 
@@ -76,13 +72,6 @@ public class NpcInfoHudController : MonoBehaviour
         _debugSuspicion  = _root.Q<Label>("debug-suspicion");
 
         return _hudRoot != null;
-    }
-
-    private void HandleGameplayUpdate(NpcDialogueAgentConfig config, NpcLlmResponseParser.ParsedTurn update)
-    {
-        _lastUpdate = update;
-        _lastUpdateConfig = config;
-        if (_focused != null && _focused.AgentConfig == config) ApplyDebugUpdate();
     }
 
     private void HandleRangeChanged(NpcInteraction npc, bool inRange)
@@ -173,37 +162,8 @@ public class NpcInfoHudController : MonoBehaviour
         ApplyRelationship(config);
         ApplyTopics(config);
         ApplyMemory(config);
-        ApplyDebugUpdate();
-    }
 
-    private void ApplyDebugUpdate()
-    {
-        if (_debugTopic == null) return;
-
-        bool relevant = _lastUpdateConfig != null && _focused != null && _focused.AgentConfig == _lastUpdateConfig;
-        if (!relevant)
-        {
-            _debugTopic.text = "topic: —";
-            SetDelta(_debugTrust,     "TRUST", 0);
-            SetDelta(_debugAffection, "AFF",   0);
-            SetDelta(_debugSuspicion, "SUSP",  0);
-            return;
-        }
-
-        _debugTopic.text = "topic: " + (string.IsNullOrWhiteSpace(_lastUpdate.topic) ? "—" : _lastUpdate.topic);
-        SetDelta(_debugTrust,     "TRUST", _lastUpdate.trustDelta);
-        SetDelta(_debugAffection, "AFF",   _lastUpdate.affectionDelta);
-        SetDelta(_debugSuspicion, "SUSP",  _lastUpdate.suspicionDelta);
-    }
-
-    private static void SetDelta(Label label, string prefix, int delta)
-    {
-        if (label == null) return;
-        label.text = string.Format("{0} {1:+#;-#;0}", prefix, delta);
-        label.RemoveFromClassList("pos");
-        label.RemoveFromClassList("neg");
-        if (delta > 0) label.AddToClassList("pos");
-        else if (delta < 0) label.AddToClassList("neg");
+        if (_debugTopic != null) _debugTopic.text = "topic: —";
     }
 
     private void ApplyRelationship(NpcDialogueAgentConfig config)

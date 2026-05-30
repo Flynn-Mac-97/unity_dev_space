@@ -11,6 +11,7 @@ public static class NpcDialogueMemoryStore
         public string npcId;
         public List<string> recentTurns = new List<string>();
         public List<string> memoryFacts = new List<string>();
+        public List<string> firedTriggers = new List<string>();
     }
 
     [Serializable]
@@ -164,6 +165,25 @@ public static class NpcDialogueMemoryStore
         if (entry == null) return;
         if (entry.recentTurns == null) entry.recentTurns = new List<string>();
         if (entry.memoryFacts == null) entry.memoryFacts = new List<string>();
+        if (entry.firedTriggers == null) entry.firedTriggers = new List<string>();
+    }
+
+    public static bool WasTriggerFired(string npcId, string triggerKey, string saveSlotId)
+    {
+        if (string.IsNullOrWhiteSpace(triggerKey)) return false;
+        NpcMemoryEntry entry = GetOrCreateMemory(npcId, saveSlotId);
+        for (int i = 0; i < entry.firedTriggers.Count; i++)
+            if (string.Equals(entry.firedTriggers[i], triggerKey, StringComparison.Ordinal)) return true;
+        return false;
+    }
+
+    public static void MarkTriggerFired(string npcId, string triggerKey, string saveSlotId)
+    {
+        if (string.IsNullOrWhiteSpace(triggerKey)) return;
+        NpcMemoryEntry entry = GetOrCreateMemory(npcId, saveSlotId);
+        for (int i = 0; i < entry.firedTriggers.Count; i++)
+            if (string.Equals(entry.firedTriggers[i], triggerKey, StringComparison.Ordinal)) return;
+        entry.firedTriggers.Add(triggerKey);
     }
 
     private static void TrimList(List<string> list, int maxCount)

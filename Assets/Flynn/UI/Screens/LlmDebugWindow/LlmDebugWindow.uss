@@ -1,0 +1,209 @@
+/* Flynn monochrome — square, outlined, no ornament. */
+
+.llm-debug-root {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 560px;
+    max-height: 80%;
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+    padding: 0;
+    flex-direction: column;
+}
+
+.hidden {
+    display: none;
+}
+
+.llm-debug-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 12px;
+}
+
+.llm-debug-title {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    margin-right: 12px;
+}
+
+.llm-debug-count {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+}
+
+.llm-debug-spacer {
+    flex-grow: 1;
+}
+
+.llm-debug-btn {
+    background-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+    padding: 4px 10px;
+    margin-left: 6px;
+    font-size: 12px;
+    transition-duration: 0s;
+}
+.llm-debug-btn:hover {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+.llm-debug-btn:active {
+    background-color: rgba(255, 255, 255, 0.6);
+    color: rgb(0, 0, 0);
+}
+
+.llm-debug-divider {
+    height: 1px;
+    background-color: rgb(255, 255, 255);
+}
+
+.llm-debug-scroll {
+    flex-grow: 1;
+    padding: 8px 12px;
+}
+
+.llm-debug-turn-list {
+    flex-direction: column;
+}
+
+.llm-debug-hint {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 11px;
+    padding: 6px 12px;
+}
+
+/* --- per turn --- */
+
+.llm-debug-turn {
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+    margin-bottom: 12px;
+    padding: 0;
+    flex-direction: column;
+}
+
+.llm-debug-turn-header {
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 10px;
+    background-color: rgb(255, 255, 255);
+}
+
+.llm-debug-turn-num {
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-right: 8px;
+}
+
+.llm-debug-turn-input {
+    color: rgb(0, 0, 0);
+    font-size: 12px;
+    flex-grow: 1;
+    white-space: normal;
+}
+
+.llm-debug-turn-state {
+    color: rgb(0, 0, 0);
+    font-size: 11px;
+    -unity-font-style: bold;
+    margin-left: 8px;
+}
+
+.llm-debug-turn-body {
+    padding: 8px 10px;
+    flex-direction: column;
+}
+
+/* --- per stage --- */
+
+.llm-debug-stage {
+    flex-direction: column;
+    margin-bottom: 6px;
+    border-left-width: 1px;
+    border-left-color: rgba(255, 255, 255, 0.35);
+    padding-left: 8px;
+}
+
+.llm-debug-stage-header {
+    flex-direction: row;
+    align-items: center;
+}
+
+.llm-debug-stage-name {
+    color: rgb(255, 255, 255);
+    font-size: 12px;
+    -unity-font-style: bold;
+    margin-right: 8px;
+    width: 70px;
+}
+
+.llm-debug-stage-summary {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    flex-grow: 1;
+    white-space: normal;
+}
+
+.llm-debug-stage-ms {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 11px;
+    margin-left: 8px;
+}
+
+.llm-debug-stage-error .llm-debug-stage-name,
+.llm-debug-stage-error .llm-debug-stage-summary {
+    color: rgb(255, 59, 48);
+}
+
+.llm-debug-stage-expanded {
+    flex-direction: column;
+    margin-top: 4px;
+    padding: 6px 8px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.2);
+    border-radius: 0;
+    display: none;
+}
+
+.llm-debug-stage.expanded > .llm-debug-stage-expanded {
+    display: flex;
+}
+
+.llm-debug-block-label {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 10px;
+    letter-spacing: 1px;
+    margin-top: 4px;
+    margin-bottom: 2px;
+}
+
+.llm-debug-block-text {
+    color: rgb(255, 255, 255);
+    font-size: 11px;
+    white-space: normal;
+    margin-bottom: 4px;
+    padding: 4px 6px;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-width: 1px;
+    border-color: rgba(255, 255, 255, 0.15);
+    border-radius: 0;
+}
+
+.llm-debug-empty {
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 12px;
+    padding: 24px;
+    -unity-text-align: middle-center;
+}

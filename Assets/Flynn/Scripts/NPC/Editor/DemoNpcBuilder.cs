@@ -4,6 +4,7 @@ using UnityEngine;
 public static class DemoNpcBuilder
 {
     private const string TopicsFolder = "Assets/Flynn/Configs/NPC/Topics";
+    private const string TriggersFolder = "Assets/Flynn/Configs/NPC/Triggers";
 
     [MenuItem("Tools/Dialogue/Create Demo NPC (Maren the Wind Keeper)")]
     public static void CreateDemoNpc()
@@ -56,35 +57,20 @@ public static class DemoNpcBuilder
 
         k.avoidedTopics.Add(dangerousMemory);
 
-        var t = config.triggers;
-        t.triggers.Add(new DialogueTriggerSet.DialogueTrigger
-        {
-            key = "trigger.maren.first_meeting",
-            topic = null,
-            kind = DialogueTriggerSet.TriggerKind.OneTime,
-            text = "First time the player meets Maren she comments on the wind direction and asks where they came from.",
-        });
-        t.triggers.Add(new DialogueTriggerSet.DialogueTrigger
-        {
-            key = "trigger.maren.clue_cave_north",
-            topic = caveNorth,
-            kind = DialogueTriggerSet.TriggerKind.ClueReveal,
-            text = "Maren mentions a sealed cave to the north when the player brings up old places or asks about secrets.",
-        });
-        t.triggers.Add(new DialogueTriggerSet.DialogueTrigger
-        {
-            key = "trigger.maren.secret_cave_method",
-            topic = caveNorth,
-            kind = DialogueTriggerSet.TriggerKind.Secret,
-            text = "If trust is high enough, Maren tells the player how the cave actually opens (sky tunnel + a wind pump).",
-        });
-        t.triggers.Add(new DialogueTriggerSet.DialogueTrigger
-        {
-            key = "trigger.maren.forbid_storm_year",
-            topic = dangerousMemory,
-            kind = DialogueTriggerSet.TriggerKind.Forbidden,
-            text = "Maren refuses to discuss the Storm Year directly. She changes the subject to birds or weather.",
-        });
+        EnsureFolderChain(TriggersFolder);
+        config.triggers.Clear();
+        config.triggers.Add(GetOrCreateTrigger("trigger.maren.first_meeting", null,
+            DialogueTriggerDef.TriggerKind.OneTime,
+            "First time the player meets Maren she comments on the wind direction and asks where they came from."));
+        config.triggers.Add(GetOrCreateTrigger("trigger.maren.clue_cave_north", caveNorth,
+            DialogueTriggerDef.TriggerKind.ClueReveal,
+            "Maren mentions a sealed cave to the north when the player brings up old places or asks about secrets."));
+        config.triggers.Add(GetOrCreateTrigger("trigger.maren.secret_cave_method", caveNorth,
+            DialogueTriggerDef.TriggerKind.Secret,
+            "If trust is high enough, Maren tells the player how the cave actually opens (sky tunnel + a wind pump)."));
+        config.triggers.Add(GetOrCreateTrigger("trigger.maren.forbid_storm_year", dangerousMemory,
+            DialogueTriggerDef.TriggerKind.Forbidden,
+            "Maren refuses to discuss the Storm Year directly. She changes the subject to birds or weather."));
 
         var r = config.relationship;
         r.startingTrust = 35;
@@ -97,7 +83,6 @@ public static class DemoNpcBuilder
         EditorUtility.SetDirty(config);
         EditorUtility.SetDirty(profile);
         EditorUtility.SetDirty(k);
-        EditorUtility.SetDirty(t);
         EditorUtility.SetDirty(r);
         AssetDatabase.SaveAssets();
 
@@ -117,6 +102,27 @@ public static class DemoNpcBuilder
     private static NpcKnowledgeBase.KnowledgeEntry MakeEntryGated(Topic topic, string text, NpcKnowledgeBase.RevealCondition reveal, int threshold)
     {
         return new NpcKnowledgeBase.KnowledgeEntry { topic = topic, text = text, reveal = reveal, threshold = threshold };
+    }
+
+    private static DialogueTriggerDef GetOrCreateTrigger(string assetName, Topic topic, DialogueTriggerDef.TriggerKind kind, string description)
+    {
+        string path = TriggersFolder + "/" + assetName + ".asset";
+        var existing = AssetDatabase.LoadAssetAtPath<DialogueTriggerDef>(path);
+        if (existing != null)
+        {
+            existing.topic = topic;
+            existing.kind = kind;
+            existing.description = description;
+            EditorUtility.SetDirty(existing);
+            return existing;
+        }
+
+        var def = ScriptableObject.CreateInstance<DialogueTriggerDef>();
+        def.topic = topic;
+        def.kind = kind;
+        def.description = description;
+        AssetDatabase.CreateAsset(def, path);
+        return def;
     }
 
     private static Topic GetOrCreateTopic(string topicId, string displayName, Topic.Category category, string description)

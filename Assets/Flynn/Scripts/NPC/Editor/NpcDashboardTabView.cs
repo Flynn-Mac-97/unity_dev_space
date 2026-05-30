@@ -1,27 +1,29 @@
-using System.Collections.Generic;
-using System.Text;
 using UnityEditor;
 using UnityEngine;
 
 public class NpcDashboardTabView
 {
     private Vector2 _scroll;
+    private SerializedObject _configSo;
+    private Vector2 _previewScroll;
+    private Vector2 _templateScroll;
 
-    private int _stubTrust = 50;
-    private int _stubAffection = 50;
-    private int _stubSuspicion = 20;
-    private NpcRelationshipDefaults.PlayerStatusTag _stubStatus = NpcRelationshipDefaults.PlayerStatusTag.Useful;
-    private string _stubActiveTopic = "(none)";
+    private const float TemplateBoxHeight = 220f;
+    private const float PreviewBoxHeight  = 260f;
 
     public void Draw(NpcDialogueAgentConfig config)
     {
         if (config == null) return;
 
+        if (_configSo == null || _configSo.targetObject != config)
+            _configSo = new SerializedObject(config);
+
         _scroll = EditorGUILayout.BeginScrollView(_scroll);
 
         DrawSummary(config);
         DrawValidator(config);
-        DrawPromptPreview(config);
+        DrawPromptBuilder(config);
+        DrawRuntime();
 
         EditorGUILayout.EndScrollView();
     }
@@ -67,99 +69,99 @@ public class NpcDashboardTabView
         EditorGUILayout.EndVertical();
     }
 
-    private void DrawPromptPreview(NpcDialogueAgentConfig config)
+    private void DrawPromptBuilder(NpcDialogueAgentConfig config)
     {
         EditorGUILayout.Space(8f);
         EditorGUILayout.BeginVertical("box");
-        EditorGUILayout.LabelField("PROMPT PREVIEW", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField("PROMPT BUILDER", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox(
+            "Author the per-NPC system prompt below. {tokens} are substituted at runtime with data from the Identity, Knowledge, Triggers, and Relationships tabs. The global system prompt on SceneLlmManager is prepended automatically.",
+            MessageType.Info);
 
-        if (config.promptTemplate == null)
-        {
-            EditorGUILayout.HelpBox("No prompt template assigned.", MessageType.Warning);
-            EditorGUILayout.EndVertical();
-            return;
-        }
+        DrawTokenPalette();
 
-        EditorGUILayout.LabelField("Stub runtime state — scrub to see how the prompt changes:", EditorStyles.miniLabel);
-        _stubTrust = EditorGUILayout.IntSlider("Trust", _stubTrust, 0, 100);
-        _stubAffection = EditorGUILayout.IntSlider("Affection", _stubAffection, 0, 100);
-        _stubSuspicion = EditorGUILayout.IntSlider("Suspicion", _stubSuspicion, 0, 100);
-        _stubStatus = (NpcRelationshipDefaults.PlayerStatusTag)EditorGUILayout.EnumPopup("Player status", _stubStatus);
-        _stubActiveTopic = EditorGUILayout.TextField("Active topic", _stubActiveTopic);
+        _configSo.Update();
+        var templateProp = _configSo.FindProperty("promptTemplate");
+        EditorGUILayout.LabelField("Template", EditorStyles.miniBoldLabel);
+        _templateScroll = EditorGUILayout.BeginScrollView(
+            _templateScroll, GUILayout.Height(TemplateBoxHeight));
+        templateProp.stringValue = EditorGUILayout.TextArea(
+            templateProp.stringValue, GUILayout.ExpandHeight(true));
+        EditorGUILayout.EndScrollView();
+        _configSo.ApplyModifiedProperties();
 
-        var ctx = new NpcPromptTemplate.PromptContext
-        {
-            trust = _stubTrust,
-            affection = _stubAffection,
-            suspicion = _stubSuspicion,
-            playerStatus = _stubStatus,
-            activeTopic = _stubActiveTopic,
-            availableCluesBlock = BuildAvailableCluesBlock(config, _stubTrust),
-            forbiddenTopicsLine = BuildForbiddenTopicsLine(config),
-            roleFlagsLine = config.roles.ToString(),
-            memorySummary = "- Player helped repair a wind pump yesterday.\n- NPC now trusts player with route advice.",
-        };
-
-        string assembled = config.promptTemplate.BuildAssembledPrompt(config.personalityProfile, ctx);
-
-        EditorGUILayout.Space(4f);
-        EditorGUILayout.LabelField("Assembled prompt:", EditorStyles.miniLabel);
-        EditorGUILayout.SelectableLabel(assembled, EditorStyles.textArea, GUILayout.MinHeight(260f));
-
-        EditorGUILayout.BeginHorizontal();
-        if (GUILayout.Button("Copy prompt"))
-            EditorGUIUtility.systemCopyBuffer = assembled;
-        if (GUILayout.Button("Open floating preview"))
-            NpcPromptPreviewWindow.Open(config.promptTemplate, config.personalityProfile);
-        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.Space(6f);
+        DrawPreview(config);
 
         EditorGUILayout.EndVertical();
     }
 
-    private static string BuildAvailableCluesBlock(NpcDialogueAgentConfig config, int trust)
+    private static void DrawTokenPalette()
     {
-        if (config.knowledge == null) return "(no knowledge authored)";
-
-        int clueThreshold = config.relationship != null ? config.relationship.trustToShareClues : 50;
-        int secretThreshold = config.relationship != null ? config.relationship.trustToShareSecrets : 75;
-
-        var sb = new StringBuilder();
-        AppendEntries(sb, config.knowledge.knownFacts, trust, 0, "fact");
-        AppendEntries(sb, config.knowledge.beliefs, trust, 0, "belief");
-        AppendEntries(sb, config.knowledge.rumors, trust, clueThreshold, "rumor");
-        AppendEntries(sb, config.knowledge.secrets, trust, secretThreshold, "secret");
-
-        if (sb.Length == 0) sb.Append("(nothing eligible at this relationship)");
-        return sb.ToString().TrimEnd();
+        EditorGUILayout.LabelField("Tokens (click to copy)", EditorStyles.miniBoldLabel);
+        const int perRow = 4;
+        for (int i = 0; i < NpcPromptTokens.All.Length; i += perRow)
+        {
+            EditorGUILayout.BeginHorizontal();
+            for (int j = i; j < i + perRow && j < NpcPromptTokens.All.Length; j++)
+            {
+                string token = NpcPromptTokens.All[j];
+                if (GUILayout.Button(token))
+                    EditorGUIUtility.systemCopyBuffer = token;
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.Space(4f);
     }
 
-    private static void AppendEntries(StringBuilder sb, List<NpcKnowledgeBase.KnowledgeEntry> entries, int trust, int defaultThreshold, string label)
+    private void DrawPreview(NpcDialogueAgentConfig config)
     {
-        for (int i = 0; i < entries.Count; i++)
+        EditorGUILayout.LabelField("Preview (what the LLM will see)", EditorStyles.miniBoldLabel);
+
+        var sceneLlm = Object.FindObjectOfType<SceneLlmManager>();
+
+        var sb = new System.Text.StringBuilder();
+        if (sceneLlm != null && !string.IsNullOrWhiteSpace(sceneLlm.systemPrompt))
+            sb.Append(sceneLlm.systemPrompt.Trim());
+
+        if (!string.IsNullOrWhiteSpace(config.promptTemplate))
         {
-            var e = entries[i];
-            if (e == null || string.IsNullOrWhiteSpace(e.text)) continue;
-            int needed = e.reveal == NpcKnowledgeBase.RevealCondition.TrustAtLeast ? e.threshold : defaultThreshold;
-            if (trust < needed) continue;
-            sb.Append("- [").Append(label).Append("] ");
-            if (e.topic != null) sb.Append(e.topic.GetSafeDisplayName()).Append(": ");
-            sb.Append(e.text.Trim()).Append('\n');
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append(NpcPromptTokens.Apply(config.promptTemplate.Trim(), config));
         }
+
+        string assembled = sb.Length > 0 ? sb.ToString() : "(no prompt configured)";
+
+        if (sceneLlm == null)
+            EditorGUILayout.HelpBox("No SceneLlmManager in open scenes — global prompt section is empty in this preview.", MessageType.Info);
+
+        _previewScroll = EditorGUILayout.BeginScrollView(
+            _previewScroll, GUILayout.Height(PreviewBoxHeight));
+
+        // SelectableLabel doesn't grow to fit content, so measure the assembled string
+        // against the current view width and give the label an explicit height. That
+        // makes the surrounding fixed-height scroll view actually scroll.
+        float viewWidth = EditorGUIUtility.currentViewWidth - 60f;
+        float contentHeight = EditorStyles.textArea.CalcHeight(
+            new GUIContent(assembled), Mathf.Max(120f, viewWidth));
+        EditorGUILayout.SelectableLabel(assembled, EditorStyles.textArea,
+            GUILayout.Height(contentHeight), GUILayout.ExpandWidth(true));
+
+        EditorGUILayout.EndScrollView();
+
+        if (GUILayout.Button("Copy preview"))
+            EditorGUIUtility.systemCopyBuffer = assembled;
     }
 
-    private static string BuildForbiddenTopicsLine(NpcDialogueAgentConfig config)
+    private void DrawRuntime()
     {
-        if (config.knowledge == null || config.knowledge.avoidedTopics == null || config.knowledge.avoidedTopics.Count == 0)
-            return "(none)";
-
-        var sb = new StringBuilder();
-        for (int i = 0; i < config.knowledge.avoidedTopics.Count; i++)
-        {
-            var t = config.knowledge.avoidedTopics[i];
-            if (t == null) continue;
-            if (sb.Length > 0) sb.Append(", ");
-            sb.Append(t.GetSafeDisplayName());
-        }
-        return sb.Length == 0 ? "(none)" : sb.ToString();
+        EditorGUILayout.Space(8f);
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.LabelField("RUNTIME", EditorStyles.boldLabel);
+        _configSo.Update();
+        EditorGUILayout.PropertyField(_configSo.FindProperty("useLocalModel"));
+        EditorGUILayout.PropertyField(_configSo.FindProperty("fallbackReply"));
+        _configSo.ApplyModifiedProperties();
+        EditorGUILayout.EndVertical();
     }
 }

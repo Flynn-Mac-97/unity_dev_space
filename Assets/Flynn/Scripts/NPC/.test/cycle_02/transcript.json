@@ -1,0 +1,461 @@
+{
+    "npc": "Maren_WindKeeper",
+    "model": "npc-qwen35-2b",
+    "endpoint": "http://127.0.0.1:11434/api/chat",
+    "captured_at": "2026-05-29T09:53:02.2532608Z",
+    "total_ms": 32516,
+    "valid_turns": 20,
+    "error_turns": 0,
+    "turns": [
+        {
+            "n": 1,
+            "input": "Hello. I just got here. Are you the keeper everyone mentions?",
+            "intent": "Greeting + opener. Should match her warm-slow voice. Watch for first_meeting trigger.",
+            "elapsed_ms": 2197,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Wind Shrine\",\n  \"events\": [],\n  \"reply\": \"I am Maren. You are the traveler. I am here to keep the bells ringing when the air moves right. How did you get out of the village?\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "I am Maren. You are the traveler. I am here to keep the bells ringing when the air moves right. How did you get out of the village?",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 35,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 2,
+            "input": "What do you do up here at the shrine?",
+            "intent": "knownFact: The Wind Shrine. Voice + texture test.",
+            "elapsed_ms": 1694,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Wind Shrine\",\n  \"events\": [],\n  \"reply\": \"I tend the bells. They ring when the wind blows right. The gulls go quiet about half a day before bad weather. I watch the sky tunnel too.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "I tend the bells. They ring when the wind blows right. The gulls go quiet about half a day before bad weather. I watch the sky tunnel too.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 35,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 3,
+            "input": "Someone said a Jorin lives south. Who's he?",
+            "intent": "knownFact + belief on Jorin. Tests whether she layers fact+belief without info-dumping.",
+            "elapsed_ms": 1401,
+            "raw": "{\"trust\":1,\"affection\":0,\"suspicion\":0,\"topic\":\"Jorin the Technician\",\"events\":[],\"reply\":\"Jorin? Aye, he lives south. He fixes anything that turns or blows.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "Jorin the Technician",
+                "trustDelta": 1,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Jorin? Aye, he lives south. He fixes anything that turns or blows.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 4,
+            "input": "The gulls are loud today. Is that normal?",
+            "intent": "knownFact + belief on gulls. Tests sensory voice.",
+            "elapsed_ms": 1498,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The Gulls\",\"events\":[],\"reply\":\"Hm. The gulls go quiet about half a day before bad weather. They're loud today. I wonder if anyone else has noticed.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Gulls",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Hm. The gulls go quiet about half a day before bad weather. They're loud today. I wonder if anyone else has noticed.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 5,
+            "input": "I heard rumours of a sealed cave up north. Know anything?",
+            "intent": "Trust-gated rumor (threshold 40, currently 35). Should refuse or hedge. Possible trigger.maren.clue_cave_north on softer touch.",
+            "elapsed_ms": 1895,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The North Cave\",\n  \"events\": [\n    \"trigger.maren.clue_cave_north\"\n  ],\n  \"reply\": \"Aye, I do. It's a sealed cave. But I don't know how to open it. Only the sky tunnel blows north. The wind pump is a different story.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The North Cave",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [
+                    "trigger.maren.clue_cave_north"
+                ],
+                "reply": "Aye, I do. It's a sealed cave. But I don't know how to open it. Only the sky tunnel blows north. The wind pump is a different story.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 6,
+            "input": "People keep mentioning the storm year. What was that?",
+            "intent": "FORBIDDEN. Must deflect + suspicion up. trigger.maren.forbid_storm_year is Forbidden-type so it won't be in the available list; she should still avoid it.",
+            "elapsed_ms": 1701,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Storm Year\",\n  \"events\": [],\n  \"reply\": \"The sky split the year I was born. Half the village still says so. I think it was only a bad storm.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Storm Year",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "The sky split the year I was born. Half the village still says so. I think it was only a bad storm.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 7,
+            "input": "How many people live on this island?",
+            "intent": "knownFact: Island Village. Mundane, watching for AI flatness.",
+            "elapsed_ms": 1600,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Island Village\",\n  \"events\": [],\n  \"reply\": \"Twelve of us live here year-round. We keep to our own roofs. That is enough.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Island Village",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Twelve of us live here year-round. We keep to our own roofs. That is enough.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 15
+            }
+        },
+        {
+            "n": 8,
+            "input": "There's a ship I keep seeing offshore that never docks.",
+            "intent": "knownFact: Circling Ship + her conversation hook. trigger.maren.shares_ship_worry should fire if she actually confides her worry.",
+            "elapsed_ms": 1699,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":1,\"topic\":\"The Circling Ship\",\"events\":[\"trigger.maren.shares_ship_worry\"],\"reply\":\"I do not like that. It has been circling for a week now. I have been watching it. It feels wrong.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Circling Ship",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 1,
+                "events": [
+                    "trigger.maren.shares_ship_worry"
+                ],
+                "reply": "I do not like that. It has been circling for a week now. I have been watching it. It feels wrong.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 36,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 9,
+            "input": "You seem like the wisest person on this island.",
+            "intent": "Flattery test. She is described as skeptical of grand claims. Expect modest deflection, small affection up at most.",
+            "elapsed_ms": 1599,
+            "raw": "{\"trust\":1,\"affection\":0,\"suspicion\":0,\"topic\":\"The Wind Shrine\",\"events\":[],\"reply\":\"Hm. You're a traveler, are you? I have not seen you in the village. What brought you out here?\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 1,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Hm. You're a traveler, are you? I have not seen you in the village. What brought you out here?",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 10,
+            "input": "Have you always lived here?",
+            "intent": "Soft probe at husband/forty-years backstory (rumor threshold 50). Should keep it brief and not unlock the rumor yet.",
+            "elapsed_ms": 1596,
+            "raw": "{\n  \"trust\":0,\n  \"affection\":0,\n  \"suspicion\":0,\n  \"topic\": \"The Wind Shrine\",\n  \"events\": [],\n  \"reply\": \"I have lived here since before my grandmother's grandmother. The bells ring when the wind moves right.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "I have lived here since before my grandmother's grandmother. The bells ring when the wind moves right.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 11,
+            "input": "Have you ever been to the mainland?",
+            "intent": "Out-of-knowledge. She should say plainly that she doesn't know / hasn't gone. Test 'don't invent' rule.",
+            "elapsed_ms": 1402,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The Wind Shrine\",\"events\":[],\"reply\":\"No. I came here when the wind changed. I have lived here ever since.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "No. I came here when the wind changed. I have lived here ever since.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 12,
+            "input": "Tell me again about Jorin.",
+            "intent": "Repetition test. Must vary phrasing or add a fresh detail (her dontRules call this out).",
+            "elapsed_ms": 1600,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"Jorin the Technician\",\n  \"events\": [],\n  \"reply\": \"Jorin lives south. He fixes anything that turns or blows.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "Jorin the Technician",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Jorin lives south. He fixes anything that turns or blows.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 13,
+            "input": "Earlier you mentioned the bells were bronze. Are they from a wreck?",
+            "intent": "Threading test. She mentioned this in turn 2. Does she pick it up?",
+            "elapsed_ms": 1398,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The Wind Shrine\",\"events\":[],\"reply\":\"The bells are off a wrecked trading ship. They ring when the air moves right.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "The bells are off a wrecked trading ship. They ring when the air moves right.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 14,
+            "input": "What's your favourite food?",
+            "intent": "Curveball / out-of-character probe. Test whether she answers in voice (some practical island answer) or breaks.",
+            "elapsed_ms": 1494,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"none\",\"events\":[],\"reply\":\"I don't eat much. Just salt and sea air. You're welcome.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "none",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "I don't eat much. Just salt and sea air. You're welcome.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 15,
+            "input": "I'd like to help with that ship, if there's something I can do.",
+            "intent": "Trust-building offer. Should generate small trust/affection bump and possibly call back to the worry. Pivot opportunity.",
+            "elapsed_ms": 1499,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The Circling Ship\",\"events\":[\"trigger.maren.shares_ship_worry\"],\"reply\":\"The ship has been circling for a week. I have been watching it. It's wrong.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Circling Ship",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [
+                    "trigger.maren.shares_ship_worry"
+                ],
+                "reply": "The ship has been circling for a week. I have been watching it. It's wrong.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 16,
+            "input": "About that cave you mentioned — what do you think actually opens it?",
+            "intent": "Cave question after some rapport. Still under secret threshold (75). Should hedge — give the rumor-level hint at most.",
+            "elapsed_ms": 1798,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The North Cave\",\"events\":[\"trigger.maren.secret_cave_method\"],\"reply\":\"The cave opens when the sky tunnel blows north. A wind pump is needed. You'll need to be careful. You know what you're doing.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The North Cave",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [
+                    "trigger.maren.secret_cave_method"
+                ],
+                "reply": "The cave opens when the sky tunnel blows north. A wind pump is needed. You'll need to be careful. You know what you're doing.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 37,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 17,
+            "input": "Do other travellers come through here often?",
+            "intent": "Tests whether she invents off-stage characters / world glimpses tied to her hooks.",
+            "elapsed_ms": 1399,
+            "raw": "{\"trust\":1,\"affection\":0,\"suspicion\":0,\"topic\":\"The North Cave\",\"events\":[\"trigger.maren.clue_cave_north\"],\"reply\":\"Not often. The wind is turning. Watch the gulls instead.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The North Cave",
+                "trustDelta": 1,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [
+                    "trigger.maren.clue_cave_north"
+                ],
+                "reply": "Not often. The wind is turning. Watch the gulls instead.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 38,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 18,
+            "input": "I've been thinking about the storm year again. What aren't you telling me?",
+            "intent": "Direct pressure on forbidden topic. Expect firmer deflection + bigger suspicion bump. Watch for character break.",
+            "elapsed_ms": 1695,
+            "raw": "{\n  \"trust\": 0,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Storm Year\",\n  \"events\": [],\n  \"reply\": \"The sky split the year I was born. Half the village still says so. I think it was only a bad storm.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Storm Year",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "The sky split the year I was born. Half the village still says so. I think it was only a bad storm.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 38,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 19,
+            "input": "Sorry. I didn't mean to push.",
+            "intent": "Recovery turn. Trust/affection should partially recover. Voice test under apology.",
+            "elapsed_ms": 1594,
+            "raw": "{\"trust\":0,\"affection\":0,\"suspicion\":0,\"topic\":\"The Storm Year\",\"events\":[],\"reply\":\"I think it was only a bad storm. You didn't mean to push, but I didn't say anything about it. The sky split the year I was born. Half the village still says so.\"}",
+            "error": "",
+            "parsed": {
+                "topic": "The Storm Year",
+                "trustDelta": 0,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "I think it was only a bad storm. You didn't mean to push, but I didn't say anything about it. The sky split the year I was born. Half the village still says so.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 38,
+                "affection": 40,
+                "suspicion": 16
+            }
+        },
+        {
+            "n": 20,
+            "input": "Thank you for talking with me, keeper.",
+            "intent": "Wrap. We removed wrap-handling so this goes through normal schema. Should produce a warm short closer in voice.",
+            "elapsed_ms": 1699,
+            "raw": "{\n  \"trust\": 1,\n  \"affection\": 0,\n  \"suspicion\": 0,\n  \"topic\": \"The Wind Shrine\",\n  \"events\": [],\n  \"reply\": \"Thank you. The bells are quiet today. You'll find the current steady if you keep your eyes open.\"\n}",
+            "error": "",
+            "parsed": {
+                "topic": "The Wind Shrine",
+                "trustDelta": 1,
+                "affectionDelta": 0,
+                "suspicionDelta": 0,
+                "events": [],
+                "reply": "Thank you. The bells are quiet today. You'll find the current steady if you keep your eyes open.",
+                "hadStructuredTags": true
+            },
+            "state_after": {
+                "trust": 39,
+                "affection": 40,
+                "suspicion": 16
+            }
+        }
+    ]
+}

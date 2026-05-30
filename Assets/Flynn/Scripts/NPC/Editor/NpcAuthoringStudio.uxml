@@ -24,7 +24,7 @@
                 <ui:Button name="TabKnowledge" text="KNOWLEDGE" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
                 <ui:Button name="TabTriggers" text="TRIGGERS" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
                 <ui:Button name="TabRelationships" text="RELATIONSHIPS" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
-                <ui:Button name="TabAi" text="AI &amp; MEMORY" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
+                <ui:Button name="TabMemory" text="MEMORY" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
                 <ui:Button name="TabDashboard" text="DASHBOARD" class="btn" style="margin: 0; border-width: 0; border-bottom-width: 1px; border-bottom-color: rgba(255,255,255,0.25); padding-top: 10px; padding-bottom: 10px;" />
             </ui:VisualElement>
 

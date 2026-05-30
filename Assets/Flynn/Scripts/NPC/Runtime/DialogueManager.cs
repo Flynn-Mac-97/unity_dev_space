@@ -8,8 +8,6 @@ public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance { get; private set; }
 
-    public static event Action<NpcDialogueAgentConfig, NpcLlmResponseParser.ParsedTurn> GameplayUpdateApplied;
-
     [SerializeField] private UIDocument uiDocument;
 
     private VisualElement _root;
@@ -22,13 +20,13 @@ public class DialogueManager : MonoBehaviour
 
     private NpcDialogueData _current;
     private NpcDialogueAgentConfig _activeAgentConfig;
-    private NpcRelationshipState _activeRelationship;
     private int _lineIndex;
     private bool _isBound;
     private bool _callbacksRegistered;
     private bool _isWaitingForReply;
 
     private readonly List<string> _recentTurns = new List<string>();
+    private int _turnCount;
     private const int k_DefaultRecentTurnsLimit = 8;
     private const string k_DefaultSaveSlotId = "slot_0";
     private const string k_PlayerSpeaker = "Player";
@@ -61,10 +59,10 @@ public class DialogueManager : MonoBehaviour
         if (!TryBindUi()) return;
 
         _activeAgentConfig = null;
-        _activeRelationship = null;
         _activeNpcMemoryId = null;
         _isWaitingForReply = false;
         _recentTurns.Clear();
+        _turnCount = 0;
         _current = data;
         _lineIndex = 0;
         _npcNameLabel.text = data.npcName;
@@ -80,6 +78,8 @@ public class DialogueManager : MonoBehaviour
         OpenAgent(config, fallbackData, null);
     }
 
+    // The relationship parameter is accepted for source compatibility with existing
+    // callers (NpcInteraction passes one in) but is no longer used at runtime.
     public void OpenAgent(NpcDialogueAgentConfig config, NpcDialogueData fallbackData, NpcRelationshipState relationship)
     {
         if (config == null)
@@ -91,9 +91,9 @@ public class DialogueManager : MonoBehaviour
         if (!TryBindUi()) return;
 
         _activeAgentConfig = config;
-        _activeRelationship = relationship;
         _isWaitingForReply = false;
         _recentTurns.Clear();
+        _turnCount = 0;
 
         _current = fallbackData;
         _lineIndex = 0;
@@ -155,65 +155,64 @@ public class DialogueManager : MonoBehaviour
         _isWaitingForReply = true;
         _dialogueText.text = "Thinking...";
 
-        AddTurn(k_PlayerSpeaker, playerInput);
-
         SceneLlmManager sceneLlm = SceneLlmManager.Instance != null
             ? SceneLlmManager.Instance
             : FindObjectOfType<SceneLlmManager>();
 
         if (sceneLlm == null || !sceneLlm.HasValidSettings())
         {
-            string noManagerFallback = GetFallbackReply();
-            ApplyNpcReply(noManagerFallback);
+            AddTurn(k_PlayerSpeaker, playerInput);
+            ApplyNpcReply("[Fallback] " + GetFallbackReply());
             _isWaitingForReply = false;
             yield break;
         }
 
-        string memorySummary = BuildMemorySummary();
-        string systemPrompt = BuildSystemPrompt(memorySummary);
+        int debugTurnNumber = _turnCount + 1;
+        LlmDebugBus.BeginTurn(debugTurnNumber, playerInput);
+
+        string systemPrompt = BuildSystemPrompt(sceneLlm);
+        var priorTurns = BuildChatHistory();
 
         string reply = null;
         string error = null;
-
+        var sw = System.Diagnostics.Stopwatch.StartNew();
         yield return StartCoroutine(LocalLlmClient.GenerateReply(
-            sceneLlm.sharedLocalModelSettings,
-            systemPrompt,
-            playerInput,
-            (result, requestError) =>
-            {
-                reply = result;
-                error = requestError;
-            }));
+            sceneLlm.sharedLocalModelSettings, systemPrompt, priorTurns, playerInput,
+            (result, requestError) => { reply = result; error = requestError; }));
+        sw.Stop();
+
+        LlmDebugBus.RecordStage(new LlmDebugBus.StageEntry
+        {
+            turnNumber = debugTurnNumber,
+            stage = LlmDebugBus.Stage.Dialogue,
+            systemPrompt = systemPrompt,
+            chatHistory = FormatChatHistoryForDebug(priorTurns),
+            chatHistoryTurns = priorTurns != null ? priorTurns.Count : 0,
+            userPrompt = playerInput,
+            rawResponse = reply,
+            parsedSummary = string.IsNullOrEmpty(reply) ? "(empty)" : reply,
+            elapsedMs = sw.ElapsedMilliseconds,
+            error = error
+        });
+
+        AddTurn(k_PlayerSpeaker, playerInput);
 
         if (!string.IsNullOrWhiteSpace(error))
-        {
             Debug.LogWarning($"[Dialogue] LLM request error: {error}");
-        }
 
         if (string.IsNullOrWhiteSpace(reply))
+            reply = "[Fallback] " + GetFallbackReply();
+
+        LlmDebugBus.EndTurn(new LlmDebugBus.TurnSummary
         {
-            reply = GetFallbackReply();
-        }
+            turnNumber = debugTurnNumber,
+            playerInput = playerInput,
+            finalReply = reply,
+        });
 
-        var parsed = NpcLlmResponseParser.Parse(reply);
+        _turnCount++;
 
-        if (parsed.hadStructuredTags && _activeRelationship != null)
-        {
-            if (parsed.trustDelta != 0)     _activeRelationship.AdjustTrust(parsed.trustDelta);
-            if (parsed.affectionDelta != 0) _activeRelationship.AdjustAffection(parsed.affectionDelta);
-            if (parsed.suspicionDelta != 0) _activeRelationship.AdjustSuspicion(parsed.suspicionDelta);
-        }
-
-        if (parsed.hadStructuredTags)
-        {
-            Debug.Log(string.Format(
-                "[Dialogue] Parsed update -> topic='{0}' trust={1:+#;-#;0} aff={2:+#;-#;0} susp={3:+#;-#;0}",
-                parsed.topic, parsed.trustDelta, parsed.affectionDelta, parsed.suspicionDelta));
-            GameplayUpdateApplied?.Invoke(_activeAgentConfig, parsed);
-        }
-
-        string visibleReply = string.IsNullOrWhiteSpace(parsed.reply) ? reply : parsed.reply;
-        ApplyNpcReply(visibleReply);
+        ApplyNpcReply(reply);
         _isWaitingForReply = false;
     }
 
@@ -226,62 +225,147 @@ public class DialogueManager : MonoBehaviour
             Close();
     }
 
-    private string BuildSystemPrompt(string memorySummary)
+    // Single concatenated system prompt: scene-global rules + per-NPC persona + (optional)
+    // facts the NPC knows + (optional) player profile block. One LLM call consumes this.
+    private string BuildSystemPrompt(SceneLlmManager sceneLlm)
     {
-        if (_activeAgentConfig == null || _activeAgentConfig.promptTemplate == null)
-            return "You are a helpful NPC. Reply in 1-4 lines as text only.";
+        var sb = new System.Text.StringBuilder();
 
-        var ctx = NpcPromptContextBuilder.Build(_activeAgentConfig, _activeRelationship, memorySummary);
-        string assembled = _activeAgentConfig.promptTemplate.BuildAssembledPrompt(
-            _activeAgentConfig.personalityProfile,
-            ctx);
-        return assembled + "\n\n" + NpcLlmResponseParser.SchemaInstructions;
-    }
+        if (sceneLlm != null && !string.IsNullOrWhiteSpace(sceneLlm.systemPrompt))
+            sb.Append(sceneLlm.systemPrompt.Trim());
 
-    private string BuildMemorySummary()
-    {
-        if (_activeAgentConfig == null || _activeAgentConfig.memorySettings == null)
+        var profile = _activeAgentConfig != null ? _activeAgentConfig.personalityProfile : null;
+        if (_activeAgentConfig != null && !string.IsNullOrWhiteSpace(_activeAgentConfig.promptTemplate))
         {
-            if (_recentTurns.Count == 0) return "None yet.";
-            return string.Join("\n", _recentTurns);
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append(NpcPromptTokens.Apply(_activeAgentConfig.promptTemplate.Trim(), _activeAgentConfig));
+        }
+        else if (profile != null)
+        {
+            if (sb.Length > 0) sb.Append("\n\n");
+            sb.Append("You are ").Append(profile.GetSafeDisplayName()).Append('.');
+            if (!string.IsNullOrWhiteSpace(profile.roleDescription))
+                sb.Append(' ').Append(profile.roleDescription.Trim());
         }
 
-        NpcMemorySettings settings = _activeAgentConfig.memorySettings;
+        string memorySummary = BuildMemorySummary(sceneLlm);
+        if (!string.IsNullOrWhiteSpace(memorySummary) && memorySummary != "None yet.")
+        {
+            sb.Append("\n\n").Append(memorySummary);
+        }
+
+        if (sceneLlm != null && sceneLlm.playerProfile != null)
+        {
+            var p = sceneLlm.playerProfile;
+            string playerName = p.GetSafeDisplayName();
+            if (!string.IsNullOrWhiteSpace(playerName))
+            {
+                sb.Append("\n\nThe player you are speaking to is named ").Append(playerName).Append('.');
+                if (!string.IsNullOrWhiteSpace(p.persona))
+                    sb.Append(' ').Append(p.persona.Trim());
+            }
+        }
+
+        return sb.ToString();
+    }
+
+    private string BuildMemorySummary(SceneLlmManager sceneLlm)
+    {
+        // Only long-term facts go in the system prompt now.
+        // Recent turns are sent to the model as real chat history via BuildChatHistory.
+        NpcMemorySettings settings = GetSharedMemorySettings(sceneLlm);
+        if (_activeAgentConfig == null || settings == null)
+            return "None yet.";
+
         NpcDialogueMemoryStore.NpcMemoryEntry memory =
             NpcDialogueMemoryStore.GetOrCreateMemory(GetActiveNpcMemoryId(), GetActiveSaveSlotId());
 
-        var lines = new List<string>();
+        if (memory.memoryFacts == null || memory.memoryFacts.Count == 0)
+            return "None yet.";
 
-        if (memory.memoryFacts != null && memory.memoryFacts.Count > 0)
-        {
-            lines.Add("Known facts:");
-
-            int factBudget = Mathf.Clamp(settings.injectedFacts, 1, Mathf.Max(1, settings.memoryFactsLimit));
-            int factsStart = Mathf.Max(0, memory.memoryFacts.Count - factBudget);
-            for (int i = factsStart; i < memory.memoryFacts.Count; i++)
-                lines.Add("- " + memory.memoryFacts[i]);
-        }
-
-        IList<string> recentTurnsSource = memory.recentTurns != null && memory.recentTurns.Count > 0
-            ? (IList<string>)memory.recentTurns
-            : _recentTurns;
-
-        if (recentTurnsSource.Count > 0)
-        {
-            if (lines.Count > 0)
-                lines.Add(string.Empty);
-
-            lines.Add("Recent turns:");
-
-            int recentBudget = Mathf.Clamp(settings.injectedRecentTurns, 1, GetRecentTurnsCap());
-            int turnsStart = Mathf.Max(0, recentTurnsSource.Count - recentBudget);
-            for (int i = turnsStart; i < recentTurnsSource.Count; i++)
-                lines.Add(recentTurnsSource[i]);
-        }
-
-        if (lines.Count == 0) return "None yet.";
+        var lines = new List<string> { "Known facts:" };
+        int factBudget = Mathf.Max(1, settings.memoryFactsLimit);
+        int factsStart = Mathf.Max(0, memory.memoryFacts.Count - factBudget);
+        for (int i = factsStart; i < memory.memoryFacts.Count; i++)
+            lines.Add("- " + memory.memoryFacts[i]);
 
         return string.Join("\n", lines);
+    }
+
+    private static NpcMemorySettings GetSharedMemorySettings(SceneLlmManager sceneLlm)
+    {
+        return sceneLlm != null ? sceneLlm.sharedMemorySettings : null;
+    }
+
+    // Render the chat-history window as a readable transcript for the debug panel
+    // so designers can see exactly which prior turns the model is receiving with
+    // this request.
+    private static string FormatChatHistoryForDebug(List<LocalLlmClient.ChatTurn> priorTurns)
+    {
+        if (priorTurns == null || priorTurns.Count == 0) return "(no prior turns)";
+        var sb = new System.Text.StringBuilder();
+        for (int i = 0; i < priorTurns.Count; i++)
+        {
+            var t = priorTurns[i];
+            if (string.IsNullOrWhiteSpace(t.content)) continue;
+            if (sb.Length > 0) sb.Append('\n');
+            sb.Append(t.isAssistant ? "assistant: " : "user: ").Append(t.content.Trim());
+        }
+        return sb.Length == 0 ? "(no prior turns)" : sb.ToString();
+    }
+
+    private NpcMemorySettings GetSharedMemorySettings()
+    {
+        SceneLlmManager sceneLlm = SceneLlmManager.Instance != null
+            ? SceneLlmManager.Instance
+            : FindObjectOfType<SceneLlmManager>();
+        return GetSharedMemorySettings(sceneLlm);
+    }
+
+    // Pulls the last N committed turns from memory and converts them into alternating
+    // user/assistant chat messages, so the model has a proper conversational history
+    // without bloating the system prompt as the chat grows.
+    private List<LocalLlmClient.ChatTurn> BuildChatHistory()
+    {
+        var history = new List<LocalLlmClient.ChatTurn>();
+        if (_activeAgentConfig == null) return history;
+
+        NpcDialogueMemoryStore.NpcMemoryEntry memory =
+            NpcDialogueMemoryStore.GetOrCreateMemory(GetActiveNpcMemoryId(), GetActiveSaveSlotId());
+
+        if (memory.recentTurns == null || memory.recentTurns.Count == 0) return history;
+
+        int windowSize = GetChatHistoryWindow();
+        int start = Mathf.Max(0, memory.recentTurns.Count - windowSize);
+
+        for (int i = start; i < memory.recentTurns.Count; i++)
+        {
+            string line = memory.recentTurns[i];
+            if (string.IsNullOrWhiteSpace(line)) continue;
+
+            int sep = line.IndexOf(": ", System.StringComparison.Ordinal);
+            if (sep <= 0) continue;
+
+            string speaker = line.Substring(0, sep);
+            string content = line.Substring(sep + 2);
+            if (string.IsNullOrWhiteSpace(content)) continue;
+
+            history.Add(new LocalLlmClient.ChatTurn
+            {
+                isAssistant = !string.Equals(speaker, k_PlayerSpeaker, System.StringComparison.Ordinal),
+                content = content,
+            });
+        }
+
+        return history;
+    }
+
+    private int GetChatHistoryWindow()
+    {
+        NpcMemorySettings settings = GetSharedMemorySettings();
+        if (settings != null)
+            return Mathf.Max(2, settings.recentTurnsLimit);
+        return k_DefaultRecentTurnsLimit;
     }
 
     private void AddTurn(string speaker, string content)
@@ -310,7 +394,7 @@ public class DialogueManager : MonoBehaviour
             string fact = TryExtractPlayerFact(normalizedContent);
             if (!string.IsNullOrWhiteSpace(fact))
             {
-                NpcMemorySettings settings = _activeAgentConfig.memorySettings;
+                NpcMemorySettings settings = GetSharedMemorySettings();
                 int factsLimit = settings != null ? Mathf.Max(1, settings.memoryFactsLimit) : 10;
                 int maxFactLength = settings != null ? Mathf.Max(40, settings.maxFactLength) : 160;
                 NpcDialogueMemoryStore.AddFact(npcMemoryId, fact, factsLimit, maxFactLength, saveSlotId);
@@ -323,6 +407,7 @@ public class DialogueManager : MonoBehaviour
         string npcName = _npcNameLabel != null ? _npcNameLabel.text : "NPC";
         _dialogueText.text = reply;
         AddTurn(npcName, reply);
+        if (_playerInput != null) _playerInput.Focus();
     }
 
     private string GetFallbackReply()
@@ -389,8 +474,9 @@ public class DialogueManager : MonoBehaviour
 
     private int GetRecentTurnsCap()
     {
-        if (_activeAgentConfig != null && _activeAgentConfig.memorySettings != null)
-            return Mathf.Max(2, _activeAgentConfig.memorySettings.recentTurnsLimit);
+        NpcMemorySettings settings = GetSharedMemorySettings();
+        if (settings != null)
+            return Mathf.Max(2, settings.recentTurnsLimit);
 
         return k_DefaultRecentTurnsLimit;
     }

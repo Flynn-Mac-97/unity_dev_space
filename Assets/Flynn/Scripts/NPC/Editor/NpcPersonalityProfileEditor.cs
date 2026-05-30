@@ -16,8 +16,7 @@ public class NpcPersonalityProfileEditor : Editor
     private SerializedProperty _fallbackLines;
 
     private bool _showIdentity = true;
-    private bool _showVoice = true;
-    private bool _showGuidelines = true;
+    private bool _showPersona = true;
     private bool _showFallback = true;
 
     private void OnEnable()
@@ -38,7 +37,9 @@ public class NpcPersonalityProfileEditor : Editor
     {
         serializedObject.Update();
 
-        EditorGUILayout.HelpBox("Craft NPC personality for writers: identity, voice, and guardrails in one pass.", MessageType.Info);
+        EditorGUILayout.HelpBox(
+            "Source data for this NPC. Reference these fields from the per-NPC prompt template in the Dashboard tab using {tokens}.",
+            MessageType.Info);
 
         EditorGUILayout.BeginVertical("box");
         _showIdentity = EditorGUILayout.Foldout(_showIdentity, "Identity", true);
@@ -46,25 +47,18 @@ public class NpcPersonalityProfileEditor : Editor
         {
             EditorGUILayout.PropertyField(_npcId);
             EditorGUILayout.PropertyField(_displayName);
-            EditorGUILayout.PropertyField(_roleDescription);
             EditorGUILayout.PropertyField(_inGameSprite);
             EditorGUILayout.PropertyField(_portraitSprite);
         }
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.BeginVertical("box");
-        _showVoice = EditorGUILayout.Foldout(_showVoice, "Voice and Tone", true);
-        if (_showVoice)
+        _showPersona = EditorGUILayout.Foldout(_showPersona, "Persona details", true);
+        if (_showPersona)
         {
+            EditorGUILayout.PropertyField(_roleDescription);
             EditorGUILayout.PropertyField(_speakingStyle);
             EditorGUILayout.PropertyField(_personalityTraits);
-        }
-        EditorGUILayout.EndVertical();
-
-        EditorGUILayout.BeginVertical("box");
-        _showGuidelines = EditorGUILayout.Foldout(_showGuidelines, "Guidelines", true);
-        if (_showGuidelines)
-        {
             EditorGUILayout.PropertyField(_doRules);
             EditorGUILayout.PropertyField(_dontRules);
         }
@@ -92,18 +86,12 @@ public class NpcPersonalityProfileEditor : Editor
     private void DrawValidation()
     {
         if (string.IsNullOrWhiteSpace(_npcId.stringValue))
-        {
             EditorGUILayout.HelpBox("npcId is empty. Add a stable unique ID for save-memory lookup.", MessageType.Warning);
-        }
 
         if (string.IsNullOrWhiteSpace(_displayName.stringValue))
-        {
             EditorGUILayout.HelpBox("displayName is empty. Add the NPC's player-facing name.", MessageType.Warning);
-        }
 
         if (_fallbackLines.arraySize == 0)
-        {
             EditorGUILayout.HelpBox("Add at least one fallback line for offline/error cases.", MessageType.Warning);
-        }
     }
 }
