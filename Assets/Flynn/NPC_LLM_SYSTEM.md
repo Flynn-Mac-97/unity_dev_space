@@ -1,143 +1,247 @@
-# LLM NPC Dialogue System — Onboarding & Memory
+# LLM NPC Dialogue System — Onboarding
 
-Onboarding doc for the Flynn LLM-driven NPC dialogue system. Read this before touching anything under `Assets/Flynn/Scripts/NPC/`. Companion files: `Assets/Flynn/CLAUDE.md` (Flynn-wide rules), `Assets/Flynn/llm_training_log.md` (the tuning experiment record).
+Read this before touching anything under `Assets/Flynn/Scripts/NPC/`. Companion files: `Assets/Flynn/CLAUDE.md` (Flynn-wide rules), `Assets/Flynn/llm_training_log.md` (tuning record).
 
-Last updated: 2026-05-29 (split-pipeline pivot landed).
+Last updated: 2026-05-31.
 
 ---
 
 ## 1. What this system is
 
-A local-LLM-driven conversational NPC system. The player talks to an NPC in free text; a local model (via Ollama) replies **in character** and emits structured side-data (relationship deltas, the topic discussed, and gameplay "trigger" events). Designer-authored ScriptableObjects define each NPC's personality, knowledge, secrets, relationship thresholds, and triggers. The design goal is **interesting, fantasy-grounded, alive-feeling dialogue that doesn't read as generic AI-chatbot output** — and the *system* must work across many personality types (warm, dry, rude), not just one.
+A conversational NPC system backed by an LLM. The player talks to an NPC in free text; the model replies **in character** as a structured JSON envelope — **one call per turn**, no post-processing pipeline. Designer-authored ScriptableObjects define each NPC's persona, knowledge, triggers, and trust thresholds. Scene-side `NpcContextNode` components inject world prose so the NPC can speak accurately about what's around them.
 
-Test character throughout: **Maren_WindKeeper** — a Ghibli-warm, watchful island wind-keeper.
-
----
-
-## 2. Models (Ollama, local)
-
-Built from ModelScope GGUFs (Ollama's own download was too slow). Files + Modelfiles live OUTSIDE the repo at `C:\Users\DriveSIM\models\qwen35\{0.8b,2b}\`.
-
-| Ollama tag | Base | Quant | Status |
-|---|---|---|---|
-| `npc-qwen35-2b` | Qwen3.5 2B | Q4_K_M | **Primary dialogue model.** Use this for tuning. |
-| `npc-qwen35-0.8b` | Qwen3.5 0.8B | Q5_K_M | Too weak for schema+persona — stutters/recites. Kept only as a speed-floor comparison. |
-
-Modelfile essentials (both):
-- **Qwen ChatML `TEMPLATE`** (copied from `qwen3:4b-instruct`). The raw GGUFs shipped with no chat template, so Ollama defaulted to `{{ .Prompt }}` and ignored system/role messages entirely → models hallucinated wildly. Fixing the template was essential.
-- A **short, positive-only** SYSTEM prompt. Negation lists ("never mention X, never mention Y…") made the small models *recite the forbidden list in a loop*. Keep Modelfile system prompts positive.
-- `keep_alive 30m`, `repeat_penalty 1.15`, `num_ctx 8192`, ChatML stop tokens.
-
-Qwen3.5 0.8B/2B have **native JSON mode + function calling + 262K context** (released 2026-03-02). The 2B handles our `format` schema reliably.
+Test character: **Maren_WindKeeper** — a Ghibli-warm island wind-keeper.
 
 ---
 
-## 3. Runtime architecture
+## 2. Providers
 
-### Data layer (ScriptableObjects)
-Scripts in `Scripts/NPC/Runtime/Data/`. NPC config assets in `Assets/Flynn/Configs/NPC/`.
+Switched scene-wide via `SceneLlmManager.provider`:
 
-- **`NpcDialogueAgentConfig`** — per-NPC root. References personality, prompt template, memory settings, knowledge base, relationship defaults, a list of `DialogueTriggerDef`, and `NpcGameplayRoles` flags. (Maren: `Configs/NPC/Maren_WindKeeper.asset`.)
-- **`NpcPersonalityProfile`** — identity, voice, traits, do/don't rules, portrait, `conversationHooks` (things the NPC is keen to bring up — these *motivate* the model toward trigger-able moments), fallback lines.
-- **`NpcKnowledgeBase`** — four buckets (`knownFacts`, `beliefs`, `rumors`, `secrets`), each a `KnowledgeEntry` (topic + text + `RevealCondition` + threshold). Plus `avoidedTopics`.
-- **`DialogueTriggerDef`** — a fireable gameplay event. `Key` = asset filename (no typos). Kinds: StoryBeat/ClueReveal/OneTime/Repeatable/Forbidden/Secret/Misdirection.
-- **`NpcPromptTemplate`** — token-based system-prompt skeleton (`{npc_name}`, `{relationship_summary}`, `{available_clues}`, etc.).
-- **`NpcRelationshipDefaults`** — starting trust/affection/suspicion + `trustToShareClues` / `trustToShareSecrets` thresholds.
-- **`PlayerDialogueProfile`** — who the player is (Maren talks to `Configs/Player/Player_Flynn.asset`).
-- **`LocalModelSettings`** — endpoint, **dialogue** model name + sampling, **classifier** model name + sampling, timeout. Live asset: `Assets/ScriptableObjects/Dialogue/Demo/Demo_LocalModelSettings.asset` (outside Flynn). Currently: dialogue `npc-qwen35-2b` temp 0.7 maxTokens 320; classifier `npc-qwen35-0.8b` temp 0.1 maxTokens 64; timeout 45; endpoint `http://127.0.0.1:11434/api/chat`.
+### Local (Ollama)
+- `npc-qwen35-2b` (Qwen3.5 2B, Q4_K_M). ChatML `TEMPLATE` required in Modelfile.
+- Short, positive-only system prompt. `keep_alive 30m`, `repeat_penalty 1.15`, `num_ctx 8192`.
+- Files at `C:\Users\DriveSIM\models\qwen35\2b\` (outside repo).
+- Settings SO: `LocalModelSettings`.
 
-### Runtime flow ([DialogueManager.cs](Scripts/NPC/Runtime/DialogueManager.cs))
-The pipeline is now **one dialogue call + three classifier calls per turn**. The 2B model only writes the reply; the 0.8B model does all post-processing against closed vocabularies.
+### OpenRouter
+- OpenAI-compatible route. Current model: `openai/gpt-4o-mini`.
+- Settings SO: `RemoteModelSettings` with `forceJsonMode` + `requireJsonProvider`.
+- API key in EditorPrefs via **Flynn → NPC → OpenRouter Settings**; falls back to env var `OPENROUTER_API_KEY` in builds (`OpenRouterApiKey.Resolve`).
 
-1. `OpenAgent(config, fallbackData, relationship)` binds the UIToolkit panel and loads persisted memory.
-2. `SubmitPlayerInput` → `HandleAgentTurn` coroutine. Every turn goes the same path (no goodbye special-casing).
-3. **Dialogue call** — `BuildSystemPrompt` assembles persona + scored relevant clues + eager-to-share hooks + player profile + conversation-progress block + `NpcLlmResponseParser.ReplyOnlyInstructions`. No schema, no triggers list, no delta rules. `LocalLlmClient.GenerateReply` → Ollama `/api/chat`, **plain text output**. Chat history (last N turns) sent as real user/assistant messages.
-4. **Topic classifier** — `LlmClassifier.PickOne` on the NPC's reply. Options = display names of every topic referenced by the NPC's knowledge base (knownFacts/beliefs/rumors/secrets) plus `none`. Ollama `format` enum constrains output.
-5. **Events classifier** — `LlmClassifier.PickMany` on the NPC's reply. Options = gate-eligible trigger keys (drafts excluded; Forbidden excluded; one-time-already-fired excluded; Secret-kind excluded when trust < `trustToShareSecrets`). Trigger descriptions are appended as `"What each event means:"` context.
-6. **Deltas classifier** — `LlmClassifier.EstimateDeltas` on the **player's input** (not the reply) plus a short persona summary (name, role, traits, current trust/affection/suspicion). Returns `{trust, affection, suspicion}` each in -3..+3.
-7. The four outputs are composed into `ParsedTurn`. Deltas applied to `NpcRelationshipState`; `events` raised on the `DialogueTriggerChannel` SO (still re-filtered against one-time fires + Forbidden as a belt-and-braces); one-time fires recorded; topic added to `discussedTopics`.
+---
 
-### Key runtime files
-- `Runtime/Llm/LocalLlmClient.cs` — HTTP to Ollama for the **dialogue** call. Plain text output now; no schema injection.
-- `Runtime/Llm/LlmClassifier.cs` — small-model closed-vocabulary primitive. Three calls: `PickOne(instruction, text, options)`, `PickMany(...)`, `EstimateDeltas(instruction, text)`. Each uses Ollama `format` to enum-constrain the output, so JSON parsing is reliable.
-- `Runtime/Llm/NpcLlmResponseParser.cs` — minimal now. Holds `ParsedTurn` (consumed by `GameplayUpdateApplied` listeners) and the `ReplyOnlyInstructions` string. No JSON parsing.
-- `Runtime/Llm/NpcPromptContextBuilder.cs` — scores knowledge entries by relevance, builds clues/hooks/player/progress blocks. (Still exposes `BuildAvailableTriggersBlock`, now unused — kept for reference.)
-- `Runtime/Llm/SceneLlmManager.cs` — scene singleton: shared `LocalModelSettings`, `saveSlotId`, `PlayerDialogueProfile`.
-- `Runtime/Memory/NpcDialogueMemoryStore.cs` — per-NPC + per-save-slot persistence of recent turns, learned facts, fired one-time triggers.
-- `Runtime/NpcRelationshipState.cs` — live trust/affection/suspicion MonoBehaviour with `AdjustTrust/Affection/Suspicion`.
-- `Runtime/Triggers/DialogueTriggerChannel` — SO event bus scene listeners subscribe to.
-- **DELETED:** `DialogueWrapDetector.cs` (goodbye special-casing removed); `NpcLlmResponseParser.Parse` + `JsonSchemaInstructions` + `SchemaInstructions` (replaced by split pipeline); `LocalLlmClient.NpcTurnJsonSchema` and the `format`-injection branch.
+## 3. Data model
 
-### Classifier output schemas (Ollama `format`)
+### `NpcData` — the only per-NPC SO ([NpcData.cs](Scripts/NPC/Runtime/Data/NpcData.cs))
+
+Everything for one NPC lives on a single asset:
+- **Identity** — `npcId` (stable key for memory lookup), `displayName`, `portraitSprite`.
+- **Persona** — `role`, `speakingStyle`, `personalityTraits`, `doRules`, `dontRules`, `capabilities`.
+- **Knowledge** — `List<KnowledgeEntry>`; each has `KnowledgeKind { Fact, Belief, Rumor, Secret, Avoid }`, `text`, `revealTrustThreshold`.
+- **Triggers** — `List<TriggerEntry>`; each has `key`, `TriggerKind { StoryBeat, ClueReveal, OneTime, Repeatable, Forbidden }`, `description`, `draft` flag.
+- **Relationship** — `startingTrust`, `trustToShareSecrets`.
+- **LLM** — `llmEnabled` (gates all LLM calls), `fallbackReply`, `promptTemplate` (token-substituted by `NpcPromptTokens`).
+
+### Shared SOs
+- [LlmPromptConfig.cs](Scripts/NPC/Runtime/Data/LlmPromptConfig.cs) — global `systemPrompt`, `jsonOutputAddendum` (defaults to `NpcReplyEnvelope.PromptAddendum`), memory budget (`recentTurnsLimit`, `memoryFactsLimit`, `maxFactLength`).
+- `LocalModelSettings`, `RemoteModelSettings` — endpoint / model / sampling / timeout.
+- `PlayerDialogueProfile` — who the player is; used so NPCs write player suggestion-chips in the right voice.
+
+---
+
+## 4. Scene wiring — `SceneLlmManager`
+
+Single scene singleton ([SceneLlmManager.cs](Scripts/NPC/Runtime/Llm/SceneLlmManager.cs)) holding every shared reference:
+
+| Field | Purpose |
+|---|---|
+| `provider` | `Local` or `OpenRouter` — picks endpoint for the whole scene |
+| `sharedLocalModelSettings` / `sharedRemoteModelSettings` | active model config |
+| `llmEnabled` | global kill switch |
+| `promptConfig` | the `LlmPromptConfig` SO |
+| `contextRegistry` | `NpcContextRegistry` SO — scene-info lookup |
+| `triggerChannel` | `DialogueTriggerChannel` SO event bus |
+| `memoryStore` | `NpcMemoryStore` SO for the active save slot |
+| `saveSlotId` | informational label |
+| `playerProfile` | `PlayerDialogueProfile` SO |
+
+`GetActiveDialogueConfig()` returns a unified `LlmRequestConfig` (with auth/referer/json-mode headers populated when on OpenRouter).
+
+---
+
+## 5. Runtime flow ([DialogueManager.cs](Scripts/NPC/Runtime/DialogueManager.cs))
+
+1. **`OpenAgent(NpcData)`** — binds UIToolkit panel, loads persisted memory, pauses time (`Time.timeScale = 0`).
+2. **`SubmitPlayerInput`** — handles `/save`, `/clear`, `/help` chat commands; otherwise launches `HandleAgentTurn` coroutine if `llmEnabled`.
+3. **`BuildSystemPrompt`** assembles, in order:
+   - `LlmPromptConfig.systemPrompt`
+   - per-NPC `promptTemplate` after `NpcPromptTokens.Apply(template, NpcData)`
+   - **Scene context block** — `NpcContextRegistry.GetContextsFor(npc)` returns every linked `NpcContextNode`; their `contextLabel` + `contextDescription` are appended.
+   - **Memory summary** — long-term facts from `NpcMemoryStore` (budget = `memoryFactsLimit`).
+   - **Player line** — `PlayerDialogueProfile.displayName` + `persona`.
+   - **JSON output contract** — `LlmPromptConfig.jsonOutputAddendum` (always last so it dominates).
+4. **`BuildChatHistory`** — pulls last N turns from `NpcMemoryStore`, splits speaker prefix, emits alternating user/assistant messages.
+5. **`LocalLlmClient.GenerateReply`** — single POST to whichever endpoint `GetActiveDialogueConfig()` returns. URL-routes between Ollama `/api/chat` and OpenAI-compat `/v1/chat/completions`. Adds `Authorization`, `HTTP-Referer`, `X-Title` headers when present.
+6. **`NpcReplyEnvelope.TryParse`** — tolerates ```` ```json ```` fences and stray prose by extracting the outer `{...}` via brace counting. Falls back to raw text on parse failure.
+7. **`WriteEnvelopeMemoryUpdates`** — persists each `memory_updates[]` entry into `NpcMemoryStore` as `[subject] fact`.
+8. **`RaiseEnvelopeTriggers`** — validates each `triggers_fired` key against `NpcData.triggers` (drops invented keys and `draft` entries), then raises survivors on `DialogueTriggerChannel`.
+9. **`LlmDebugBus.BeginTurn / RecordStage / EndTurn`** — feeds the debug window.
+10. UI shows `reply` as the spoken line and `suggested_player_replies` as clickable chips above the input row.
+
+---
+
+## 6. JSON envelope ([NpcReplyEnvelope.cs](Scripts/NPC/Runtime/Llm/NpcReplyEnvelope.cs))
+
 ```json
-// PickOne   -> { "choice":  "<one of options or 'none'>" }
-// PickMany  -> { "choices": ["<allowed>", ...] }
-// Deltas    -> { "trust": <-3..3>, "affection": <-3..3>, "suspicion": <-3..3> }
+{
+  "reply": "the spoken line, 1-3 short sentences",
+  "topic": "short noun phrase",
+  "intent": "short verb phrase",
+  "tone": "one adjective",
+  "mood_shift": "calmer | tenser | same",
+  "relationship_deltas": { "trust": 0, "affection": 0, "suspicion": 0 },
+  "flags": ["short_tag"],
+  "suggested_player_replies": ["three", "terse", "options"],
+  "memory_updates": [{ "subject": "player|self|world|relationship|disclosure", "fact": "..." }],
+  "triggers_fired": ["trigger_key"]
+}
 ```
 
----
-
-## 4. Testing
-
-No automated battery runner. Tune by talking to NPCs in-Editor (open the dialogue panel via the demo scene) and reading the `[Dialogue]` console lines, which log per-turn topic / events / deltas / state. Historical pre-split transcripts remain under `Scripts/NPC/.test/cycle_NN/` for reference but are no longer regenerated.
-
----
-
-## 5. Tuning results so far (pre-split — see llm_training_log.md for detail)
-
-All cycles: 20/20 valid JSON, 0 errors, ~1.6–1.7 s/turn warm, ~32 s total.
-
-- **Cycle 1 (baseline):** Leaked the cave secret, the Storm Year (forbidden topic), and the husband backstory — all at low trust. Root cause: the LLM was **parroting the worked examples in the prompt** (which contained real lore) and reciting knowledge-base text verbatim. Voice flat/chatbot-ish in many turns.
-- **Cycle 2 (changes A,B,C):** Replaced lore-bearing examples with shape-only generic ones; filtered `avoidedTopics` out of the clues block; removed the husband fact from Maren's `roleDescription`. Husband leak fixed. But the cave secret still leaked **via the trigger description text**, and Storm Year still leaked.
-- **Cycle 3 (changes D,E,F):** Gated `Secret`-kind triggers behind `trustToShareSecrets` (so their content-bearing descriptions don't appear in-prompt until earned); reworded `dontRules` to not name the Storm Year; removed a contradictory "Reply in text only" line. **All three leaks fixed.** New problem appeared: **intra-reply stuttering** (e.g. "I do not know what opens it." ×3) — a sampler-collapse symptom with `repeat_penalty 1.0`. Also achieved the target voice once (T3 layered a known-fact with a belief in Maren's voice).
-- **Cycle 4 (changes G,H,J — APPLIED TO CODE, NOT YET TESTED):** `repeat_penalty` raised to 1.15 (in both `LocalLlmClient` and the runner); added an explicit "no internal phrase repetition" rule and a "forbidden topic → suspicion +1/+2" rule to `JsonSchemaInstructions`. **The Cycle 4 battery was never run** (paused for token budget).
-
-Persistent weak spots: relationship deltas often 0 (apathetic), occasional invented details not in the knowledge base, self-contradiction across turns (short chat-history window), trigger fire-timing imperfect.
+- `relationship_deltas` are integers in -2..+2.
+- `suggested_player_replies` is exactly three short options.
+- `memory_updates.subject` is one of five: **player / self / world / relationship / disclosure**. `NormalizeMemorySubject` accepts a few aliases (`npc`→`self`, `user`→`player`, `trust`→`relationship`, etc.); unknowns fall back to `world`.
+- `triggers_fired` keys must match an `NpcData.triggers[i].key` exactly. Invented keys are dropped with a warning.
 
 ---
 
-## 6. Architectural decision — RESOLVED 2026-05-29
+## 7. Scene-side world context
 
-The 2B model was overloaded: dialogue **and** topic/events/deltas in one constrained call → leaks, wrong triggers, stuttering, flat deltas. We split it.
-
-**Decision (built and shipped):**
-- **Dialogue → 2B (`npc-qwen35-2b`).** Plain text only, lean prompt: persona + scored relevant clues + hooks + player profile + progress + `ReplyOnlyInstructions`. No schema, no triggers list, no delta rules.
-- **Topic, events, deltas → 0.8B (`npc-qwen35-0.8b`).** Each is a separate `LlmClassifier` call with a closed vocabulary, enforced by Ollama's `format` enum. The 0.8B can't pick anything outside the authored option list.
-- **Per-NPC vocabulary is implicit in the existing SOs:** topic options = display names of topics referenced by the NPC's knowledge buckets; event options = gate-eligible triggers (same Forbidden / one-time-fired / Secret-trust-gate filters as before). No new SO types needed — designers keep authoring `Topic` and `DialogueTriggerDef` assets and the classifier picks from those.
-- **Deltas are judged directly by the 0.8B against the player's input** + a short persona summary (name, role, traits, current scores). No bucket SOs, no anchor lists — we lean on the model's judgement at low temperature.
-
-**What this buys us:**
-- The 2B prompt is ~half the tokens (no schema, no examples, no triggers block) → warmer prose, no parroting of example lore (the C1 cave-secret leak class is structurally gone).
-- Classifiers can't hallucinate trigger keys or topics — enum-constrained outputs.
-- Each pass tunable independently of the others. Designers can extend Topic/Trigger sets without touching prompts.
-
-**Validation**: hand-driven in-Editor only (no automated battery anymore — runner removed).
+- [NpcContextNode.cs](Scripts/NPC/Runtime/World/NpcContextNode.cs) — drop on any scene object (landmark, prop, NPC, item). Holds `contextLabel`, `contextDescription`, `linkedNpcs[]`. Self-registers with the shared `NpcContextRegistry` on enable.
+- [NpcContextRegistry.cs](Scripts/NPC/Runtime/World/NpcContextRegistry.cs) — SO lookup keyed by NPC. `DialogueManager.BuildSceneContext` reads it during prompt assembly.
+- Also present: `WorldLandmark`, `LandmarkAnchor`, `LandmarkRegistry` (positional world references).
 
 ---
 
-## 7. Quick reference — file map
+## 8. NPC interaction layer
+
+- [NpcInteraction.cs](Scripts/NPC/Runtime/NpcInteraction.cs) — proximity-gated radial menu on each NPC GameObject. Hotkey **E** invokes the default (first available) action.
+- [NpcAction.cs](Scripts/NPC/Runtime/Interaction/NpcAction.cs) — SO base with `actionLabel`, `hotkeyHint`, `IsAvailable`, `Execute`.
+- Concrete actions: `TalkAction` (opens dialogue), `LogAction` (debug).
+- `NpcRadialMenuBuilder` builds the in-world menu UI.
+- `NpcDialogueAuthoringLink` wires a scene `NpcInteraction` MonoBehaviour → `NpcData` SO.
+
+---
+
+## 9. Memory persistence
+
+[NpcMemoryStore.cs](Scripts/NPC/Runtime/Memory/NpcMemoryStore.cs) — **one inspectable SO per save slot**. Contains a list of `Entry { npcId, recentTurns, memoryFacts, firedTriggers }`. Editor-inspectable while a conversation runs (`SetDirty` per mutation); explicit `Save()` flushes to disk. Player builds are runtime-only (no JSON sidecar yet — would need to be added).
+
+Chat commands inside dialogue: `/save`, `/clear`, `/help`.
+
+---
+
+## 10. Debug / UI
+
+- [LlmDebugBus.cs](Scripts/NPC/Runtime/Debug/LlmDebugBus.cs) + [LlmDebugWindowController.cs](UI/Screens/LlmDebugWindow/LlmDebugWindowController.cs) — per-turn system prompt, chat history, raw response, parsed summary, elapsed ms.
+- [NpcInfoHudController.cs](UI/Screens/NpcInfoHud/NpcInfoHudController.cs) — in-world NPC info HUD.
+- Dialogue panel: shared UXML in the project; `DialogueManager.BuildFallbackUi` constructs a minimal version programmatically if required elements aren't found.
+
+---
+
+## 11. Editor tooling
+
+- **NPC Crafting Studio** (`Tools/Dialogue/NPC Crafting Studio`) — UIToolkit shell, **two tabs**: Profile and Prompt. Styles from `Assets/Flynn/UI/Styles/tokens.uss` + studio-local USS.
+- **DemoNpcBuilder** — generates the Maren_WindKeeper asset.
+- **OpenRouter Settings window** (`Flynn → NPC → OpenRouter Settings`) — EditorPrefs key storage + model browser.
+- Editors: `SceneLlmManagerEditor`, `NpcMemoryStoreMigration`.
+
+---
+
+## 12. Configs (`Assets/Flynn/Configs/NPC/`)
+
+| Asset | Purpose |
+|---|---|
+| `Maren_WindKeeper.asset` | test NPC (`NpcData`) |
+| `LlmPromptConfig.asset` | global prompt + memory budget |
+| `NpcContextRegistry.asset` | scene-info lookup |
+| `DialogueTriggerChannel.asset` | trigger event bus |
+| `NpcMemoryStore_slot_0.asset` | save-slot memory |
+| `Actions/` | reusable `NpcAction` assets |
+
+`PlayerDialogueProfile` lives at `Assets/Flynn/Configs/Player/Player_Flynn.asset`. `LocalModelSettings` is at `Assets/ScriptableObjects/Dialogue/Demo/Demo_LocalModelSettings.asset` (outside Flynn). `RemoteModelSettings` at `Assets/Flynn/OpenRouter/Default.asset`.
+
+---
+
+## 13. Key gotchas
+
+- `NpcData.llmEnabled = false` forces the static `fallbackReply` and skips the LLM entirely.
+- `SceneLlmManager.provider` is scene-wide, not per-NPC.
+- `NpcReplyEnvelope.TryParse` is tolerant but JSON-only — when the model emits prose without a `{...}` block, the raw text is shown and a warning logged.
+- `triggers_fired` keys are validated against the active NPC's allowlist (excluding `draft`). Invented keys are dropped silently to the player but logged as warnings.
+- Always `EditorUtility.SetDirty(target)` when mutating SOs from Editor scripts.
+- Never store scene-instance references inside ScriptableObjects (registries hold runtime-only lookups, cleared on enable/disable).
+- Everything stays under `Assets/Flynn/`. Unity 2022.3.62f3 LTS.
+
+---
+
+## 14. File map
 
 ```
 Assets/Flynn/
-  NPC_LLM_SYSTEM.md            ← this file
-  llm_training_log.md          ← cycle-by-cycle tuning record
-  CLAUDE.md                    ← Flynn-wide rules
-  Configs/NPC/Maren_WindKeeper.asset      ← test NPC (multi-object: config+personality+knowledge+template+relationship+memory)
-  Configs/NPC/Triggers/trigger.maren.*.asset
-  Configs/NPC/Topics/Topic_*.asset
-  Configs/Player/Player_Flynn.asset
-  Scripts/NPC/Runtime/Data/    ← all the SO definitions
-  Scripts/NPC/Runtime/DialogueManager.cs           ← orchestrator
-  Scripts/NPC/Runtime/Llm/LocalLlmClient.cs        ← Ollama HTTP for dialogue (2B, plain text)
-  Scripts/NPC/Runtime/Llm/LlmClassifier.cs         ← small-model closed-vocab passes (PickOne / PickMany / EstimateDeltas)
-  Scripts/NPC/Runtime/Llm/NpcLlmResponseParser.cs  ← ParsedTurn struct + ReplyOnlyInstructions
-  Scripts/NPC/Runtime/Llm/NpcPromptContextBuilder.cs ← prompt assembly + scoring
-  Scripts/NPC/Runtime/Llm/SceneLlmManager.cs
-  Scripts/NPC/Runtime/Memory/NpcDialogueMemoryStore.cs
-  Scripts/NPC/Runtime/NpcRelationshipState.cs
-  Scripts/NPC/Runtime/Triggers/                    ← DialogueTriggerChannel + listeners
-  Scripts/NPC/Editor/                              ← authoring studio + tab views + editors
-  Scripts/NPC/.test/cycle_NN/                       ← historical pre-split transcripts (no longer regenerated)
-Assets/ScriptableObjects/Dialogue/Demo/Demo_LocalModelSettings.asset  ← live model settings (note: outside Flynn)
-C:\Users\DriveSIM\models\qwen35\{0.8b,2b}\          ← GGUFs + Modelfiles (outside repo)
+  NPC_LLM_SYSTEM.md                                ← this file
+  llm_training_log.md                              ← tuning record
+  CLAUDE.md                                        ← Flynn-wide rules
+  OpenRouter/Default.asset                         ← RemoteModelSettings
+  Configs/NPC/
+    Maren_WindKeeper.asset                         ← NpcData (test NPC)
+    LlmPromptConfig.asset
+    NpcContextRegistry.asset
+    DialogueTriggerChannel.asset
+    NpcMemoryStore_slot_0.asset
+    Actions/                                       ← NpcAction assets
+  Configs/Player/Player_Flynn.asset                ← PlayerDialogueProfile
+  Scripts/NPC/Runtime/
+    DialogueManager.cs                             ← orchestrator
+    NpcInteraction.cs                              ← proximity + radial menu
+    NpcRelationshipState.cs                        ← live trust/affection/suspicion
+    NpcRadialMenuBuilder.cs
+    Data/
+      NpcData.cs                                   ← per-NPC SO (everything inlined)
+      LlmPromptConfig.cs                           ← shared prompt + memory budget
+      LocalModelSettings.cs / RemoteModelSettings.cs
+      PlayerDialogueProfile.cs
+    Llm/
+      LocalLlmClient.cs                            ← HTTP client (Ollama + OpenAI-compat)
+      LlmRequestConfig.cs                          ← unified request struct
+      SceneLlmManager.cs                           ← scene singleton, provider routing
+      NpcReplyEnvelope.cs                          ← JSON contract + TryParse
+      NpcPromptTokens.cs                           ← template token substitution
+      OpenRouterApiKey.cs                          ← EditorPrefs → env var resolver
+    Memory/NpcMemoryStore.cs                       ← inspectable per-slot SO
+    Triggers/
+      DialogueTriggerChannel.cs                    ← SO event bus
+      DialogueTriggerListener.cs / Payload.cs
+      Demo/                                        ← example listeners
+    World/
+      NpcContextRegistry.cs / NpcContextNode.cs    ← scene info → prompt
+      WorldLandmark.cs / LandmarkRegistry.cs / LandmarkAnchor.cs
+    Interaction/
+      NpcAction.cs                                 ← SO base
+      Actions/TalkAction.cs, LogAction.cs
+      NpcInteractionContext.cs
+    Integration/NpcDialogueAuthoringLink.cs        ← scene NpcInteraction → NpcData
+    Debug/LlmDebugBus.cs
+  Scripts/NPC/Editor/
+    NpcAuthoringStudioWindow.cs                    ← Tools/Dialogue/NPC Crafting Studio
+    NpcProfileTabView.cs / NpcPromptTabView.cs
+    DemoNpcBuilder.cs
+    OpenRouterSettingsWindow.cs
+    SceneLlmManagerEditor.cs
+    NpcMemoryStoreMigration.cs
+  UI/Screens/
+    LlmDebugWindow/                                ← per-turn debug panel
+    NpcInfoHud/                                    ← in-world NPC HUD
+Assets/ScriptableObjects/Dialogue/Demo/Demo_LocalModelSettings.asset   ← LocalModelSettings (outside Flynn)
+C:\Users\DriveSIM\models\qwen35\2b\                ← GGUF + Modelfile (outside repo)
 ```

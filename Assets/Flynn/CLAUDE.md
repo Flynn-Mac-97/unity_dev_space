@@ -261,22 +261,31 @@ That's the entire vocabulary. If a screen needs something not expressible in tho
 
 ## Flynn state (script inventory)
 
-**Most of Flynn is drafts and prototypes.** Don't treat the files below as canonical systems. Read a file fully only when the user names it or the task clearly touches it. This list is a map, not a spec.
+**Compartmentalized systems have their own state doc — read it first, update it after.** Before touching one of these systems, read its `*.md` for current state, components, and gaps; when you change the system, update that file (each doc ends with this instruction):
+
+| System | Code folder | Doc |
+|--------|-------------|-----|
+| Player (movement, animation, inventory, pickup, swing) | `Scripts/Player/` | `Scripts/Player/Player.md` |
+| Map Loader (JSON → world build) | `Scripts/MapGeneration/` | `Scripts/MapGeneration/MapLoader.md` |
+| NPC LLM dialogue + memory (semantic recall, LiteDB community knowledge DB, Ollama embeddings, authoring editors) | `Scripts/NPC/` | `Scripts/NPC/NPC_Memory.md` |
+
+When you compartmentalize a new system into its own folder, add a `<System>.md` beside it (same pattern) and list it here.
+
+**Most of the rest of Flynn is drafts and prototypes.** Don't treat the files below as canonical systems. Read a file fully only when the user names it or the task clearly touches it. This list is a map, not a spec.
 
 | File | Status | One-line purpose |
 |------|--------|------------------|
-| `Scripts/MapLoader.cs` | working | Loads `map.json` from external editor, builds SpriteShape ground + per-tile layer items + a single ground collider. |
-| `Scripts/IsleGenerator.cs` | older draft | Self-contained procedural island (sand rim → spline → rock layers). |
-| `Scripts/IslandGeneratorTwo.cs` | preferred draft | Composable rewrite of the above; depends on `David.IslandMapGeneratorUnity` and dispatches to the sub-generators below. |
-| `Scripts/LakeGenerator.cs` | draft | Builds water SpriteShape(s) from lake perimeters. |
-| `Scripts/RockBandGenerator.cs` | draft | Stacked cliff bands around island perimeters. |
-| `Scripts/GrassDecalPlacer.cs` | draft | Rejection-samples decal prefabs inside a perimeter. |
-| `Scripts/GrassDecalConfig.cs` | working | ScriptableObject defining decal pool, density, spacing. |
-| `Scripts/GridPerimeterHelper.cs` | working utility | Static: turns a set of `(x,y)` cells into an ordered world-space corner polygon. Used by MapLoader + generators. |
-| `Scripts/SolarpunkCharacterController.cs` | working | 4-dir movement + jump on a 3D Rigidbody. No animation logic. |
-| `Scripts/FlynnAnimationDriver.cs` | working | Reads the controller, drives Animator (`Speed`/`IsGrounded`/`FacingDir`), flips sprite, billboards visual root. |
-| `Scripts/Billboard.cs` | working | Generic pitch-billboard for camera-facing sprites. |
-| `Scripts/WaterAnimator.cs` | working | Pushes scroll/wave params into `WaterFill` shader via `MaterialPropertyBlock`. |
+| `Scripts/Player/*` | working | **Player system — see `Scripts/Player/Player.md`.** Movement, animation, inventory, mouse-aim, pickup (E), wrench swing. |
+| `Scripts/MapGeneration/MapLoader.cs` | working | **See `Scripts/MapGeneration/MapLoader.md`.** Loads `map.json`, builds SpriteShape ground + per-tile layer items + a single ground collider. |
+| `Scripts/MapGeneration/IsleGenerator.cs` | older draft | Self-contained procedural island (sand rim → spline → rock layers). |
+| `Scripts/MapGeneration/IslandGeneratorTwo.cs` | preferred draft | Composable rewrite of the above; depends on `David.IslandMapGeneratorUnity` and dispatches to the sub-generators below. |
+| `Scripts/MapGeneration/LakeGenerator.cs` | draft | Builds water SpriteShape(s) from lake perimeters. |
+| `Scripts/MapGeneration/RockBandGenerator.cs` | draft | Stacked cliff bands around island perimeters. |
+| `Scripts/Environment/GrassDecalPlacer.cs` | draft | Rejection-samples decal prefabs inside a perimeter. |
+| `Scripts/Environment/GrassDecalConfig.cs` | working | ScriptableObject defining decal pool, density, spacing. |
+| `Scripts/MapGeneration/GridPerimeterHelper.cs` | working utility | Static: turns a set of `(x,y)` cells into an ordered world-space corner polygon. Used by MapLoader + generators. |
+| `Scripts/Common/Billboard.cs` | working | Generic pitch-billboard for camera-facing sprites. |
+| `Scripts/Environment/WaterAnimator.cs` | working | Pushes scroll/wave params into `WaterFill` shader via `MaterialPropertyBlock`. |
 | `Editor/FlynnAnimationSetup.cs` | working | Menu: **Flynn → Setup Animations**. Regenerates the 9 clips + Animator controller from sprite folders. |
 | `Shaders/*.shader` | working | URP-compatible: `GrassEdge`, `GrassFill`, `IslandUndersideEdge`, `WaterFill`. |
 | `Configs/GrassBiome.asset` | data | `GrassDecalConfig` instance. |

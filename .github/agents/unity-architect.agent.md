@@ -282,3 +282,95 @@ You're successful when:
 - Implement the Memory Profiler package to audit managed heap, track allocation roots, and detect retained object graphs
 - Build frame time budgets per system: rendering, physics, audio, gameplay logic — enforce via automated profiler captures in CI
 - Use `[BurstCompile]` and `Unity.Collections` native containers to eliminate GC pressure in hot paths
+
+---
+
+## 🗂️ Flynn Project Context
+
+### Scope
+
+This project lives under **`Assets/Flynn/`** — treat it as a self-contained mini-project. **Everything you create lives under `Assets/Flynn/`**: scripts, prefabs, configs, materials, shaders, scenes, UI, animations, sprites, ScriptableObject assets. Do not edit or create files in `Assets/David/`, `Assets/UI/`, or any other sibling subtree. Read-only exception: `IslandGeneratorTwo.cs` depends on `David.IslandMapGeneratorUnity`.
+
+**Target paths for new assets:**
+- Scripts → `Assets/Flynn/Scripts/` (runtime), `Assets/Flynn/Scripts/Editor/` or `Assets/Flynn/Editor/` (editor-only)
+- ScriptableObject assets → `Assets/Flynn/Configs/`
+- Prefabs → `Assets/Flynn/Prefabs/`
+- Materials / shaders → `Assets/Flynn/Materials/`, `Assets/Flynn/Shaders/`
+- UI screens → `Assets/Flynn/UI/Screens/<ScreenName>/` (UXML + USS + Controller co-located)
+- Sprites / textures → `Assets/Flynn/Sprites/`
+- Animations → `Assets/Flynn/Animations/`
+- Scenes → `Assets/Flynn/`
+
+### Unity / Tooling
+- Unity version: **2022.3.62f3** (LTS). No CLI build/test pipeline — everything happens in the Editor (or via Unity MCP).
+- This is a **URP + 2.5D** project (3D world with billboarded sprites). Don't author Built-in shaders or HDRP volumes.
+- Movement on the **XZ plane with Y up**. Sprites face camera via `Billboard` or `_visualRoot.rotation = camera.rotation` in `LateUpdate`.
+
+### Flynn Script Inventory
+
+> Most of Flynn is drafts and prototypes. Read a file fully only when the user names it or the task clearly touches it.
+
+| File | Status | One-line purpose |
+|------|--------|------------------|
+| `Scripts/MapLoader.cs` | working | Loads `map.json`, builds SpriteShape ground + per-tile items + ground collider. |
+| `Scripts/IsleGenerator.cs` | older draft | Self-contained procedural island (sand rim → spline → rock layers). |
+| `Scripts/IslandGeneratorTwo.cs` | preferred draft | Composable rewrite; depends on `David.IslandMapGeneratorUnity`, dispatches to sub-generators. |
+| `Scripts/LakeGenerator.cs` | draft | Builds water SpriteShape(s) from lake perimeters. |
+| `Scripts/RockBandGenerator.cs` | draft | Stacked cliff bands around island perimeters. |
+| `Scripts/GrassDecalPlacer.cs` | draft | Rejection-samples decal prefabs inside a perimeter. |
+| `Scripts/GrassDecalConfig.cs` | working | SO defining decal pool, density, spacing. |
+| `Scripts/GridPerimeterHelper.cs` | working utility | Static: turns `(x,y)` cells into ordered world-space corner polygon. |
+| `Scripts/SolarpunkCharacterController.cs` | working | 4-dir movement + jump on 3D Rigidbody. No animation logic. |
+| `Scripts/FlynnAnimationDriver.cs` | working | Drives Animator (`Speed`/`IsGrounded`/`FacingDir`), flips sprite, billboards visual root. |
+| `Scripts/Billboard.cs` | working | Generic pitch-billboard for camera-facing sprites. |
+| `Scripts/WaterAnimator.cs` | working | Pushes scroll/wave params into `WaterFill` shader via `MaterialPropertyBlock`. |
+| `Editor/FlynnAnimationSetup.cs` | working | Menu: **Flynn → Setup Animations**. Regenerates 9 clips + Animator controller from sprite folders. |
+| `Shaders/*.shader` | working | URP-compatible: `GrassEdge`, `GrassFill`, `IslandUndersideEdge`, `WaterFill`. |
+
+**When prototyping new procedural-world systems, prefer `IslandGeneratorTwo` + sub-generator pattern over `IsleGenerator`.**
+
+### Scenes (entry points)
+- `Map_Loader.unity` — exercises the JSON-driven `MapLoader` pipeline.
+- `2.5D Solarpunk.unity` — main procedural-island demo with the player.
+- `2.5D Solarpunk_Copy.unity` — working copy / scratchpad.
+
+### Editor-driven actions
+- **Flynn → Setup Animations** (`Editor/FlynnAnimationSetup.cs`): regenerates the 9 Flynn animation clips and rebuilds the Animator controller. Re-run after adding/removing frames.
+- **Component context menus**: `MapLoader` has *Load And Generate Map* / *Clear Generated*; `IsleGenerator` has *Regenerate Rocks*.
+
+### Quality Bar for Unity MCP Work
+
+**Before creating anything:**
+1. **Reuse before invent.** Search Flynn first via `find_gameobjects`, `manage_asset(action="search")`, or the Flynn folder. Don't create a second Player prefab if one exists.
+2. **Read the project pipeline.** Read `mcpforunity://project/info` once per session before any rendering / UI work.
+3. **Verify the API exists.** Call `unity_reflect` (search → get_type → get_member) before writing C# that uses a Unity type you're not 100% sure of.
+4. **Read the target before mutating it.** Fetch `mcpforunity://scene/gameobject/{id}` before any `set_property` call.
+5. **Look at neighbours for scale and palette.** Copy an existing object's scale / position / sorting order / material as a starting point. World-origin `[0,0,0]` with scale `[1,1,1]` is almost always wrong here.
+
+**While creating:**
+6. **One change, one verify cycle.** `read_console` + (for visual changes) `manage_camera(action="screenshot", include_image=True)` after each meaningful step.
+7. **Screenshots are not optional for anything visual.** Anything touching a scene, prefab, material, shader, UI, or camera requires `include_image=True`.
+8. **Match Flynn's spatial convention.** XZ plane, Y up. Sprites billboard via `Billboard` component or `LateUpdate`.
+9. **No magic strings.** Read animator params, tags, layers from the project before setting them.
+10. **Compose, don't accumulate.** New shared values → `FloatVariable` SO. New cross-system signals → `GameEvent` SO.
+
+**Before declaring done:**
+11. `read_console(types=["error","warning"])` after every script compile.
+12. Screenshot the final state (front view minimum; `batch="surround"` for large changes).
+13. **Empty-scene test for prefabs.** Any new prefab must instantiate cleanly with just a camera + directional light.
+14. **Diff for AI tells.** Scan for `// TODO`, `// Example`, magic numbers, methods named `DoStuff`/`Setup`/`Handle`, unused `using` directives.
+
+**Avoiding the default-Unity look:**
+15. No default-grey primitives — assign a Flynn material immediately.
+16. No pink materials — stop and fix the shader/pipeline mismatch before continuing.
+17. Every new scene needs a Camera framed on content, a Directional Light at non-default rotation (e.g. `[50, -30, 0]`), and an appropriate skybox.
+18. **Name things by purpose**: `Ground_Grass_Center` beats `GameObject (3)`. `PlayerHealth` (FloatVariable SO) beats `Float Variable`.
+
+### Unity Quirks Learned in Flynn
+
+- **SpriteShape clones share splines.** `Instantiate(spriteShape.gameObject)` shallow-copies `m_Spline`. Replace with a fresh `Spline()` via reflection before writing points (see `MapLoader.InstantiateGroundShape`).
+- **SpriteShape rebuild order**: `RefreshSpriteShape()` → `UpdateSpriteShapeParameters()` → `BakeMesh().Complete()` → `RefreshSpriteShape()`.
+- **Generators keep a hidden template SpriteShape** — don't delete templates; they're Inspector-assigned and must exist at edit time.
+- **Generated-GO naming convention**: `MapLoader` prefixes spawned objects (`Ground_`, `Decal_`, `Resource_`, `Npc_`, `Sprite_`) and clears by prefix. Match the convention for new layers.
+- **Never delete a `.meta` file** without its asset — orphans get new GUIDs and silently break references.
+- **`OnValidate` guards**: anything depending on runtime state must `if (!Application.isPlaying) return;` or it null-refs before `Awake`.

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -76,12 +75,7 @@ public class NpcInfoHudController : MonoBehaviour
 
     private void HandleRangeChanged(NpcInteraction npc, bool inRange)
     {
-        if (inRange)
-        {
-            Focus(npc);
-            return;
-        }
-
+        if (inRange) { Focus(npc); return; }
         if (_focused == npc) Focus(null);
     }
 
@@ -90,11 +84,7 @@ public class NpcInfoHudController : MonoBehaviour
         UnsubscribeRelationship();
         _focused = npc;
 
-        if (npc == null)
-        {
-            SetVisible(false);
-            return;
-        }
+        if (npc == null) { SetVisible(false); return; }
 
         _focusedRelationship = npc.GetComponent<NpcRelationshipState>();
         if (_focusedRelationship != null) _focusedRelationship.OnChanged += Refresh;
@@ -129,18 +119,16 @@ public class NpcInfoHudController : MonoBehaviour
     {
         if (_focused == null || !TryBind()) return;
 
-        var config = _focused.AgentConfig;
+        var npc = _focused.ResolveNpcContent();
         string name = "Stranger";
         string role = "";
         string hotkey = "[E] Interact";
 
-        if (config != null && config.personalityProfile != null)
+        if (npc != null)
         {
-            name = config.personalityProfile.GetSafeDisplayName();
+            name = string.IsNullOrWhiteSpace(npc.displayName) ? "Stranger" : npc.displayName.Trim();
+            role = npc.role != null ? npc.role.Trim() : "";
         }
-
-        if (config != null)
-            role = FormatRoles(config.roles);
 
         if (_focused.Actions != null && _focused.Actions.Count > 0)
         {
@@ -159,33 +147,22 @@ public class NpcInfoHudController : MonoBehaviour
         _roleTag.text = role;
         _hotkeyHint.text = hotkey;
 
-        ApplyRelationship(config);
-        ApplyTopics(config);
-        ApplyMemory(config);
+        ApplyRelationship(npc);
+        ApplyTopics(npc);
+        ApplyMemory(npc);
 
         if (_debugTopic != null) _debugTopic.text = "topic: —";
     }
 
-    private void ApplyRelationship(NpcDialogueAgentConfig config)
+    private void ApplyRelationship(NpcContent npc)
     {
-        int trust = 0, affection = 0, suspicion = 0;
-
-        if (_focusedRelationship != null)
-        {
-            trust = _focusedRelationship.trust;
-            affection = _focusedRelationship.affection;
-            suspicion = _focusedRelationship.suspicion;
-        }
-        else if (config != null && config.relationship != null)
-        {
-            trust = config.relationship.startingTrust;
-            affection = config.relationship.startingAffection;
-            suspicion = config.relationship.startingSuspicion;
-        }
+        int trust = 0;
+        if (_focusedRelationship != null) trust = _focusedRelationship.trust;
+        else if (npc != null) trust = npc.startingTrust;
 
         SetBar(_trustFill, _trustValue, trust);
-        SetBar(_affectionFill, _affectionValue, affection);
-        SetBar(_suspicionFill, _suspicionValue, suspicion);
+        SetBar(_affectionFill, _affectionValue, 0);
+        SetBar(_suspicionFill, _suspicionValue, 0);
     }
 
     private static void SetBar(VisualElement fill, Label value, int amount)
@@ -195,68 +172,41 @@ public class NpcInfoHudController : MonoBehaviour
         if (value != null) value.text = clamped.ToString();
     }
 
-    private void ApplyTopics(NpcDialogueAgentConfig config)
+    private void ApplyTopics(NpcContent npc)
     {
         _knownTopics.Clear();
         _avoidedTopics.Clear();
         _avoidedHeader.AddToClassList("hidden");
 
-        if (config == null || config.knowledge == null) return;
+        if (npc == null || npc.knowledge == null || npc.knowledge.Count == 0) return;
 
-        int trustNow = _focusedRelationship != null
-            ? _focusedRelationship.trust
-            : (config.relationship != null ? config.relationship.startingTrust : 0);
-
-        var seen = new HashSet<string>();
+        int trustNow = _focusedRelationship != null ? _focusedRelationship.trust : npc.startingTrust;
         int added = 0;
+        int avoidedAdded = 0;
 
-        added += AddTopicChips(_knownTopics, config.knowledge.knownFacts, seen, trustNow, false, maxTopicChips - added);
-        if (added < maxTopicChips)
-            added += AddTopicChips(_knownTopics, config.knowledge.rumors, seen, trustNow, true, maxTopicChips - added);
-        if (added < maxTopicChips)
-            added += AddTopicChips(_knownTopics, config.knowledge.secrets, seen, trustNow, true, maxTopicChips - added);
-
-        if (config.knowledge.avoidedTopics != null && config.knowledge.avoidedTopics.Count > 0)
+        for (int i = 0; i < npc.knowledge.Count; i++)
         {
-            int avoidedAdded = 0;
-            for (int i = 0; i < config.knowledge.avoidedTopics.Count && avoidedAdded < maxTopicChips; i++)
+            var entry = npc.knowledge[i];
+            if (entry == null || string.IsNullOrWhiteSpace(entry.text)) continue;
+
+            bool isAvoid = string.Equals(entry.kind, "avoid", System.StringComparison.OrdinalIgnoreCase);
+            if (isAvoid)
             {
-                var topic = config.knowledge.avoidedTopics[i];
-                if (topic == null) continue;
-                _avoidedTopics.Add(MakeChip(topic.GetSafeDisplayName(), "avoided"));
-                avoidedAdded++;
+                if (avoidedAdded < maxTopicChips)
+                {
+                    _avoidedTopics.Add(MakeChip(entry.text, "avoided"));
+                    avoidedAdded++;
+                }
             }
-            if (avoidedAdded > 0) _avoidedHeader.RemoveFromClassList("hidden");
+            else if (added < maxTopicChips)
+            {
+                bool locked = entry.revealTrustThreshold > 0 && trustNow < entry.revealTrustThreshold;
+                _knownTopics.Add(MakeChip(entry.text, locked ? "locked" : ""));
+                added++;
+            }
         }
-    }
 
-    private static int AddTopicChips(VisualElement target, List<NpcKnowledgeBase.KnowledgeEntry> entries,
-        HashSet<string> seen, int trustNow, bool gateByReveal, int budget)
-    {
-        if (entries == null || budget <= 0) return 0;
-        int added = 0;
-        for (int i = 0; i < entries.Count && added < budget; i++)
-        {
-            var e = entries[i];
-            if (e == null || e.topic == null) continue;
-            string id = e.topic.GetSafeId();
-            if (!seen.Add(id)) continue;
-
-            bool locked = gateByReveal && !MeetsRevealCondition(e, trustNow);
-            target.Add(MakeChip(e.topic.GetSafeDisplayName(), locked ? "locked" : ""));
-            added++;
-        }
-        return added;
-    }
-
-    private static bool MeetsRevealCondition(NpcKnowledgeBase.KnowledgeEntry entry, int trustNow)
-    {
-        switch (entry.reveal)
-        {
-            case NpcKnowledgeBase.RevealCondition.Always: return true;
-            case NpcKnowledgeBase.RevealCondition.TrustAtLeast: return trustNow >= entry.threshold;
-            default: return false;
-        }
+        if (avoidedAdded > 0) _avoidedHeader.RemoveFromClassList("hidden");
     }
 
     private static VisualElement MakeChip(string text, string extraClass)
@@ -267,11 +217,12 @@ public class NpcInfoHudController : MonoBehaviour
         return chip;
     }
 
-    private void ApplyMemory(NpcDialogueAgentConfig config)
+    private void ApplyMemory(NpcContent npc)
     {
-        string npcId = ResolveNpcId(config);
-        string slot = ResolveSaveSlot();
-        var memory = NpcDialogueMemoryStore.GetOrCreateMemory(npcId, slot);
+        string npcId = npc != null && !string.IsNullOrWhiteSpace(npc.npcId) ? npc.npcId : "npc.unknown";
+        var manager = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
+        var store = manager != null ? manager.memoryStore : null;
+        var memory = store != null ? store.GetOrCreate(npcId) : null;
 
         int factCount = memory != null && memory.memoryFacts != null ? memory.memoryFacts.Count : 0;
         int turnCount = memory != null && memory.recentTurns != null ? memory.recentTurns.Count : 0;
@@ -286,31 +237,5 @@ public class NpcInfoHudController : MonoBehaviour
         string lastTurn = "";
         if (turnCount > 0) lastTurn = memory.recentTurns[turnCount - 1];
         _lastTurn.text = lastTurn;
-    }
-
-    private static string ResolveNpcId(NpcDialogueAgentConfig config)
-    {
-        if (config != null && config.personalityProfile != null)
-            return config.personalityProfile.GetSafeNpcId();
-        return "npc.unknown";
-    }
-
-    private static string ResolveSaveSlot()
-    {
-        var manager = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
-        if (manager != null && !string.IsNullOrWhiteSpace(manager.saveSlotId)) return manager.saveSlotId;
-        return "slot_0";
-    }
-
-    private static string FormatRoles(NpcGameplayRoles roles)
-    {
-        if (roles == NpcGameplayRoles.None) return "";
-        var parts = new List<string>();
-        foreach (NpcGameplayRoles v in System.Enum.GetValues(typeof(NpcGameplayRoles)))
-        {
-            if (v == NpcGameplayRoles.None) continue;
-            if ((roles & v) == v) parts.Add(v.ToString());
-        }
-        return string.Join(" · ", parts);
     }
 }

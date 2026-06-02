@@ -1,0 +1,29 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Flynn/UI/Screens/Hotbar/Hotbar.uss" />
+    <ui:Style src="../../../Screens/Hotbar/Hotbar.uss" />
+    <ui:VisualElement name="ScreenRoot" class="screen-root">
+        <ui:VisualElement name="HotbarRoot" class="hotbar-root">
+
+            <ui:VisualElement name="Slot_0" class="hotbar-slot">
+                <ui:Label name="SlotKey_0" text="1" class="slot-key" />
+                <ui:VisualElement name="Icon_0" class="slot-icon" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_1" class="hotbar-slot">
+                <ui:Label name="SlotKey_1" text="2" class="slot-key" />
+                <ui:VisualElement name="Icon_1" class="slot-icon" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_2" class="hotbar-slot">
+                <ui:Label name="SlotKey_2" text="3" class="slot-key" />
+                <ui:VisualElement name="Icon_2" class="slot-icon" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_3" class="hotbar-slot">
+                <ui:Label name="SlotKey_3" text="4" class="slot-key" />
+                <ui:VisualElement name="Icon_3" class="slot-icon" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

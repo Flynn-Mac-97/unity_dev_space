@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 24e654e7e78d6f344a6576adee34f084, type: 3}
+  m_Name: NpcMemoryStore_slot_0
+  m_EditorClassIdentifier: 
+  entries:
+  - npcId: npc.maren_wind_keeper
+    recentTurns:
+    - 'Player: Who else lives in Windroot?'
+    - 'Maren: We have three keepers, each tending to the relays, the shrine, and
+      the seed batteries. Neighbors help each other, sharing stories and skills.
+      Jorin and Sela are two you might meet soon.'
+    - 'Player: I want to meet Jorin and Sela.'
+    - 'Maren: Jorin tends to the relays, while Sela cares for the seed batteries.
+      They both have a wealth of knowledge about Windroot. I can guide you to them
+      if you''d like.'
+    - 'Player: Please guide me to them.'
+    - "Maren: Follow the path down the hill, then take a left at the old oak. Jorin
+      works near the west relay, and Sela's by the seed garden. You\u2019ll find
+      them both there."
+    - 'Player: Thank you, I''ll go now.'
+    - 'Maren: Safe travels, Flynn. The wind carries good fortune.'
+    memoryFacts:
+    - '[world] Gulls are seabirds that glide on the winds.'
+    - '[world] Windroot has three keepers who maintain the village.'
+    firedTriggers: []
+  - npcId: npc.sela_forager
+    recentTurns:
+    - 'Player: haha that sounds funny what do you think its asking for?'
+    - 'Sela: Maybe it''s asking for stories or secrets! Or perhaps just company.
+      It likes visitors, I think.'
+    - 'Player: Let''s go check it out!'
+    - "Sela: [Fallback] Hold on, friend \u2014 wind in my ears."
+    - 'Player: Sorry can we go there?'
+    - 'Sela: Sure! Just follow me, it''s not far from here. Watch your step on the
+      trail!'
+    - 'Player: Lead the way!'
+    - 'Sela: The cave''s just up ahead! I saw some bright moss growing near the entrance
+      today.'
+    memoryFacts:
+    - '[world] The north cave breathes with the wind.'
+    firedTriggers: []
+  - npcId: npc.jorin_technician
+    recentTurns:
+    - 'Player: I''ll get the shards.'
+    - 'Jorin: Good. Bring back the shards from the cracked seed batteries.'
+    - 'Player: Where do I find them?'
+    - 'Jorin: Head to the seed battery grove, near the west relay. You''ll find the
+      cracked batteries there.'
+    - 'Player: SOrry what did i say i would do for you again?'
+    - 'Jorin: You said you''d collect the shards from the cracked seed batteries.'
+    - 'Player: What should I look for?'
+    - 'Jorin: Look for the broken seed batteries on the ground. Shards should be
+      scattered nearby.'
+    memoryFacts:
+    - '[world] Three seed batteries cracked the night the west relay failed.'
+    - '[player] Flynn is collecting shards from the seed batteries.'
+    firedTriggers:
+    - activity.collect_seed_battery
+  - npcId: npc.unknown
+    recentTurns: []
+    memoryFacts: []
+    firedTriggers: []

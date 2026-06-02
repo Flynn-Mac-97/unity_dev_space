@@ -30,6 +30,39 @@ public static class LocalLlmClient
     }
 
     [Serializable]
+    private class ResponseFormat
+    {
+        public string type;
+    }
+
+    [Serializable]
+    private class OpenAiChatRequestJsonMode
+    {
+        public string model;
+        public ChatMessage[] messages;
+        public float temperature;
+        public int max_tokens;
+        public ResponseFormat response_format;
+    }
+
+    [Serializable]
+    private class ProviderRouting
+    {
+        public bool require_parameters;
+    }
+
+    [Serializable]
+    private class OpenAiChatRequestJsonModeStrict
+    {
+        public string model;
+        public ChatMessage[] messages;
+        public float temperature;
+        public int max_tokens;
+        public ResponseFormat response_format;
+        public ProviderRouting provider;
+    }
+
+    [Serializable]
     private class OpenAiChoice
     {
         public ChatMessage message;
@@ -67,26 +100,20 @@ public static class LocalLlmClient
     }
 
     public static IEnumerator GenerateReply(
-        LocalModelSettings settings,
+        LlmRequestConfig config,
         string systemPrompt,
         IList<ChatTurn> priorTurns,
         string playerInput,
         Action<string, string> onComplete)
     {
-        if (settings == null)
+        if (!config.IsValid)
         {
-            onComplete?.Invoke(null, "LocalModelSettings is null.");
+            onComplete?.Invoke(null, "LLM request config is invalid (missing endpoint or model name).");
             yield break;
         }
 
-        if (string.IsNullOrWhiteSpace(settings.endpointUrl))
-        {
-            onComplete?.Invoke(null, "Endpoint URL is empty.");
-            yield break;
-        }
-
-        string endpoint = settings.endpointUrl.Trim();
-        string jsonBody = BuildRequestJson(settings, endpoint, systemPrompt, priorTurns, playerInput);
+        string endpoint = config.endpointUrl.Trim();
+        string jsonBody = BuildRequestJson(config, endpoint, systemPrompt, priorTurns, playerInput);
 
         Debug.Log("[LocalLlmClient] POST " + endpoint + " body=" + jsonBody);
 
@@ -95,8 +122,14 @@ public static class LocalLlmClient
         {
             request.uploadHandler = new UploadHandlerRaw(payload);
             request.downloadHandler = new DownloadHandlerBuffer();
-            request.timeout = Mathf.Max(1, settings.timeoutSeconds);
+            request.timeout = Mathf.Max(1, config.timeoutSeconds);
             request.SetRequestHeader("Content-Type", "application/json");
+            if (!string.IsNullOrWhiteSpace(config.authorizationHeader))
+                request.SetRequestHeader("Authorization", config.authorizationHeader);
+            if (!string.IsNullOrWhiteSpace(config.httpReferer))
+                request.SetRequestHeader("HTTP-Referer", config.httpReferer);
+            if (!string.IsNullOrWhiteSpace(config.xTitle))
+                request.SetRequestHeader("X-Title", config.xTitle);
 
             yield return request.SendWebRequest();
 
@@ -116,7 +149,7 @@ public static class LocalLlmClient
                 yield break;
             }
 
-            Debug.Log("[LocalLlmClient] response=" + rawResponse);
+            Debug.Log("[LocalLlmClient] response=" + (rawResponse ?? string.Empty).Replace("\r", "\\r").Replace("\n", "\\n"));
 
             string reply = ParseReply(endpoint, rawResponse);
             if (reply == null)
@@ -135,7 +168,7 @@ public static class LocalLlmClient
         }
     }
 
-    private static string BuildRequestJson(LocalModelSettings settings, string endpoint, string systemPrompt, IList<ChatTurn> priorTurns, string playerInput)
+    private static string BuildRequestJson(LlmRequestConfig config, string endpoint, string systemPrompt, IList<ChatTurn> priorTurns, string playerInput)
     {
         var msgList = new List<ChatMessage>(4 + (priorTurns != null ? priorTurns.Count : 0));
         msgList.Add(new ChatMessage { role = "system", content = systemPrompt });
@@ -161,15 +194,15 @@ public static class LocalLlmClient
         {
             var ollamaRequest = new OllamaChatRequest
             {
-                model = settings.modelName,
+                model = config.modelName,
                 messages = messages,
                 stream = false,
                 think = false,
                 keep_alive = "30m",
                 options = new OllamaOptions
                 {
-                    temperature = settings.temperature,
-                    num_predict = settings.maxTokens,
+                    temperature = config.temperature,
+                    num_predict = config.maxTokens,
                     repeat_penalty = 1.15f
                 }
             };
@@ -177,12 +210,39 @@ public static class LocalLlmClient
             return JsonUtility.ToJson(ollamaRequest);
         }
 
+        if (config.forceJsonMode)
+        {
+            if (config.requireJsonProvider)
+            {
+                var strict = new OpenAiChatRequestJsonModeStrict
+                {
+                    model = config.modelName,
+                    messages = messages,
+                    temperature = config.temperature,
+                    max_tokens = config.maxTokens,
+                    response_format = new ResponseFormat { type = "json_object" },
+                    provider = new ProviderRouting { require_parameters = true }
+                };
+                return JsonUtility.ToJson(strict);
+            }
+
+            var jsonModeRequest = new OpenAiChatRequestJsonMode
+            {
+                model = config.modelName,
+                messages = messages,
+                temperature = config.temperature,
+                max_tokens = config.maxTokens,
+                response_format = new ResponseFormat { type = "json_object" }
+            };
+            return JsonUtility.ToJson(jsonModeRequest);
+        }
+
         var openAiRequest = new OpenAiChatRequest
         {
-            model = settings.modelName,
+            model = config.modelName,
             messages = messages,
-            temperature = settings.temperature,
-            max_tokens = settings.maxTokens
+            temperature = config.temperature,
+            max_tokens = config.maxTokens
         };
 
         return JsonUtility.ToJson(openAiRequest);

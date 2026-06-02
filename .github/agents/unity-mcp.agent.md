@@ -281,3 +281,46 @@ For detailed schemas and examples:
 - **[resources-reference.md](../unity-mcp-skill/references/resources-reference.md)**: All available resources and their data
 - **[workflows.md](../unity-mcp-skill/references/workflows.md)**: Extended workflow examples and patterns
 - **[probuilder-guide.md](../unity-mcp-skill/references/probuilder-guide.md)**: ProBuilder 3D modeling guide
+
+---
+
+## Flynn Project Conventions
+
+### Asset Paths
+All assets created in this project live under **`Assets/Flynn/`**. Never create files in `Assets/David/`, `Assets/UI/`, or other sibling subtrees.
+
+| Asset type | Target path |
+|-----------|-------------|
+| Runtime scripts | `Assets/Flynn/Scripts/` |
+| Editor-only scripts | `Assets/Flynn/Scripts/Editor/` or `Assets/Flynn/Editor/` |
+| ScriptableObject assets | `Assets/Flynn/Configs/` |
+| Prefabs | `Assets/Flynn/Prefabs/` |
+| Materials / shaders | `Assets/Flynn/Materials/`, `Assets/Flynn/Shaders/` |
+| UI screens | `Assets/Flynn/UI/Screens/<ScreenName>/` |
+| Sprites / textures | `Assets/Flynn/Sprites/` |
+| Animations | `Assets/Flynn/Animations/` |
+
+### Pre-Creation Checklist
+1. **Reuse before invent** — search Flynn via `manage_asset(action="search")` or `find_gameobjects` before creating anything. If `Assets/Flynn/Prefabs/Player.prefab` exists, don't make a second player.
+2. **Read `mcpforunity://project/info`** once per session — confirm URP (not Built-in/HDRP), Unity 2022.3, UI Toolkit / TMP availability.
+3. **Verify APIs** with `unity_reflect` before writing any C# type you're not 100% certain of.
+4. **Read the target** via `mcpforunity://scene/gameobject/{id}` before any `set_property` call.
+5. **Copy neighbour scale/palette** — world-origin `[0,0,0]` scale `[1,1,1]` is almost always wrong.
+
+### Flynn Spatial Convention
+- Movement plane: **XZ with Y up** (see `SolarpunkCharacterController.cs`).
+- Sprites face camera via the `Billboard` component or `_visualRoot.rotation = camera.rotation` in `LateUpdate`.
+
+### Quality Rules (Always Apply)
+- `read_console(types=["error","warning"])` after every compile.
+- `manage_camera(action="screenshot", include_image=True)` for every visual change — not optional.
+- No default-grey primitives or pink materials in output — fix shader/pipeline mismatch before continuing.
+- Every new scene: Camera framed on content + Directional Light at non-default rotation (e.g. `[50, -30, 0]`).
+- Any new prefab must instantiate cleanly in an empty scene (camera + light only) without errors.
+- Name assets by purpose: `Ground_Grass_Center` not `GameObject (3)`.
+
+### Naming Convention for Generated Objects
+`MapLoader` prefixes: `Ground_`, `Decal_`, `Resource_`, `Npc_`, `Sprite_`. Match these prefixes for new generated layers.
+
+### `OnValidate` Guard
+Any script depending on runtime state: `if (!Application.isPlaying) return;` at the top of `OnValidate` to prevent null-refs before `Awake`.

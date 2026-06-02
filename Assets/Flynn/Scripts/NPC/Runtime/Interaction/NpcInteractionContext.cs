@@ -3,7 +3,7 @@ using UnityEngine;
 public class NpcInteractionContext
 {
     public NpcInteraction npc;
-    public NpcDialogueAgentConfig agentConfig;
-    public NpcDialogueData fallbackData;
+    public string npcId;
+    public NpcContent npcContent;
     public Transform player;
 }

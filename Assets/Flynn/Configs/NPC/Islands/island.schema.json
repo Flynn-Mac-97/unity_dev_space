@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://flynn.local/island.schema.json",
+  "title": "Flynn Island Content",
+  "description": "Authored island/community content for the Flynn LLM-NPC system. Loaded by IslandContentHub via JsonUtility. To get autocomplete + validation in VS Code, map this schema to the island JSON files in .vscode/settings.json (json.schemas).",
+  "type": "object",
+  "required": ["islandId", "community", "things", "signals", "npcs"],
+  "definitions": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_.]+$",
+      "description": "lower_snake_case, dots allowed (e.g. npc.maren_wind_keeper)."
+    },
+    "knowledge": {
+      "type": "object",
+      "required": ["id", "kind", "text"],
+      "properties": {
+        "id": { "$ref": "#/definitions/id" },
+        "thingId": { "type": "string", "description": "Empty string = untied. Otherwise must match a things[].thingId." },
+        "kind": { "enum": ["fact", "belief", "rumor", "secret", "avoid"] },
+        "text": { "type": "string", "maxLength": 140 },
+        "revealTrustThreshold": { "type": "integer", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "islandId": { "$ref": "#/definitions/id" },
+    "community": {
+      "type": "object",
+      "properties": {
+        "communityId": { "$ref": "#/definitions/id" },
+        "displayName": { "type": "string" },
+        "overview": { "type": "string" },
+        "currentSituation": { "type": "string" },
+        "sharedMood": { "type": "string" },
+        "culture": { "type": "string" },
+        "knowledge": { "type": "array", "items": { "$ref": "#/definitions/knowledge" } }
+      },
+      "additionalProperties": false
+    },
+    "things": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["thingId", "displayName"],
+        "properties": {
+          "thingId": { "$ref": "#/definitions/id" },
+          "displayName": { "type": "string" },
+          "aliases": { "type": "array", "items": { "type": "string" } },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "shortDescription": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["signalId", "description"],
+        "properties": {
+          "signalId": { "$ref": "#/definitions/id" },
+          "thingId": { "type": "string", "description": "Empty string = untied (e.g. first_meeting)." },
+          "description": { "type": "string", "maxLength": 120 },
+          "repeatable": { "type": "boolean" },
+          "minTrustToFire": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "handler": {
+            "enum": [
+              "RevealLocation", "RevealClue", "UnlockTopic", "UnlockObjective",
+              "UpdateObjective", "CompleteObjective", "ChangeWorldState", "ChangeNpcState",
+              "GiveItem", "RequestItem", "TutorialHint", "AmbientRemark",
+              "SocialReveal", "RelationshipMilestone", "StartActivity",
+              "StoryBeat", "ClueReveal", "WorldChange", ""
+            ]
+          },
+          "payloadJson": { "type": "string", "description": "Opaque payload string (usually JSON) delivered verbatim to listeners." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "npcs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["npcId", "displayName", "role"],
+        "properties": {
+          "npcId": { "$ref": "#/definitions/id" },
+          "displayName": { "type": "string" },
+          "role": { "type": "string" },
+          "speakingStyle": { "type": "string" },
+          "personalityTraits": { "type": "array", "items": { "type": "string" }, "minItems": 3, "maxItems": 5 },
+          "doRules": { "type": "array", "items": { "type": "string" } },
+          "dontRules": { "type": "array", "items": { "type": "string" } },
+          "capabilities": { "type": "array", "items": { "type": "string" } },
+          "startingTrust": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "trustToShareSecrets": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "fallbackReply": { "type": "string" },
+          "knowledge": { "type": "array", "items": { "$ref": "#/definitions/knowledge" } },
+          "designerNotes": {
+            "type": "object",
+            "properties": {
+              "placement": { "type": "string" },
+              "setDressing": { "type": "array", "items": { "type": "string" } },
+              "visualStory": { "type": "string" },
+              "playerRead": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "designerNotes": {
+      "type": "object",
+      "properties": {
+        "environmentSetDressing": { "type": "array", "items": { "type": "string" } },
+        "visualStorytelling": { "type": "array", "items": { "type": "string" } },
+        "suggestedInteractables": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "thingId": { "type": "string" },
+              "instruction": { "type": "string" }
+            },
+            "additionalProperties": false
+          }
+        },
+        "lightingAndMood": { "type": "array", "items": { "type": "string" } },
+        "implementationChecklist": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

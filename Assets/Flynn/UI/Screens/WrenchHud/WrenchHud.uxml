@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="WrenchHud.uss" />
+    <ui:VisualElement name="Root" picking-mode="Ignore" class="hud-root">
+
+        <!-- Reticle + charge meter, repositioned to the mouse each frame by the controller. -->
+        <ui:VisualElement name="Cursor" picking-mode="Ignore" class="cursor">
+            <ui:VisualElement name="CursorBox" picking-mode="Ignore" class="cursor-box" />
+            <ui:VisualElement name="CursorDot" picking-mode="Ignore" class="cursor-dot" />
+
+            <ui:VisualElement name="Charge" picking-mode="Ignore" class="charge">
+                <ui:VisualElement name="ChargeTrack" picking-mode="Ignore" class="charge-track">
+                    <ui:VisualElement name="ChargeFill" picking-mode="Ignore" class="charge-fill" />
+                    <ui:VisualElement name="ChargeTick" picking-mode="Ignore" class="charge-tick" />
+                </ui:VisualElement>
+                <ui:Label name="ChargeLabel" text="" picking-mode="Ignore" class="charge-label" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+        <!-- Pickup interaction prompt: appears above the hovered WorldItemPickup. -->
+        <ui:VisualElement name="PickupPrompt" picking-mode="Ignore" class="pickup-prompt">
+            <ui:Label name="PickupItemName" text="" picking-mode="Ignore" class="pickup-item-name" />
+            <ui:Label name="PickupHint" text="[E]  Pick Up" picking-mode="Ignore" class="pickup-hint" />
+        </ui:VisualElement>
+
+        <!-- Resource health bar: appears above the hovered/active resource node. -->
+        <ui:VisualElement name="ResourceBar" picking-mode="Ignore" class="resource-bar">
+            <ui:Label name="ResourceBarName" text="" picking-mode="Ignore" class="resource-bar-name" />
+            <ui:VisualElement name="ResourceBarTrack" picking-mode="Ignore" class="resource-bar-track">
+                <ui:VisualElement name="ResourceBarFill" picking-mode="Ignore" class="resource-bar-fill" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

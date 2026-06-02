@@ -6,7 +6,6 @@ public class NpcInteraction : MonoBehaviour
 {
     [SerializeField] private Transform player;
     [SerializeField] private GameObject menuRoot;
-    [SerializeField] private NpcDialogueData dialogueData;
     [SerializeField] private float interactRange = 2.5f;
 
     [Header("Actions")]
@@ -18,13 +17,20 @@ public class NpcInteraction : MonoBehaviour
     public static event Action<NpcInteraction, bool> RangeChanged;
 
     public IReadOnlyList<NpcAction> Actions => actions;
-    public NpcDialogueAgentConfig AgentConfig
+
+    public string NpcId
     {
         get
         {
-            var link = GetComponent<NpcDialogueAuthoringLink>();
-            return link != null ? link.agentConfig : null;
+            var link = GetComponent<NpcAuthoringLink>();
+            return link != null ? link.npcId : null;
         }
+    }
+
+    public NpcContent ResolveNpcContent()
+    {
+        var hub = ResolveHub();
+        return hub != null ? hub.GetNpc(NpcId) : null;
     }
 
     private bool _menuVisible;
@@ -69,8 +75,8 @@ public class NpcInteraction : MonoBehaviour
         return new NpcInteractionContext
         {
             npc = this,
-            agentConfig = AgentConfig,
-            fallbackData = dialogueData,
+            npcId = NpcId,
+            npcContent = ResolveNpcContent(),
             player = player,
         };
     }
@@ -101,23 +107,19 @@ public class NpcInteraction : MonoBehaviour
             return;
         }
 
-        var authoringLink = GetComponent<NpcDialogueAuthoringLink>();
-        if (authoringLink != null && authoringLink.agentConfig != null)
+        var link = GetComponent<NpcAuthoringLink>();
+        if (link == null || string.IsNullOrWhiteSpace(link.npcId))
         {
-            NpcDialogueData fallbackData = authoringLink.legacyDialogueData != null
-                ? authoringLink.legacyDialogueData
-                : dialogueData;
-
-            dialogueManager.OpenAgent(authoringLink.agentConfig, fallbackData, GetComponent<NpcRelationshipState>());
+            Debug.LogWarning("[NPC] Talk clicked but no NpcAuthoringLink with an npcId is on this GameObject.");
             return;
         }
 
-        if (dialogueData != null)
-        {
-            dialogueManager.Open(dialogueData);
-            return;
-        }
+        dialogueManager.OpenAgent(link.npcId, link.portraitSprite, GetComponent<NpcRelationshipState>());
+    }
 
-        Debug.LogWarning("[NPC] Talk clicked but no dialogue data is assigned.");
+    private static IslandContentHub ResolveHub()
+    {
+        var mgr = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
+        return mgr != null ? mgr.islandContent : null;
     }
 }

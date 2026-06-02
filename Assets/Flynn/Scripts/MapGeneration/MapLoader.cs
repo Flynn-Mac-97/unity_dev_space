@@ -53,12 +53,24 @@ public class MapLoader : MonoBehaviour
 	[SerializeField] private Vector3 groundFlatRotation = new Vector3(90f, 0f, 0f);
 
 	[Header("Player Spawn")]
+	[Tooltip("When false, no player is instantiated at runtime — use a player already placed in the scene instead.")]
+	[SerializeField] private bool spawnPlayerAtRuntime = true;
 	[Tooltip("Prefab spawned on the tile flagged with NPC typeId 3000 in the loaded map JSON.")]
 	[SerializeField] private GameObject playerPrefab;
 	[Tooltip("Where the spawned player is parented. Falls back to this transform.")]
 	[SerializeField] private Transform playerRoot;
 	[Tooltip("World-space Y offset above the ground collider top (Y=0). Tune to clear the player's collider half-height so it doesn't spawn embedded in the ground.")]
 	[SerializeField] private float playerSpawnYOffset = 1f;
+
+	[Header("Resource Palette")]
+	[Tooltip("Maps palette stringKey / typeId to a Unity prefab. Unregistered types fall back to a colored quad.")]
+	[SerializeField] private ResourcePaletteSO resourcePalette;
+	[Tooltip("World-space Y offset applied to every spawned resource prefab. Keep 0 when the prefab's pivot is already at its base.")]
+	[SerializeField] private float resourceSpawnYOffset = 0f;
+
+	[Header("Ground Palette")]
+	[Tooltip("Maps ground stringKey / typeId to a sorting order. Water above grass, paths above both, etc. Leave unassigned to use the default sorting order for all ground types.")]
+	[SerializeField] private GroundPaletteSO groundPalette;
 
 	[Header("Runtime (debug)")]
 	[SerializeField, TextArea(6, 20)] private string loadedJson;
@@ -72,6 +84,10 @@ public class MapLoader : MonoBehaviour
 	private const string GroundPrefix = "Ground_";
 	private const string PlayerPrefix = "Player_";
 	private const string GroundColliderName = "GroundCollider";
+
+	// Fallback sorting order when no GroundPaletteSO is assigned or the type is not listed.
+	// Must be below the SortableSprite dynamic range (baseOrder=5000 ± ~3500).
+	private const int GroundSortingOrderFallback = -1000;
 
 	// The NPC layer in the map editor uses id 3000 as the player-start marker.
 	// We *don't* act on it here — see DialogueRuntime/spawning systems for use.
@@ -112,8 +128,9 @@ public void LoadAndGenerate()
 
 		HideTemplateGroundIfNeeded();
 		GenerateGroundShapes(mapData);
-		SpawnLayerItems(mapData);
-		ApplyGroundFlatRotation();
+		SpawnFlatLayerItems(mapData);          // decals, npcs, largeSprites (flat ground quads)
+		ApplyGroundFlatRotation();             // tilts flat roots + resourceRoot into XZ plane
+		SpawnResourceItems(mapData);           // resources: prefab or fallback quad, world-space pos
 		GenerateGroundCollider(mapData);
 		SpawnPlayer(mapData);
 	}
@@ -332,7 +349,9 @@ private void ApplyGroundFlatRotation()
 		{
 			renderer.enabled = true;
 			renderer.color = fill;
-			renderer.sortingOrder = groundId;
+			renderer.sortingOrder = groundPalette != null
+				? groundPalette.GetSortingOrder(groundId, groundKey)
+				: GroundSortingOrderFallback;
 		}
 
 		return controller;
@@ -385,8 +404,12 @@ private void ApplyGroundFlatRotation()
 	// Layer items (decals / resources / npcs / large sprites)
 	// ---------------------------------------------------------------------
 
-	/// <summary>Spawns a colored quad at each tile in every layer.</summary>
-	private void SpawnLayerItems(MapData mapData)
+	/// <summary>
+	/// Spawns colored quads for decals, NPCs, and large sprites — the three flat layers
+	/// that lie on the ground plane. Resources are handled separately in
+	/// <see cref="SpawnResourceItems"/> which runs AFTER the ground rotation is applied.
+	/// </summary>
+	private void SpawnFlatLayerItems(MapData mapData)
 	{
 		LayersData layers = mapData?.layers;
 		if (layers == null)
@@ -397,10 +420,76 @@ private void ApplyGroundFlatRotation()
 		ToolsetData ts = mapData.toolset;
 		int total = 0;
 		total += SpawnItemSet(layers.decals, ts?.decalTypes, "Decal", decalRoot);
-		total += SpawnItemSet(layers.resources, ts?.resourceTypes, "Resource", resourceRoot);
 		total += SpawnItemSet(layers.npcs, ts?.npcTypes, "Npc", npcRoot);
 		total += SpawnItemSet(layers.largeSprites, ts?.largeSpriteTypes, "Sprite", spriteRoot);
-		Debug.Log($"Spawned {total} layer items.", this);
+		Debug.Log($"Spawned {total} flat layer items.", this);
+	}
+
+	/// <summary>
+	/// Spawns resource items from the map, called AFTER <see cref="ApplyGroundFlatRotation"/>
+	/// so that resourceRoot is already in its final (90,0,0) orientation.
+	///
+	/// For each resource tile:
+	/// - If <see cref="resourcePalette"/> has a matching entry, the linked prefab is
+	///   instantiated at the correct world-space position with upright rotation.
+	/// - Otherwise a plain colored quad is spawned as a fallback (same as the legacy path).
+	/// </summary>
+	private void SpawnResourceItems(MapData mapData)
+	{
+		LayerItemData[] items = mapData?.layers?.resources;
+		if (items == null || items.Length == 0)
+		{
+			return;
+		}
+
+		if (resourceRoot == null)
+		{
+			Debug.LogWarning("No resourceRoot assigned — skipping resource items.", this);
+			return;
+		}
+
+		Dictionary<int, GroundTypeData> typeLookup = BuildTypeLookup(mapData.toolset?.resourceTypes);
+		int prefabCount = 0;
+		int quadCount = 0;
+
+		for (int i = 0; i < items.Length; i++)
+		{
+			LayerItemData item = items[i];
+			if (item == null)
+			{
+				continue;
+			}
+
+			typeLookup.TryGetValue(item.typeId, out GroundTypeData typeEntry);
+			string key = typeEntry?.stringKey ?? item.typeId.ToString();
+			string goName = $"Resource_{item.typeId}_{key}";
+
+			if (resourcePalette != null && resourcePalette.TryGetPrefab(item.typeId, key, out GameObject prefab))
+			{
+				// World-space position: tile centre on the XZ ground plane.
+				// Using the 4-arg Instantiate overload places the GO at world position / rotation
+				// regardless of the parent's (already-rotated) transform, so the prefab stands
+				// upright and its colliders are correctly oriented.
+				Vector3 worldPos = new Vector3(
+					mapOrigin.x + (item.x + 0.5f) * worldUnitsPerTile,
+					resourceSpawnYOffset,
+					mapOrigin.y + (item.y + 0.5f) * worldUnitsPerTile);
+
+				GameObject go = Instantiate(prefab, worldPos, Quaternion.identity, resourceRoot);
+				go.name = goName;
+				prefabCount++;
+			}
+			else
+			{
+				// Fallback: flat colored quad. resourceRoot is already rotated, so local XY
+				// maps to world XZ — SpawnLayerItem's local-position math still works correctly.
+				Color color = ParseHtmlColor(typeEntry?.color, Color.white);
+				SpawnLayerItem(item.x, item.y, goName, color, item.typeId, resourceRoot);
+				quadCount++;
+			}
+		}
+
+		Debug.Log($"Resources spawned: {prefabCount} prefab(s), {quadCount} fallback quad(s).", this);
 	}
 
 	private int SpawnItemSet(LayerItemData[] items, GroundTypeData[] types, string prefix, Transform parent)
@@ -532,6 +621,12 @@ private void ApplyGroundFlatRotation()
 	/// </summary>
 private void SpawnPlayer(MapData mapData)
 	{
+		// Opt-out: scenes that place a persistent player by hand skip runtime spawning.
+		if (!spawnPlayerAtRuntime)
+		{
+			return;
+		}
+
 		// Runtime only — in edit mode the player-start NPC marker quad acts as a placement
 		// preview; the actual prefab is instantiated when entering play mode.
 		if (!Application.isPlaying)

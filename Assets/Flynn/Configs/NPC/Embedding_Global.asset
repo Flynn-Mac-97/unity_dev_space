@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f98581945d7a8e4882e4d37107dcd77, type: 3}
+  m_Name: Embedding_Global
+  m_EditorClassIdentifier: 
+  endpointUrl: http://127.0.0.1:11434/api/embeddings
+  modelName: all-minilm:l6-v2
+  dimensions: 384
+  timeoutSeconds: 20
+  recallTopK: 6
+  minSimilarity: 0.2
+  dedupThreshold: 0.95

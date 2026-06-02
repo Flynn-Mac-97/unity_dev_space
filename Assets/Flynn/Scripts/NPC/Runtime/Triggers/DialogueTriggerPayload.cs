@@ -1,12 +1,17 @@
 public struct DialogueTriggerPayload
 {
-    public DialogueTriggerDef trigger;
-    public NpcDialogueAgentConfig sourceNpc;
+    /// Signal id (matches a SignalContent.signalId in the island JSON).
+    public string triggerKey;
+    /// Id of the NPC that fired it. Empty when fired from a non-dialogue source.
+    public string sourceNpcId;
+    /// Handler category from the authored signal (IslandContentVocab.SignalHandlers).
+    /// Optional — listeners usually match on triggerKey, but may route on this.
+    public string handler;
+    /// Opaque payload string from the authored signal (usually JSON). Delivered
+    /// verbatim so a handler can interpret it.
+    public string payloadJson;
     public string topic;
     public int trustDelta;
-    public int affectionDelta;
-    public int suspicionDelta;
 
-    // Stable string id used by save data, LLM, and logs. Derived from the def's asset name.
-    public string Key => trigger != null ? trigger.Key : null;
+    public string Key => triggerKey;
 }

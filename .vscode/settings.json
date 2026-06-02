@@ -56,5 +56,13 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "unity_dev_space.sln"
+    "dotnet.defaultSolution": "unity_dev_space.sln",
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "Assets/Flynn/Configs/NPC/Islands/*.json"
+            ],
+            "url": "./Assets/Flynn/Configs/NPC/Islands/island.schema.json"
+        }
+    ]
 }

@@ -39,15 +39,20 @@ public static class FlynnAnimationSetup
         // (clipName, folder, looping)
         var defs = new (string name, string folder, bool loop)[]
         {
-            ("Flynn_Idle_Front", SpBase + "/positive/idel_02", true),
-            ("Flynn_Run_Front",  SpBase + "/positive/run_01",  true),
-            ("Flynn_Jump_Front", SpBase + "/positive/jump_02", false),
-            ("Flynn_Idle_Back",  SpBase + "/back/idel_01",     true),
-            ("Flynn_Run_Back",   SpBase + "/back/run_01",      true),
-            ("Flynn_Jump_Back",  SpBase + "/back/jump_01",     false),
-            ("Flynn_Idle_Side",  SpBase + "/side/idel_03",     true),
-            ("Flynn_Run_Side",   SpBase + "/side/run_03",      true),
-            ("Flynn_Jump_Side",  SpBase + "/side/jump_03",     false),
+            ("Flynn_Idle_Front",  SpBase + "/positive/idel_02", true),
+            ("Flynn_Run_Front",   SpBase + "/positive/run_01",  true),
+            ("Flynn_Jump_Front",  SpBase + "/positive/jump_02", false),
+            ("Flynn_Idle_Back",   SpBase + "/back/idel_01",     true),
+            ("Flynn_Run_Back",    SpBase + "/back/run_01",      true),
+            ("Flynn_Jump_Back",   SpBase + "/back/jump_01",     false),
+            ("Flynn_Idle_Side",   SpBase + "/side/idel_03",     true),
+            ("Flynn_Run_Side",    SpBase + "/side/run_03",      true),
+            ("Flynn_Jump_Side",   SpBase + "/side/jump_03",     false),
+            // ── Attack animations (one-shot, tool-specific) ──────────────
+            ("Flynn_attack_01",   SpBase + "/attack_01",        false),  // pick
+            ("Flynn_attack_02",   SpBase + "/attack_02",        false),  // axe
+            ("Flynn_attack_03",   SpBase + "/attack_03",        false),  // hammer
+            ("Flynn_attack_04",   SpBase + "/attack_04",        false),  // wrench
         };
 
         var map = new Dictionary<string, AnimationClip>();
@@ -135,9 +140,11 @@ public static class FlynnAnimationSetup
             AssetDatabase.DeleteAsset(ctrlPath);
 
         var ctrl = AnimatorController.CreateAnimatorControllerAtPath(ctrlPath);
-        ctrl.AddParameter("Speed",      AnimatorControllerParameterType.Float);
-        ctrl.AddParameter("IsGrounded", AnimatorControllerParameterType.Bool);
-        ctrl.AddParameter("FacingDir",  AnimatorControllerParameterType.Int);
+        ctrl.AddParameter("Speed",       AnimatorControllerParameterType.Float);
+        ctrl.AddParameter("IsGrounded",  AnimatorControllerParameterType.Bool);
+        ctrl.AddParameter("FacingDir",   AnimatorControllerParameterType.Int);
+        ctrl.AddParameter("Attack",      AnimatorControllerParameterType.Trigger);
+        ctrl.AddParameter("AttackIndex", AnimatorControllerParameterType.Int);
 
         var sm = ctrl.layers[0].stateMachine;
 
@@ -263,6 +270,35 @@ public static class FlynnAnimationSetup
         t.AddCondition(AnimatorConditionMode.If,      0f,   "IsGrounded");
         t.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
         t.AddCondition(AnimatorConditionMode.Equals,  2f,   "FacingDir");
+
+        // ── Attack states (AnyState → Attack_N, then → Idle_Front on exit) ─────────────
+        var attackDefs = new (string state, string clip, int index)[]{
+            ("Attack_Pick",   "Flynn_attack_01", 1),
+            ("Attack_Axe",    "Flynn_attack_02", 2),
+            ("Attack_Hammer", "Flynn_attack_03", 3),
+            ("Attack_Wrench", "Flynn_attack_04", 4),
+        };
+
+        for (int ai = 0; ai < attackDefs.Length; ai++)
+        {
+            var (stateName, clipName, animIndex) = attackDefs[ai];
+            var attackState = AddState(sm, clips, stateName, clipName,
+                                       new Vector3(300 + ai * 300, -500, 0));
+
+            // AnyState → attack: trigger fired AND AttackIndex matches
+            var anyTrans = sm.AddAnyStateTransition(attackState);
+            anyTrans.hasExitTime       = false;
+            anyTrans.duration          = 0f;
+            anyTrans.canTransitionToSelf = false;
+            anyTrans.AddCondition(AnimatorConditionMode.If,     0f,          "Attack");
+            anyTrans.AddCondition(AnimatorConditionMode.Equals, animIndex,   "AttackIndex");
+
+            // Attack → Idle_Front once the clip has mostly played (85% through)
+            var exitTrans = attackState.AddTransition(idleFront);
+            exitTrans.hasExitTime = true;
+            exitTrans.exitTime    = 0.85f;
+            exitTrans.duration    = 0f;
+        }
 
         EditorUtility.SetDirty(ctrl);
         Debug.Log("[FlynnAnimationSetup] AnimatorController created.");

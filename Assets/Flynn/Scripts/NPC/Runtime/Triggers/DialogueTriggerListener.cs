@@ -4,17 +4,17 @@ using UnityEngine.Events;
 public class DialogueTriggerListener : MonoBehaviour
 {
     [Header("Channel")]
-    [Tooltip("ScriptableObject bus this listener subscribes to. Drag in the project's DialogueTriggers asset.")]
+    [Tooltip("ScriptableObject bus this listener subscribes to.")]
     public DialogueTriggerChannel channel;
 
     [Header("Filter")]
-    [Tooltip("The trigger definition this listener reacts to. Drag the same DialogueTriggerDef asset the NPC config references.")]
-    public DialogueTriggerDef requiredTrigger;
+    [Tooltip("Signal id this listener reacts to (must match a SignalContent.signalId in the island JSON).")]
+    public string requiredTriggerKey;
 
-    [Tooltip("Leave null to accept triggers from any NPC. Set to scope this listener to one NPC's config.")]
-    public NpcDialogueAgentConfig requiredNpc;
+    [Tooltip("Leave empty to accept signals from any NPC. Otherwise match against the firing NPC's id.")]
+    public string requiredNpcId;
 
-    [Tooltip("Unsubscribe after the first fire. Local to this scene instance — reload clears it.")]
+    [Tooltip("Unsubscribe after the first fire.")]
     public bool oneShot;
 
     [Header("Reaction")]
@@ -37,9 +37,9 @@ public class DialogueTriggerListener : MonoBehaviour
     private void HandleRaised(DialogueTriggerPayload payload)
     {
         if (_fired && oneShot) return;
-        if (requiredTrigger == null) return;
-        if (payload.trigger != requiredTrigger) return;
-        if (requiredNpc != null && payload.sourceNpc != requiredNpc) return;
+        if (string.IsNullOrWhiteSpace(requiredTriggerKey)) return;
+        if (payload.triggerKey != requiredTriggerKey) return;
+        if (!string.IsNullOrEmpty(requiredNpcId) && payload.sourceNpcId != requiredNpcId) return;
 
         _fired = true;
         onTriggered?.Invoke();

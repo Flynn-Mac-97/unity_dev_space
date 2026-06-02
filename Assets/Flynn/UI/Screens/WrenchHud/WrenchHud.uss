@@ -1,0 +1,134 @@
+/* Wrench HUD — Flynn wireframe palette: black surfaces, 1px white outlines, square. */
+
+.hud-root {
+    position: absolute;
+    left: 0; top: 0; right: 0; bottom: 0;
+}
+
+/* Zero-size anchor; children are offset around it so it centers on the mouse point. */
+.cursor {
+    position: absolute;
+    width: 0;
+    height: 0;
+}
+
+.cursor-box {
+    position: absolute;
+    left: -11px; top: -11px;
+    width: 22px; height: 22px;
+    background-color: rgba(0, 0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+}
+
+.cursor-dot {
+    position: absolute;
+    left: -1px; top: -1px;
+    width: 2px; height: 2px;
+    background-color: rgb(255, 255, 255);
+}
+
+/* Charge meter sits just below the reticle, centered. Hidden unless charging. */
+.charge {
+    position: absolute;
+    left: -30px; top: 18px;
+    width: 60px;
+    display: none;
+}
+
+.charge-track {
+    width: 60px; height: 6px;
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    border-radius: 0;
+}
+
+.charge-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background-color: rgb(255, 255, 255);
+}
+
+/* Marks the light/heavy swing breakpoint. */
+.charge-tick {
+    position: absolute;
+    top: -2px;
+    height: 10px;
+    width: 1px;
+    left: 0;
+    background-color: rgb(255, 255, 255);
+}
+
+.charge-label {
+    -unity-text-align: upper-center;
+    margin-top: 3px;
+    font-size: 10px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: normal;
+}
+
+/* ── Pickup interaction prompt ─────────────────────────────────────────── */
+
+.pickup-prompt {
+    position: absolute;
+    display: none;
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    padding: 6px 12px;
+    align-items: center;
+}
+
+.pickup-item-name {
+    color: rgb(255, 255, 255);
+    font-size: 15px;
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+}
+
+.pickup-hint {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12px;
+    -unity-text-align: upper-center;
+    margin-top: 3px;
+    letter-spacing: 1px;
+}
+
+/* ── Resource node health bar ──────────────────────────────────────────── */
+
+.resource-bar {
+    position: absolute;
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    padding: 5px 10px 6px 10px;
+    align-items: center;
+    min-width: 90px;
+}
+
+.resource-bar-name {
+    color: rgb(255, 255, 255);
+    font-size: 13px;
+    -unity-font-style: bold;
+    -unity-text-align: upper-center;
+    letter-spacing: 1px;
+}
+
+.resource-bar-track {
+    width: 80px;
+    height: 5px;
+    background-color: rgb(0, 0, 0);
+    border-width: 1px;
+    border-color: rgb(255, 255, 255);
+    margin-top: 5px;
+}
+
+.resource-bar-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+}

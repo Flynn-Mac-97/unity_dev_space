@@ -3,47 +3,42 @@ using UnityEngine;
 
 public class NpcRelationshipState : MonoBehaviour
 {
-    [SerializeField] private NpcDialogueAgentConfig agentConfig;
+    [Tooltip("Optional override. When empty, falls back to the sibling NpcAuthoringLink.npcId.")]
+    [SerializeField] private string npcIdOverride;
 
     [Header("Live values (0-100)")]
     [Range(0, 100)] public int trust;
-    [Range(0, 100)] public int affection;
-    [Range(0, 100)] public int suspicion;
-
-    public NpcRelationshipDefaults.PlayerStatusTag playerStatus = NpcRelationshipDefaults.PlayerStatusTag.Unknown;
 
     public event Action OnChanged;
 
-    public NpcDialogueAgentConfig AgentConfig => agentConfig;
-
-    public void Bind(NpcDialogueAgentConfig config)
+    public string NpcId
     {
-        agentConfig = config;
-        ResetToDefaults();
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(npcIdOverride)) return npcIdOverride;
+            var link = GetComponent<NpcAuthoringLink>();
+            return link != null ? link.npcId : null;
+        }
     }
 
     private void Awake()
     {
-        if (agentConfig == null)
-        {
-            var link = GetComponent<NpcDialogueAuthoringLink>();
-            if (link != null) agentConfig = link.agentConfig;
-        }
         ResetToDefaults();
     }
 
     public void ResetToDefaults()
     {
-        if (agentConfig == null || agentConfig.relationship == null) return;
-        var d = agentConfig.relationship;
-        trust = d.startingTrust;
-        affection = d.startingAffection;
-        suspicion = d.startingSuspicion;
-        playerStatus = d.initialPlayerStatus;
+        var npc = ResolveContent();
+        trust = npc != null ? npc.startingTrust : 0;
         OnChanged?.Invoke();
     }
 
     public void AdjustTrust(int delta) { trust = Mathf.Clamp(trust + delta, 0, 100); OnChanged?.Invoke(); }
-    public void AdjustAffection(int delta) { affection = Mathf.Clamp(affection + delta, 0, 100); OnChanged?.Invoke(); }
-    public void AdjustSuspicion(int delta) { suspicion = Mathf.Clamp(suspicion + delta, 0, 100); OnChanged?.Invoke(); }
+
+    public NpcContent ResolveContent()
+    {
+        var mgr = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
+        var hub = mgr != null ? mgr.islandContent : null;
+        return hub != null ? hub.GetNpc(NpcId) : null;
+    }
 }

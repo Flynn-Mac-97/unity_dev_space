@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Collections;
 using System.Collections.Generic;
+using Flynn.Npc.Memory;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -17,10 +18,13 @@ public class DialogueManager : MonoBehaviour
     private TextField _playerInput;
     private Button _closeButton;
     private VisualElement _panel;
+    private VisualElement _suggestionsRow;
 
-    private NpcDialogueData _current;
-    private NpcDialogueAgentConfig _activeAgentConfig;
-    private int _lineIndex;
+    private string _activeNpcId;
+    private NpcContent _activeNpc;
+    private NpcRelationshipState _activeRelationship;
+    private List<string> _availableSignalIdsThisTurn = new List<string>();
+
     private bool _isBound;
     private bool _callbacksRegistered;
     private bool _isWaitingForReply;
@@ -31,83 +35,45 @@ public class DialogueManager : MonoBehaviour
     private const string k_DefaultSaveSlotId = "slot_0";
     private const string k_PlayerSpeaker = "Player";
 
-    private string _activeNpcMemoryId;
-
     private void Awake()
     {
         if (Instance != null && Instance != this)
-        {
             Debug.LogWarning("Multiple DialogueManager instances detected. Replacing previous instance.");
-        }
-
         Instance = this;
     }
 
-    private void Start()
-    {
-        TryBindUi();
-    }
+    private void Start() { TryBindUi(); }
 
-    public void Open(NpcDialogueData data)
+    public void OpenAgent(string npcId, Sprite portraitOverride = null, NpcRelationshipState relationshipState = null)
     {
-        if (data == null)
+        if (string.IsNullOrWhiteSpace(npcId))
         {
-            Debug.LogWarning("DialogueManager.Open called with null dialogue data.");
+            Debug.LogWarning("DialogueManager.OpenAgent called with empty npcId.");
             return;
         }
-
         if (!TryBindUi()) return;
 
-        _activeAgentConfig = null;
-        _activeNpcMemoryId = null;
+        var sceneLlm = ResolveSceneLlm();
+        var hub = sceneLlm != null ? sceneLlm.islandContent : null;
+        _activeNpc = hub != null ? hub.GetNpc(npcId) : null;
+        if (_activeNpc == null)
+            Debug.LogWarning("[Dialogue] No NpcContent in island for id '" + npcId + "'. Dialogue will use a generic fallback persona.");
+
+        _activeNpcId = npcId;
+        _activeRelationship = relationshipState;
         _isWaitingForReply = false;
         _recentTurns.Clear();
         _turnCount = 0;
-        _current = data;
-        _lineIndex = 0;
-        _npcNameLabel.text = data.npcName;
-        _dialogueText.text = data.lines.Length > 0 ? data.lines[0] : string.Empty;
-        ApplyPortraitSprite(null);
-        _playerInput.value = string.Empty;
-        _panel.RemoveFromClassList("hidden");
-        Time.timeScale = 0f;
-    }
-
-    public void OpenAgent(NpcDialogueAgentConfig config, NpcDialogueData fallbackData)
-    {
-        OpenAgent(config, fallbackData, null);
-    }
-
-    // The relationship parameter is accepted for source compatibility with existing
-    // callers (NpcInteraction passes one in) but is no longer used at runtime.
-    public void OpenAgent(NpcDialogueAgentConfig config, NpcDialogueData fallbackData, NpcRelationshipState relationship)
-    {
-        if (config == null)
-        {
-            Open(fallbackData);
-            return;
-        }
-
-        if (!TryBindUi()) return;
-
-        _activeAgentConfig = config;
-        _isWaitingForReply = false;
-        _recentTurns.Clear();
-        _turnCount = 0;
-
-        _current = fallbackData;
-        _lineIndex = 0;
-        _activeNpcMemoryId = ResolveNpcMemoryId(config, fallbackData);
         LoadPersistentMemory();
 
-        string npcName = config.personalityProfile != null
-            ? config.personalityProfile.GetSafeDisplayName()
-            : (fallbackData != null ? fallbackData.npcName : "NPC");
-
+        string npcName = _activeNpc != null && !string.IsNullOrWhiteSpace(_activeNpc.displayName)
+            ? _activeNpc.displayName.Trim()
+            : "Stranger";
         _npcNameLabel.text = npcName;
-        _dialogueText.text = GetOpeningLine(fallbackData, npcName);
-        ApplyPortraitSprite(config.personalityProfile != null ? config.personalityProfile.portraitSprite : null);
+        _dialogueText.text = string.Format("{0} is listening.", npcName);
+        ApplyPortraitSprite(portraitOverride);
         _playerInput.value = string.Empty;
+        ClearSuggestions();
         _panel.RemoveFromClassList("hidden");
         Time.timeScale = 0f;
     }
@@ -115,18 +81,17 @@ public class DialogueManager : MonoBehaviour
     public void Close()
     {
         if (!TryBindUi()) return;
-
         _isWaitingForReply = false;
         _panel.AddToClassList("hidden");
         Time.timeScale = 1f;
         _playerInput.value = string.Empty;
+        ClearSuggestions();
     }
 
-    // Called by the send button or Enter key
     public void SubmitPlayerInput()
     {
         if (!TryBindUi()) return;
-        if (_current == null && _activeAgentConfig == null) return;
+        if (string.IsNullOrWhiteSpace(_activeNpcId)) return;
         if (_isWaitingForReply) return;
 
         string input = _playerInput.value.Trim();
@@ -141,25 +106,25 @@ public class DialogueManager : MonoBehaviour
         Debug.Log($"[Dialogue] Player said: {input}");
         _playerInput.value = string.Empty;
 
-        if (_activeAgentConfig != null && _activeAgentConfig.useLocalModel)
+        var sceneLlm = ResolveSceneLlm();
+        bool llmEnabled = sceneLlm != null && sceneLlm.HasValidSettings();
+        if (llmEnabled)
         {
-            StartCoroutine(HandleAgentTurn(input));
+            StartCoroutine(HandleAgentTurn(input, sceneLlm));
             return;
         }
 
-        AdvanceLegacyDialogue();
+        AddTurn(k_PlayerSpeaker, input);
+        ApplyNpcReply(GetFallbackReply());
     }
 
-    private IEnumerator HandleAgentTurn(string playerInput)
+    private IEnumerator HandleAgentTurn(string playerInput, SceneLlmManager sceneLlm)
     {
         _isWaitingForReply = true;
         _dialogueText.text = "Thinking...";
+        ClearSuggestions();
 
-        SceneLlmManager sceneLlm = SceneLlmManager.Instance != null
-            ? SceneLlmManager.Instance
-            : FindObjectOfType<SceneLlmManager>();
-
-        if (sceneLlm == null || !sceneLlm.HasValidSettings())
+        if (string.IsNullOrEmpty(_activeNpcId) || sceneLlm == null || !sceneLlm.HasValidSettings())
         {
             AddTurn(k_PlayerSpeaker, playerInput);
             ApplyNpcReply("[Fallback] " + GetFallbackReply());
@@ -170,14 +135,39 @@ public class DialogueManager : MonoBehaviour
         int debugTurnNumber = _turnCount + 1;
         LlmDebugBus.BeginTurn(debugTurnNumber, playerInput);
 
-        string systemPrompt = BuildSystemPrompt(sceneLlm);
-        var priorTurns = BuildChatHistory();
+        // Resolve context for THIS turn — drives both prompt and signal allowlist.
+        var ctx = ResolveContext(sceneLlm, playerInput);
+        _availableSignalIdsThisTurn.Clear();
+        if (ctx != null && ctx.availableSignals != null)
+            foreach (var s in ctx.availableSignals) _availableSignalIdsThisTurn.Add(s.signalId);
+
+        // Semantic recall: embed the player's input (+ resolved-thing context) and
+        // pull the top-k most relevant memories/knowledge for this NPC. Null when
+        // semantic memory is unavailable — BuildSystemPrompt then falls back to the
+        // legacy keyword path.
+        List<NpcMemoryDatabase.RecalledItem> recalled = null;
+        if (sceneLlm.SemanticMemoryReady && !string.IsNullOrEmpty(_activeNpcId))
+        {
+            string queryText = BuildRecallQuery(playerInput, ctx);
+            float[] queryVec = null;
+            string embedError = null;
+            yield return StartCoroutine(sceneLlm.Embedder.Embed(queryText, (v, e) => { queryVec = v; embedError = e; }));
+            if (queryVec != null)
+            {
+                var es = sceneLlm.embeddingSettings;
+                recalled = sceneLlm.MemoryDb.Recall(_activeNpcId, GetCurrentTrust(), queryVec, es.recallTopK, es.minSimilarity);
+            }
+            else Debug.LogWarning("[Dialogue] Query embed failed, skipping semantic recall: " + embedError);
+        }
+
+        string systemPrompt = BuildSystemPrompt(sceneLlm, ctx, recalled);
+        var priorTurns = BuildChatHistory(sceneLlm);
 
         string reply = null;
         string error = null;
         var sw = System.Diagnostics.Stopwatch.StartNew();
         yield return StartCoroutine(LocalLlmClient.GenerateReply(
-            sceneLlm.sharedLocalModelSettings, systemPrompt, priorTurns, playerInput,
+            sceneLlm.GetActiveDialogueConfig(), systemPrompt, priorTurns, playerInput,
             (result, requestError) => { reply = result; error = requestError; }));
         sw.Stop();
 
@@ -200,59 +190,96 @@ public class DialogueManager : MonoBehaviour
         if (!string.IsNullOrWhiteSpace(error))
             Debug.LogWarning($"[Dialogue] LLM request error: {error}");
 
+        string spokenLine;
+        string[] suggestions = null;
         if (string.IsNullOrWhiteSpace(reply))
-            reply = "[Fallback] " + GetFallbackReply();
+        {
+            spokenLine = "[Fallback] " + GetFallbackReply();
+        }
+        else
+        {
+            var envelope = NpcReplyEnvelope.TryParse(reply);
+            if (envelope != null && !string.IsNullOrWhiteSpace(envelope.reply))
+            {
+                spokenLine = envelope.reply.Trim();
+                suggestions = envelope.suggested_player_replies;
+                Debug.Log("[NPC JSON] " + envelope.ToDebugString());
+                yield return StartCoroutine(WriteEnvelopeMemoryUpdates(envelope, sceneLlm));
+                RaiseEnvelopeSignals(envelope, sceneLlm);
+            }
+            else
+            {
+                Debug.LogWarning("[NPC JSON] unparseable envelope. Raw=" + NpcReplyEnvelope.FlattenForLog(reply));
+                spokenLine = reply.Trim();
+            }
+        }
 
         LlmDebugBus.EndTurn(new LlmDebugBus.TurnSummary
         {
             turnNumber = debugTurnNumber,
             playerInput = playerInput,
-            finalReply = reply,
+            finalReply = spokenLine,
         });
 
         _turnCount++;
 
-        ApplyNpcReply(reply);
+        ApplyNpcReply(spokenLine);
+        ShowSuggestions(suggestions);
         _isWaitingForReply = false;
     }
 
-    private void AdvanceLegacyDialogue()
+    private ResolvedNpcContext ResolveContext(SceneLlmManager sceneLlm, string playerInput)
     {
-        _lineIndex++;
-        if (_lineIndex < _current.lines.Length)
-            _dialogueText.text = _current.lines[_lineIndex];
-        else
-            Close();
+        if (sceneLlm == null || sceneLlm.islandContent == null) return null;
+        int trust = _activeRelationship != null ? _activeRelationship.trust
+            : (_activeNpc != null ? _activeNpc.startingTrust : 0);
+        Vector3? playerPos = sceneLlm.playerTransform != null
+            ? sceneLlm.playerTransform.position
+            : (Vector3?)null;
+        return sceneLlm.Resolver.Resolve(
+            npcId: _activeNpcId,
+            currentTrust: trust,
+            playerInput: playerInput,
+            currentThingId: null,
+            playerPosition: playerPos,
+            proximityRadius: sceneLlm.proximityResolveRadius);
     }
 
-    // Single concatenated system prompt: scene-global rules + per-NPC persona + (optional)
-    // facts the NPC knows + (optional) player profile block. One LLM call consumes this.
-    private string BuildSystemPrompt(SceneLlmManager sceneLlm)
+    private string BuildSystemPrompt(SceneLlmManager sceneLlm, ResolvedNpcContext ctx, List<NpcMemoryDatabase.RecalledItem> recalled)
     {
         var sb = new System.Text.StringBuilder();
+        LlmPromptConfig pc = sceneLlm != null ? sceneLlm.promptConfig : null;
 
-        if (sceneLlm != null && !string.IsNullOrWhiteSpace(sceneLlm.systemPrompt))
-            sb.Append(sceneLlm.systemPrompt.Trim());
+        if (pc != null && !string.IsNullOrWhiteSpace(pc.systemPrompt))
+            sb.Append(pc.systemPrompt.Trim());
 
-        var profile = _activeAgentConfig != null ? _activeAgentConfig.personalityProfile : null;
-        if (_activeAgentConfig != null && !string.IsNullOrWhiteSpace(_activeAgentConfig.promptTemplate))
+        if (ctx != null && ctx.npc != null)
         {
             if (sb.Length > 0) sb.Append("\n\n");
-            sb.Append(NpcPromptTokens.Apply(_activeAgentConfig.promptTemplate.Trim(), _activeAgentConfig));
-        }
-        else if (profile != null)
-        {
-            if (sb.Length > 0) sb.Append("\n\n");
-            sb.Append("You are ").Append(profile.GetSafeDisplayName()).Append('.');
-            if (!string.IsNullOrWhiteSpace(profile.roleDescription))
-                sb.Append(' ').Append(profile.roleDescription.Trim());
+            sb.Append(IslandPromptBuilder.BuildPersonaBlock(ctx));
         }
 
-        string memorySummary = BuildMemorySummary(sceneLlm);
+        var hub = sceneLlm != null ? sceneLlm.islandContent : null;
+        var community = hub != null ? hub.GetCommunity() : null;
+        if (community != null)
+        {
+            string block = IslandPromptBuilder.BuildCommunityBlock(community);
+            if (!string.IsNullOrEmpty(block)) sb.Append("\n\n").Append(block);
+        }
+
+        if (ctx != null)
+        {
+            string resolved = IslandPromptBuilder.BuildResolvedBlock(ctx);
+            if (!string.IsNullOrEmpty(resolved)) sb.Append("\n\n").Append(resolved);
+        }
+
+        // Prefer semantic recall when available; otherwise fall back to the legacy
+        // keyword-scored summary off the ScriptableObject store.
+        string memorySummary = recalled != null
+            ? RenderRecalledBlock(recalled)
+            : BuildMemorySummary(sceneLlm, ctx);
         if (!string.IsNullOrWhiteSpace(memorySummary) && memorySummary != "None yet.")
-        {
             sb.Append("\n\n").Append(memorySummary);
-        }
 
         if (sceneLlm != null && sceneLlm.playerProfile != null)
         {
@@ -266,40 +293,138 @@ public class DialogueManager : MonoBehaviour
             }
         }
 
+        string jsonAddendum = (pc != null && !string.IsNullOrWhiteSpace(pc.jsonOutputAddendum))
+            ? pc.jsonOutputAddendum
+            : NpcReplyEnvelope.PromptAddendum;
+        if (sb.Length > 0) sb.Append("\n\n");
+        sb.Append(jsonAddendum);
+
         return sb.ToString();
     }
 
-    private string BuildMemorySummary(SceneLlmManager sceneLlm)
+    // Inject only the most relevant long-term facts, not the last N. We store
+    // more than we send: facts about the player / the relationship / what we've
+    // disclosed are always relevant to whoever we're talking to; world/self
+    // facts are preferred when they touch the thing currently being discussed.
+    // This keeps the prompt focused on the resolver-selected topic instead of
+    // dumping every accreted memory each turn.
+    private string BuildMemorySummary(SceneLlmManager sceneLlm, ResolvedNpcContext ctx)
     {
-        // Only long-term facts go in the system prompt now.
-        // Recent turns are sent to the model as real chat history via BuildChatHistory.
-        NpcMemorySettings settings = GetSharedMemorySettings(sceneLlm);
-        if (_activeAgentConfig == null || settings == null)
-            return "None yet.";
+        LlmPromptConfig settings = GetPromptConfig(sceneLlm);
+        if (string.IsNullOrEmpty(_activeNpcId) || settings == null) return "None yet.";
 
-        NpcDialogueMemoryStore.NpcMemoryEntry memory =
-            NpcDialogueMemoryStore.GetOrCreateMemory(GetActiveNpcMemoryId(), GetActiveSaveSlotId());
+        var memory = GetActiveMemoryEntry();
+        if (memory == null || memory.memoryFacts == null || memory.memoryFacts.Count == 0) return "None yet.";
 
-        if (memory.memoryFacts == null || memory.memoryFacts.Count == 0)
-            return "None yet.";
+        var facts = memory.memoryFacts;
+
+        // Relevance tokens from the resolved thing (display name + aliases).
+        var tokens = new HashSet<string>();
+        if (ctx != null && ctx.resolvedThing != null)
+        {
+            AddRelevanceTokens(tokens, ctx.resolvedThing.displayName);
+            if (ctx.resolvedThing.aliases != null)
+                foreach (var a in ctx.resolvedThing.aliases) AddRelevanceTokens(tokens, a);
+        }
+
+        // Score each fact, keep original index for recency tie-breaks.
+        var scored = new List<KeyValuePair<int, int>>();
+        for (int i = 0; i < facts.Count; i++)
+        {
+            string f = facts[i];
+            if (string.IsNullOrWhiteSpace(f)) continue;
+            string lower = f.ToLowerInvariant();
+            int score = 0;
+            foreach (var t in tokens) { if (lower.Contains(t)) { score += 2; break; } }
+            if (lower.StartsWith("[player]") || lower.StartsWith("[relationship]") || lower.StartsWith("[disclosure]"))
+                score += 1;
+            scored.Add(new KeyValuePair<int, int>(i, score));
+        }
+        if (scored.Count == 0) return "None yet.";
+
+        // Highest score first; newer (higher index) wins ties.
+        scored.Sort((a, b) => b.Value != a.Value ? b.Value - a.Value : b.Key - a.Key);
+
+        // Send fewer than we store — relevance filtering means we don't need the full cap.
+        int take = Mathf.Min(Mathf.Clamp(settings.memoryFactsLimit, 1, 7), scored.Count);
+
+        // Restore chronological order within the chosen set so it reads naturally.
+        var chosen = new List<int>(take);
+        for (int i = 0; i < take; i++) chosen.Add(scored[i].Key);
+        chosen.Sort();
 
         var lines = new List<string> { "Known facts:" };
-        int factBudget = Mathf.Max(1, settings.memoryFactsLimit);
-        int factsStart = Mathf.Max(0, memory.memoryFacts.Count - factBudget);
-        for (int i = factsStart; i < memory.memoryFacts.Count; i++)
-            lines.Add("- " + memory.memoryFacts[i]);
-
+        foreach (var idx in chosen) lines.Add("- " + facts[idx]);
         return string.Join("\n", lines);
     }
 
-    private static NpcMemorySettings GetSharedMemorySettings(SceneLlmManager sceneLlm)
+    private int GetCurrentTrust()
     {
-        return sceneLlm != null ? sceneLlm.sharedMemorySettings : null;
+        if (_activeRelationship != null) return _activeRelationship.trust;
+        return _activeNpc != null ? _activeNpc.startingTrust : 0;
     }
 
-    // Render the chat-history window as a readable transcript for the debug panel
-    // so designers can see exactly which prior turns the model is receiving with
-    // this request.
+    // Query text for semantic recall: the player's input plus the resolved thing's
+    // name/aliases so memories about whatever is being discussed score higher.
+    private string BuildRecallQuery(string playerInput, ResolvedNpcContext ctx)
+    {
+        if (ctx == null || ctx.resolvedThing == null) return playerInput;
+        var sb = new System.Text.StringBuilder(playerInput);
+        if (!string.IsNullOrWhiteSpace(ctx.resolvedThing.displayName))
+            sb.Append(' ').Append(ctx.resolvedThing.displayName);
+        if (ctx.resolvedThing.aliases != null)
+            foreach (var a in ctx.resolvedThing.aliases)
+                if (!string.IsNullOrWhiteSpace(a)) sb.Append(' ').Append(a);
+        return sb.ToString();
+    }
+
+    // Renders semantic-recall results into the "Known facts:" block. Memory items
+    // keep their subject tag (e.g. "[player]"); authored knowledge renders plain.
+    private static string RenderRecalledBlock(List<NpcMemoryDatabase.RecalledItem> recalled)
+    {
+        if (recalled == null || recalled.Count == 0) return "None yet.";
+        var lines = new List<string> { "Known facts:" };
+        foreach (var r in recalled)
+        {
+            if (string.IsNullOrWhiteSpace(r.Text)) continue;
+            bool isKnowledge = string.Equals(r.Source, "knowledge", StringComparison.Ordinal);
+            if (isKnowledge || string.IsNullOrWhiteSpace(r.Subject))
+                lines.Add("- " + r.Text.Trim());
+            else
+                lines.Add("- [" + r.Subject + "] " + r.Text.Trim());
+        }
+        return lines.Count > 1 ? string.Join("\n", lines) : "None yet.";
+    }
+
+    private static void AddRelevanceTokens(HashSet<string> set, string s)
+    {
+        if (string.IsNullOrWhiteSpace(s)) return;
+        foreach (var w in s.ToLowerInvariant().Split(' '))
+        {
+            string t = w.Trim();
+            if (t.Length >= 4) set.Add(t); // skip short stopwords like "the", "old"
+        }
+    }
+
+    private static SceneLlmManager ResolveSceneLlm() =>
+        SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
+
+    private static LlmPromptConfig GetPromptConfig(SceneLlmManager sceneLlm) => sceneLlm != null ? sceneLlm.promptConfig : null;
+    private LlmPromptConfig GetPromptConfig() => GetPromptConfig(ResolveSceneLlm());
+
+    private NpcMemoryStore GetMemoryStore()
+    {
+        var s = ResolveSceneLlm();
+        return s != null ? s.memoryStore : null;
+    }
+
+    private NpcMemoryStore.Entry GetActiveMemoryEntry()
+    {
+        if (string.IsNullOrEmpty(_activeNpcId)) return null;
+        var store = GetMemoryStore();
+        return store != null ? store.GetOrCreate(_activeNpcId) : null;
+    }
+
     private static string FormatChatHistoryForDebug(List<LocalLlmClient.ChatTurn> priorTurns)
     {
         if (priorTurns == null || priorTurns.Count == 0) return "(no prior turns)";
@@ -314,36 +439,44 @@ public class DialogueManager : MonoBehaviour
         return sb.Length == 0 ? "(no prior turns)" : sb.ToString();
     }
 
-    private NpcMemorySettings GetSharedMemorySettings()
-    {
-        SceneLlmManager sceneLlm = SceneLlmManager.Instance != null
-            ? SceneLlmManager.Instance
-            : FindObjectOfType<SceneLlmManager>();
-        return GetSharedMemorySettings(sceneLlm);
-    }
-
-    // Pulls the last N committed turns from memory and converts them into alternating
-    // user/assistant chat messages, so the model has a proper conversational history
-    // without bloating the system prompt as the chat grows.
-    private List<LocalLlmClient.ChatTurn> BuildChatHistory()
+    private List<LocalLlmClient.ChatTurn> BuildChatHistory(SceneLlmManager sceneLlm)
     {
         var history = new List<LocalLlmClient.ChatTurn>();
-        if (_activeAgentConfig == null) return history;
-
-        NpcDialogueMemoryStore.NpcMemoryEntry memory =
-            NpcDialogueMemoryStore.GetOrCreateMemory(GetActiveNpcMemoryId(), GetActiveSaveSlotId());
-
-        if (memory.recentTurns == null || memory.recentTurns.Count == 0) return history;
+        if (string.IsNullOrEmpty(_activeNpcId)) return history;
 
         int windowSize = GetChatHistoryWindow();
-        int start = Mathf.Max(0, memory.recentTurns.Count - windowSize);
 
+        // DB-backed history when semantic memory is on; otherwise the SO store.
+        if (sceneLlm != null && sceneLlm.SemanticMemoryReady)
+        {
+            var turns = new List<ChatTurnDoc>();
+            foreach (var t in sceneLlm.MemoryDb.ChatTurns.Find(x => x.NpcId == _activeNpcId))
+                turns.Add(t);
+            turns.Sort((a, b) => a.TurnIndex.CompareTo(b.TurnIndex));
+            int begin = Mathf.Max(0, turns.Count - windowSize);
+            for (int i = begin; i < turns.Count; i++)
+            {
+                var t = turns[i];
+                if (string.IsNullOrWhiteSpace(t.Content)) continue;
+                history.Add(new LocalLlmClient.ChatTurn
+                {
+                    isAssistant = !string.Equals(t.Speaker, k_PlayerSpeaker, StringComparison.Ordinal),
+                    content = t.Content,
+                });
+            }
+            return history;
+        }
+
+        var memory = GetActiveMemoryEntry();
+        if (memory == null || memory.recentTurns == null || memory.recentTurns.Count == 0) return history;
+
+        int start = Mathf.Max(0, memory.recentTurns.Count - windowSize);
         for (int i = start; i < memory.recentTurns.Count; i++)
         {
             string line = memory.recentTurns[i];
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            int sep = line.IndexOf(": ", System.StringComparison.Ordinal);
+            int sep = line.IndexOf(": ", StringComparison.Ordinal);
             if (sep <= 0) continue;
 
             string speaker = line.Substring(0, sep);
@@ -352,7 +485,7 @@ public class DialogueManager : MonoBehaviour
 
             history.Add(new LocalLlmClient.ChatTurn
             {
-                isAssistant = !string.Equals(speaker, k_PlayerSpeaker, System.StringComparison.Ordinal),
+                isAssistant = !string.Equals(speaker, k_PlayerSpeaker, StringComparison.Ordinal),
                 content = content,
             });
         }
@@ -362,9 +495,8 @@ public class DialogueManager : MonoBehaviour
 
     private int GetChatHistoryWindow()
     {
-        NpcMemorySettings settings = GetSharedMemorySettings();
-        if (settings != null)
-            return Mathf.Max(2, settings.recentTurnsLimit);
+        LlmPromptConfig settings = GetPromptConfig();
+        if (settings != null) return Mathf.Max(2, settings.recentTurnsLimit);
         return k_DefaultRecentTurnsLimit;
     }
 
@@ -378,28 +510,141 @@ public class DialogueManager : MonoBehaviour
         _recentTurns.Add($"{speakerName}: {normalizedContent}");
 
         int cap = GetRecentTurnsCap();
+        while (_recentTurns.Count > cap) _recentTurns.RemoveAt(0);
 
-        while (_recentTurns.Count > cap)
-            _recentTurns.RemoveAt(0);
+        if (string.IsNullOrEmpty(_activeNpcId)) return;
 
-        if (_activeAgentConfig == null) return;
-
-        string saveSlotId = GetActiveSaveSlotId();
-        string npcMemoryId = GetActiveNpcMemoryId();
-
-        NpcDialogueMemoryStore.AddTurn(npcMemoryId, speakerName, normalizedContent, cap, saveSlotId);
-
-        if (string.Equals(speakerName, k_PlayerSpeaker))
+        // DB-backed chat log when semantic memory is on; otherwise the SO store.
+        var sceneLlm = ResolveSceneLlm();
+        if (sceneLlm != null && sceneLlm.SemanticMemoryReady)
         {
-            string fact = TryExtractPlayerFact(normalizedContent);
-            if (!string.IsNullOrWhiteSpace(fact))
+            sceneLlm.MemoryDb.InsertChatTurn(new ChatTurnDoc
             {
-                NpcMemorySettings settings = GetSharedMemorySettings();
-                int factsLimit = settings != null ? Mathf.Max(1, settings.memoryFactsLimit) : 10;
-                int maxFactLength = settings != null ? Mathf.Max(40, settings.maxFactLength) : 160;
-                NpcDialogueMemoryStore.AddFact(npcMemoryId, fact, factsLimit, maxFactLength, saveSlotId);
-            }
+                NpcId = _activeNpcId,
+                Speaker = speakerName,
+                Content = normalizedContent,
+                TurnIndex = sceneLlm.MemoryDb.NextTurnIndex(_activeNpcId),
+            });
+            return;
         }
+
+        var store = GetMemoryStore();
+        if (store == null) return;
+
+        store.AddTurn(_activeNpcId, speakerName, normalizedContent, cap);
+    }
+
+    private IEnumerator WriteEnvelopeMemoryUpdates(NpcReplyEnvelope envelope, SceneLlmManager sceneLlm)
+    {
+        if (envelope == null || envelope.memory_updates == null) yield break;
+        if (string.IsNullOrEmpty(_activeNpcId)) yield break;
+
+        LlmPromptConfig settings = GetPromptConfig(sceneLlm);
+        int maxFactLength = settings != null ? Mathf.Max(40, settings.maxFactLength) : 160;
+
+        // Semantic path: embed each new fact and store it with its vector. Dedup is
+        // a cosine check against existing same-NPC+subject memories (in TryInsertMemory).
+        if (sceneLlm != null && sceneLlm.SemanticMemoryReady)
+        {
+            int turnNo = _turnCount + 1;
+            for (int i = 0; i < envelope.memory_updates.Length; i++)
+            {
+                var update = envelope.memory_updates[i];
+                if (update == null || string.IsNullOrWhiteSpace(update.fact)) continue;
+
+                string subject = NormalizeMemorySubject(update.subject);
+                string fact = update.fact.Trim();
+                if (maxFactLength > 0 && fact.Length > maxFactLength) fact = fact.Substring(0, maxFactLength);
+
+                float[] vec = null;
+                string err = null;
+                yield return StartCoroutine(sceneLlm.Embedder.Embed(fact, (v, e) => { vec = v; err = e; }));
+                if (vec == null) { Debug.LogWarning("[Dialogue] Fact embed failed, not stored: " + err); continue; }
+
+                sceneLlm.MemoryDb.TryInsertMemory(new MemoryDoc
+                {
+                    NpcId = _activeNpcId,
+                    Subject = subject,
+                    Text = fact,
+                    Importance = 1f,
+                    CreatedTurn = turnNo,
+                    CreatedUtc = DateTime.UtcNow,
+                    Source = MemorySource.Dialogue,
+                    Embedding = vec,
+                }, sceneLlm.embeddingSettings.dedupThreshold);
+            }
+            yield break;
+        }
+
+        // Fallback: legacy SO store with Jaccard dedup.
+        var store = GetMemoryStore();
+        if (store == null) yield break;
+        int factsLimit = settings != null ? Mathf.Max(1, settings.memoryFactsLimit) : 10;
+        for (int i = 0; i < envelope.memory_updates.Length; i++)
+        {
+            var update = envelope.memory_updates[i];
+            if (update == null || string.IsNullOrWhiteSpace(update.fact)) continue;
+            string subject = NormalizeMemorySubject(update.subject);
+            string line = "[" + subject + "] " + update.fact.Trim();
+            store.AddFact(_activeNpcId, line, factsLimit, maxFactLength);
+        }
+        store.Save();
+    }
+
+    // Validate each id in envelope.triggers_fired against THIS turn's signal allowlist
+    // (so the model can't invent or replay non-repeatable signals), then raise survivors.
+    private void RaiseEnvelopeSignals(NpcReplyEnvelope envelope, SceneLlmManager sceneLlm)
+    {
+        if (envelope == null || envelope.triggers_fired == null || envelope.triggers_fired.Length == 0) return;
+        if (string.IsNullOrEmpty(_activeNpcId)) return;
+        if (sceneLlm == null) return;
+
+        var hub = sceneLlm.islandContent;
+        var store = sceneLlm.memoryStore;
+        var channel = sceneLlm.triggerChannel;
+
+        for (int i = 0; i < envelope.triggers_fired.Length; i++)
+        {
+            string key = envelope.triggers_fired[i];
+            if (string.IsNullOrWhiteSpace(key)) continue;
+            string trimmed = key.Trim();
+
+            if (!_availableSignalIdsThisTurn.Contains(trimmed))
+            {
+                Debug.LogWarning("[Dialogue] Model fired '" + trimmed + "' which was not in this turn's signal allowlist — dropped.");
+                continue;
+            }
+
+            var signal = hub != null ? hub.GetSignal(trimmed) : null;
+            if (signal == null)
+            {
+                Debug.LogWarning("[Dialogue] Signal '" + trimmed + "' not found in island content — dropped.");
+                continue;
+            }
+
+            if (!signal.repeatable && store != null && store.WasTriggerFired(_activeNpcId, trimmed))
+            {
+                Debug.Log("[Dialogue] Signal '" + trimmed + "' already fired and not repeatable — dropped.");
+                continue;
+            }
+
+            Debug.Log("[Dialogue] Signal fired: " + trimmed + " (by " + _activeNpcId + ")");
+            channel?.Raise(trimmed, _activeNpcId, signal.handler, signal.payloadJson);
+            store?.MarkTriggerFired(_activeNpcId, trimmed);
+        }
+        store?.Save();
+    }
+
+    private static string NormalizeMemorySubject(string subject)
+    {
+        if (string.IsNullOrWhiteSpace(subject)) return "world";
+        string s = subject.Trim().ToLowerInvariant();
+        if (s == "player" || s == "self" || s == "world" || s == "relationship" || s == "disclosure") return s;
+        if (s == "npc" || s == "me") return "self";
+        if (s == "user") return "player";
+        if (s == "bond" || s == "rapport" || s == "trust") return "relationship";
+        if (s == "told" || s == "shared" || s == "revealed") return "disclosure";
+        return "world";
     }
 
     private void ApplyNpcReply(string reply)
@@ -412,31 +657,9 @@ public class DialogueManager : MonoBehaviour
 
     private string GetFallbackReply()
     {
-        if (_activeAgentConfig != null)
-        {
-            if (_activeAgentConfig.personalityProfile != null)
-            {
-                var lines = _activeAgentConfig.personalityProfile.fallbackLines;
-                if (lines != null && lines.Length > 0 && !string.IsNullOrWhiteSpace(lines[0]))
-                    return lines[0];
-            }
-
-            if (!string.IsNullOrWhiteSpace(_activeAgentConfig.fallbackReply))
-                return _activeAgentConfig.fallbackReply;
-        }
-
-        if (_current != null && _current.lines != null && _current.lines.Length > 0)
-            return _current.lines[0];
-
+        if (_activeNpc != null && !string.IsNullOrWhiteSpace(_activeNpc.fallbackReply))
+            return _activeNpc.fallbackReply;
         return "I am listening, but I need a moment.";
-    }
-
-    private static string GetOpeningLine(NpcDialogueData fallbackData, string npcName)
-    {
-        if (fallbackData != null && fallbackData.lines != null && fallbackData.lines.Length > 0)
-            return fallbackData.lines[0];
-
-        return string.Format("{0} is listening.", npcName);
     }
 
     private void ApplyPortraitSprite(Sprite portraitSprite)
@@ -457,14 +680,10 @@ public class DialogueManager : MonoBehaviour
     private void LoadPersistentMemory()
     {
         _recentTurns.Clear();
+        if (string.IsNullOrEmpty(_activeNpcId)) return;
 
-        if (_activeAgentConfig == null) return;
-
-        NpcDialogueMemoryStore.NpcMemoryEntry memory =
-            NpcDialogueMemoryStore.GetOrCreateMemory(GetActiveNpcMemoryId(), GetActiveSaveSlotId());
-
-        if (memory == null || memory.recentTurns == null || memory.recentTurns.Count == 0)
-            return;
+        var memory = GetActiveMemoryEntry();
+        if (memory == null || memory.recentTurns == null || memory.recentTurns.Count == 0) return;
 
         int cap = GetRecentTurnsCap();
         int start = Mathf.Max(0, memory.recentTurns.Count - cap);
@@ -474,66 +693,16 @@ public class DialogueManager : MonoBehaviour
 
     private int GetRecentTurnsCap()
     {
-        NpcMemorySettings settings = GetSharedMemorySettings();
-        if (settings != null)
-            return Mathf.Max(2, settings.recentTurnsLimit);
-
+        LlmPromptConfig settings = GetPromptConfig();
+        if (settings != null) return Mathf.Max(2, settings.recentTurnsLimit);
         return k_DefaultRecentTurnsLimit;
     }
 
     private string GetActiveSaveSlotId()
     {
-        SceneLlmManager sceneLlm = SceneLlmManager.Instance != null
-            ? SceneLlmManager.Instance
-            : FindObjectOfType<SceneLlmManager>();
-
-        if (sceneLlm != null && !string.IsNullOrWhiteSpace(sceneLlm.saveSlotId))
-            return sceneLlm.saveSlotId;
-
+        var s = ResolveSceneLlm();
+        if (s != null && !string.IsNullOrWhiteSpace(s.saveSlotId)) return s.saveSlotId;
         return k_DefaultSaveSlotId;
-    }
-
-    private string GetActiveNpcMemoryId()
-    {
-        if (!string.IsNullOrWhiteSpace(_activeNpcMemoryId))
-            return _activeNpcMemoryId;
-
-        _activeNpcMemoryId = ResolveNpcMemoryId(_activeAgentConfig, _current);
-        return _activeNpcMemoryId;
-    }
-
-    private static string ResolveNpcMemoryId(NpcDialogueAgentConfig config, NpcDialogueData fallbackData)
-    {
-        if (config != null && config.personalityProfile != null)
-        {
-            string profileId = config.personalityProfile.GetSafeNpcId();
-            if (!string.IsNullOrWhiteSpace(profileId))
-                return profileId;
-        }
-
-        if (fallbackData != null && !string.IsNullOrWhiteSpace(fallbackData.npcName))
-        {
-            string normalizedName = fallbackData.npcName.Trim().ToLowerInvariant().Replace(' ', '.');
-            return "npc." + normalizedName;
-        }
-
-        return "npc.unknown";
-    }
-
-    private static string TryExtractPlayerFact(string playerText)
-    {
-        if (string.IsNullOrWhiteSpace(playerText)) return null;
-
-        string trimmed = playerText.Trim();
-        if (trimmed.Length < 12) return null;
-
-        if (trimmed.Contains("?")) return null;
-
-        string lowered = trimmed.ToLowerInvariant();
-        if (lowered.StartsWith("remember "))
-            return trimmed.Substring(9).Trim();
-
-        return trimmed;
     }
 
     private bool TryHandleChatCommand(string input)
@@ -545,35 +714,38 @@ public class DialogueManager : MonoBehaviour
 
         if (command == "/save")
         {
-            if (_activeAgentConfig == null)
+            if (string.IsNullOrEmpty(_activeNpcId))
             {
                 _dialogueText.text = "Save is only available in agent dialogue.";
                 return true;
             }
-
-            string saveSlotId = GetActiveSaveSlotId();
-            NpcDialogueMemoryStore.Save(saveSlotId);
-            _dialogueText.text = string.Format("Memory saved to slot '{0}'.", saveSlotId);
+            var store = GetMemoryStore();
+            if (store == null) { _dialogueText.text = "No memory store assigned on the scene LLM manager."; return true; }
+            store.Save();
+            _dialogueText.text = string.Format("Memory saved to slot '{0}'.", GetActiveSaveSlotId());
             return true;
         }
 
         if (command == "/clear")
         {
-            if (_activeAgentConfig == null)
+            if (string.IsNullOrEmpty(_activeNpcId))
             {
                 _dialogueText.text = "Clear is only available in agent dialogue.";
                 return true;
             }
-
-            string npcMemoryId = GetActiveNpcMemoryId();
-            string saveSlotId = GetActiveSaveSlotId();
-            bool removed = NpcDialogueMemoryStore.ClearNpcMemory(npcMemoryId, saveSlotId, true);
+            var sceneLlm = ResolveSceneLlm();
+            bool removed = false;
+            if (sceneLlm != null && sceneLlm.SemanticMemoryReady)
+            {
+                sceneLlm.MemoryDb.ClearNpc(_activeNpcId);
+                removed = true;
+            }
+            var store = GetMemoryStore();
+            if (store != null && store.ClearNpc(_activeNpcId)) removed = true;
             _recentTurns.Clear();
-
             _dialogueText.text = removed
                 ? "Memory cleared for this NPC in the active slot."
                 : "No saved memory found for this NPC in the active slot.";
-
             return true;
         }
 
@@ -590,19 +762,10 @@ public class DialogueManager : MonoBehaviour
     private bool TryBindUi()
     {
         if (_isBound) return true;
-
-        if (uiDocument == null)
-        {
-            Debug.LogError("DialogueManager is missing UIDocument reference.");
-            return false;
-        }
+        if (uiDocument == null) { Debug.LogError("DialogueManager is missing UIDocument reference."); return false; }
 
         _root = uiDocument.rootVisualElement;
-        if (_root == null)
-        {
-            Debug.LogError("DialogueManager could not access rootVisualElement.");
-            return false;
-        }
+        if (_root == null) { Debug.LogError("DialogueManager could not access rootVisualElement."); return false; }
 
         _panel        = _root.Q<VisualElement>("dialogue-panel");
         _npcNameLabel = _root.Q<Label>("npc-name");
@@ -615,7 +778,6 @@ public class DialogueManager : MonoBehaviour
         if (!HasAllRequiredElements(sendButton))
         {
             BuildFallbackUi();
-
             _panel        = _root.Q<VisualElement>("dialogue-panel");
             _npcNameLabel = _root.Q<Label>("npc-name");
             _dialogueText = _root.Q<Label>("dialogue-text");
@@ -623,7 +785,6 @@ public class DialogueManager : MonoBehaviour
             _playerInput  = _root.Q<TextField>("player-input");
             _closeButton  = _root.Q<Button>("close-button");
             sendButton    = _root.Q<Button>("send-button");
-
             if (!HasAllRequiredElements(sendButton))
             {
                 Debug.LogError("Dialogue UI is missing required elements. Check names: dialogue-panel, npc-name, dialogue-text, player-input, close-button, send-button.");
@@ -646,12 +807,8 @@ public class DialogueManager : MonoBehaviour
 
     private bool HasAllRequiredElements(Button sendButton)
     {
-        return _panel != null
-            && _npcNameLabel != null
-            && _dialogueText != null
-            && _playerInput != null
-            && _closeButton != null
-            && sendButton != null;
+        return _panel != null && _npcNameLabel != null && _dialogueText != null
+            && _playerInput != null && _closeButton != null && sendButton != null;
     }
 
     private void BuildFallbackUi()
@@ -699,13 +856,76 @@ public class DialogueManager : MonoBehaviour
         _root.Add(panel);
     }
 
+    private void EnsureSuggestionsRow()
+    {
+        if (_suggestionsRow != null && _suggestionsRow.parent != null) return;
+        if (_panel == null) return;
+
+        _suggestionsRow = _root.Q<VisualElement>("suggestions-row");
+        if (_suggestionsRow != null) return;
+
+        _suggestionsRow = new VisualElement { name = "suggestions-row" };
+        _suggestionsRow.AddToClassList("suggestions-row");
+        _suggestionsRow.style.flexDirection = FlexDirection.Column;
+        _suggestionsRow.style.marginTop = 6;
+        _suggestionsRow.style.marginBottom = 6;
+
+        VisualElement inputRow = _panel.Q<VisualElement>(className: "input-row");
+        if (inputRow != null && inputRow.parent == _panel)
+        {
+            int idx = _panel.IndexOf(inputRow);
+            _panel.Insert(idx, _suggestionsRow);
+        }
+        else _panel.Add(_suggestionsRow);
+    }
+
+    private void ClearSuggestions()
+    {
+        if (_suggestionsRow == null) return;
+        _suggestionsRow.Clear();
+        _suggestionsRow.style.display = DisplayStyle.None;
+    }
+
+    private void ShowSuggestions(string[] suggestions)
+    {
+        EnsureSuggestionsRow();
+        if (_suggestionsRow == null) return;
+
+        _suggestionsRow.Clear();
+        if (suggestions == null || suggestions.Length == 0)
+        {
+            _suggestionsRow.style.display = DisplayStyle.None;
+            return;
+        }
+
+        _suggestionsRow.style.display = DisplayStyle.Flex;
+        for (int i = 0; i < suggestions.Length; i++)
+        {
+            string s = suggestions[i];
+            if (string.IsNullOrWhiteSpace(s)) continue;
+            string trimmed = s.Trim();
+            var btn = new Button(() => OnSuggestionChosen(trimmed)) { text = trimmed };
+            btn.AddToClassList("suggestion-button");
+            btn.style.marginBottom = 4;
+            btn.style.whiteSpace = WhiteSpace.Normal;
+            btn.style.unityTextAlign = TextAnchor.MiddleLeft;
+            _suggestionsRow.Add(btn);
+        }
+    }
+
+    private void OnSuggestionChosen(string suggestion)
+    {
+        if (_isWaitingForReply) return;
+        if (_playerInput == null) return;
+        _playerInput.value = suggestion;
+        ClearSuggestions();
+        SubmitPlayerInput();
+    }
+
     private void OnPlayerInputKeyDown(KeyDownEvent evt)
     {
         if (evt == null) return;
-
-        if (evt.keyCode != KeyCode.Return && evt.keyCode != KeyCode.KeypadEnter)
-            return;
-
+        if (evt.keyCode != KeyCode.Return && evt.keyCode != KeyCode.KeypadEnter) return;
         SubmitPlayerInput();
         evt.StopPropagation();
         evt.PreventDefault();
