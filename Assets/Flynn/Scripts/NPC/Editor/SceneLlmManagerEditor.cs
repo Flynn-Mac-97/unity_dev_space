@@ -17,6 +17,7 @@ public class SceneLlmManagerEditor : Editor
     private SerializedProperty _playerTransform;
     private SerializedProperty _proximityResolveRadius;
     private SerializedProperty _embeddingSettings;
+    private SerializedProperty _recalledKnowledgeChannel;
 
     private SerializedObject _promptSo;
     private SerializedObject _embeddingSo;
@@ -36,6 +37,7 @@ public class SceneLlmManagerEditor : Editor
         _playerTransform           = serializedObject.FindProperty("playerTransform");
         _proximityResolveRadius    = serializedObject.FindProperty("proximityResolveRadius");
         _embeddingSettings         = serializedObject.FindProperty("embeddingSettings");
+        _recalledKnowledgeChannel  = serializedObject.FindProperty("recalledKnowledgeChannel");
     }
 
     public override void OnInspectorGUI()
@@ -137,6 +139,10 @@ public class SceneLlmManagerEditor : Editor
             EditorGUI.indentLevel--;
             _embeddingSo.ApplyModifiedProperties();
         }
+
+        EditorGUILayout.PropertyField(_recalledKnowledgeChannel);
+        if (_recalledKnowledgeChannel.objectReferenceValue == null)
+            EditorGUILayout.HelpBox("Optional. Assign a RecalledKnowledgeChannel asset (Create → Flynn → NPC → Recalled Knowledge Channel) to surface per-turn recalled knowledge in the NPC Info HUD.", MessageType.None);
 
         if (!_llmEnabled.boolValue)
             EditorGUILayout.HelpBox("LLM is disabled globally for this scene manager.", MessageType.Info);

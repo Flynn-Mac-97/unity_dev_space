@@ -15,6 +15,8 @@ public static class IslandContentDb
     public static IslandContent ToContent(NpcMemoryDatabase db, string islandId)
     {
         if (db == null || !db.IsOpen) return null;
+        try
+        {
         var content = new IslandContent { islandId = islandId };
 
         var communityDoc = db.Community.FindOne(x => x.IslandId == islandId);
@@ -80,6 +82,15 @@ public static class IslandContentDb
         }
 
         return content;
+        }
+        catch (System.Exception e)
+        {
+            // The engine can be disposed mid-read if Play is stopped or scripts
+            // recompile during the seed coroutine. Fail soft — the hub keeps its
+            // JSON-parsed content rather than crashing the load.
+            Debug.LogWarning("[IslandContentDb] ToContent aborted (DB disposed mid-read?): " + e.Message);
+            return null;
+        }
     }
 
     // Replace all authored rows for an island with the given content (no vectors).

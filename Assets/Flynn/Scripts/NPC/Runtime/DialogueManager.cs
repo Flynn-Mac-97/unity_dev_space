@@ -31,6 +31,10 @@ public class DialogueManager : MonoBehaviour
 
     private readonly List<string> _recentTurns = new List<string>();
     private int _turnCount;
+    // Previous turn's topic + NPC reply, used to anchor semantic recall on
+    // anaphoric follow-ups ("tell me more") that carry no topic on their own.
+    private string _lastNpcReply;
+    private string _lastTopic;
     private const int k_DefaultRecentTurnsLimit = 8;
     private const string k_DefaultSaveSlotId = "slot_0";
     private const string k_PlayerSpeaker = "Player";
@@ -64,6 +68,8 @@ public class DialogueManager : MonoBehaviour
         _isWaitingForReply = false;
         _recentTurns.Clear();
         _turnCount = 0;
+        _lastNpcReply = null;
+        _lastTopic = null;
         LoadPersistentMemory();
 
         string npcName = _activeNpc != null && !string.IsNullOrWhiteSpace(_activeNpc.displayName)
@@ -160,6 +166,11 @@ public class DialogueManager : MonoBehaviour
             else Debug.LogWarning("[Dialogue] Query embed failed, skipping semantic recall: " + embedError);
         }
 
+        // Surface what recall fetched (incl. null/empty) so the NPC Info HUD can
+        // show designers which knowledge/memories went to the LLM this turn.
+        if (sceneLlm.recalledKnowledgeChannel != null)
+            sceneLlm.recalledKnowledgeChannel.Raise(_activeNpcId, recalled);
+
         string systemPrompt = BuildSystemPrompt(sceneLlm, ctx, recalled);
         var priorTurns = BuildChatHistory(sceneLlm);
 
@@ -203,6 +214,7 @@ public class DialogueManager : MonoBehaviour
             {
                 spokenLine = envelope.reply.Trim();
                 suggestions = envelope.suggested_player_replies;
+                _lastTopic = envelope.topic;
                 Debug.Log("[NPC JSON] " + envelope.ToDebugString());
                 yield return StartCoroutine(WriteEnvelopeMemoryUpdates(envelope, sceneLlm));
                 RaiseEnvelopeSignals(envelope, sceneLlm);
@@ -213,6 +225,8 @@ public class DialogueManager : MonoBehaviour
                 spokenLine = reply.Trim();
             }
         }
+
+        _lastNpcReply = spokenLine;
 
         LlmDebugBus.EndTurn(new LlmDebugBus.TurnSummary
         {
@@ -368,14 +382,59 @@ public class DialogueManager : MonoBehaviour
     // name/aliases so memories about whatever is being discussed score higher.
     private string BuildRecallQuery(string playerInput, ResolvedNpcContext ctx)
     {
-        if (ctx == null || ctx.resolvedThing == null) return playerInput;
         var sb = new System.Text.StringBuilder(playerInput);
-        if (!string.IsNullOrWhiteSpace(ctx.resolvedThing.displayName))
-            sb.Append(' ').Append(ctx.resolvedThing.displayName);
-        if (ctx.resolvedThing.aliases != null)
-            foreach (var a in ctx.resolvedThing.aliases)
-                if (!string.IsNullOrWhiteSpace(a)) sb.Append(' ').Append(a);
+
+        // Anaphoric follow-ups ("tell me more", "why?", "oh really") carry no topic
+        // on their own, so the bare input embeds to a vague vector. Anchor recall
+        // with the previous turn's topic + NPC reply so the query points at what's
+        // actually being discussed. Skipped for substantive inputs, where the text
+        // already recalls well and prior context would only add noise.
+        if (IsFollowUp(playerInput))
+        {
+            if (!string.IsNullOrWhiteSpace(_lastTopic))
+                sb.Append(' ').Append(_lastTopic);
+            if (!string.IsNullOrWhiteSpace(_lastNpcReply))
+                sb.Append(' ').Append(Truncate(_lastNpcReply, 200));
+        }
+
+        if (ctx != null && ctx.resolvedThing != null)
+        {
+            if (!string.IsNullOrWhiteSpace(ctx.resolvedThing.displayName))
+                sb.Append(' ').Append(ctx.resolvedThing.displayName);
+            if (ctx.resolvedThing.aliases != null)
+                foreach (var a in ctx.resolvedThing.aliases)
+                    if (!string.IsNullOrWhiteSpace(a)) sb.Append(' ').Append(a);
+        }
         return sb.ToString();
+    }
+
+    // Short or referential player lines that lean on the prior turn for meaning.
+    private static readonly string[] k_FollowUpCues =
+    {
+        "more", "it", "that", "this", "they", "them", "those", "these",
+        "he", "she", "him", "her", "who", "really", "why"
+    };
+
+    private static bool IsFollowUp(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return false;
+        var parts = input.Trim().ToLowerInvariant()
+            .Split((char[])null, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length <= 3) return true;       // very short = needs context
+        if (parts.Length > 8) return false;       // substantive = already specific
+        foreach (var w in parts)
+        {
+            string ww = w.Trim('.', ',', '!', '?', ';', ':', '"', '\'');
+            foreach (var cue in k_FollowUpCues)
+                if (ww == cue) return true;
+        }
+        return false;
+    }
+
+    private static string Truncate(string s, int max)
+    {
+        if (string.IsNullOrEmpty(s) || s.Length <= max) return s;
+        return s.Substring(0, max);
     }
 
     // Renders semantic-recall results into the "Known facts:" block. Memory items
@@ -743,6 +802,8 @@ public class DialogueManager : MonoBehaviour
             var store = GetMemoryStore();
             if (store != null && store.ClearNpc(_activeNpcId)) removed = true;
             _recentTurns.Clear();
+            _lastNpcReply = null;
+            _lastTopic = null;
             _dialogueText.text = removed
                 ? "Memory cleared for this NPC in the active slot."
                 : "No saved memory found for this NPC in the active slot.";

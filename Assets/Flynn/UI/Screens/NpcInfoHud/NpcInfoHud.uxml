@@ -47,6 +47,11 @@
 
             <ui:VisualElement class="divider" />
 
+            <ui:Label class="section-header" text="Fetched for last input [debug]" />
+            <ui:VisualElement name="fetched-knowledge" class="chip-row" />
+
+            <ui:VisualElement class="divider" />
+
             <ui:VisualElement class="memory-row">
                 <ui:Label name="memory-count" class="text-sm token-text-muted" text="No memories yet." />
             </ui:VisualElement>

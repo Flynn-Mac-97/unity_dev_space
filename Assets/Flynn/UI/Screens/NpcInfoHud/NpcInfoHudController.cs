@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Flynn.Npc.Memory;
 
 [RequireComponent(typeof(UIDocument))]
 public class NpcInfoHudController : MonoBehaviour
@@ -7,19 +8,26 @@ public class NpcInfoHudController : MonoBehaviour
     [SerializeField] private float refreshInterval = 0.4f;
     [SerializeField] private int maxTopicChips = 4;
 
+    [Tooltip("Optional. SO channel raised each dialogue turn with the recalled knowledge sent to the LLM. If unset, resolved from SceneLlmManager at runtime.")]
+    [SerializeField] private RecalledKnowledgeChannel recalledChannel;
+
+    private const int chipSummaryWords = 6;
+    private const int chipSummaryChars = 40;
+
     private UIDocument _doc;
     private VisualElement _root;
     private VisualElement _hudRoot;
     private Label _npcName, _roleTag, _hotkeyHint;
     private Label _trustValue, _affectionValue, _suspicionValue;
     private VisualElement _trustFill, _affectionFill, _suspicionFill;
-    private VisualElement _knownTopics, _avoidedTopics;
+    private VisualElement _knownTopics, _avoidedTopics, _fetchedKnowledge;
     private Label _avoidedHeader, _memoryCount, _lastTurn;
     private Label _debugTopic, _debugTrust, _debugAffection, _debugSuspicion;
 
     private NpcInteraction _focused;
     private NpcRelationshipState _focusedRelationship;
     private float _nextRefresh;
+    private bool _channelSubscribed;
 
     private void Awake()
     {
@@ -29,12 +37,36 @@ public class NpcInfoHudController : MonoBehaviour
     private void OnEnable()
     {
         NpcInteraction.RangeChanged += HandleRangeChanged;
+        ResolveChannel();
     }
 
     private void OnDisable()
     {
         NpcInteraction.RangeChanged -= HandleRangeChanged;
         UnsubscribeRelationship();
+        UnsubscribeChannel();
+    }
+
+    // Resolve the recalled-knowledge channel (serialized field, else from the
+    // scene manager) and subscribe once. Safe to call repeatedly.
+    private void ResolveChannel()
+    {
+        if (recalledChannel == null)
+        {
+            var manager = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
+            if (manager != null) recalledChannel = manager.recalledKnowledgeChannel;
+        }
+        if (recalledChannel != null && !_channelSubscribed)
+        {
+            recalledChannel.OnRaised += Refresh;
+            _channelSubscribed = true;
+        }
+    }
+
+    private void UnsubscribeChannel()
+    {
+        if (recalledChannel != null && _channelSubscribed) recalledChannel.OnRaised -= Refresh;
+        _channelSubscribed = false;
     }
 
     private void Start()
@@ -62,6 +94,7 @@ public class NpcInfoHudController : MonoBehaviour
         _suspicionFill   = _root.Q<VisualElement>("suspicion-fill");
         _knownTopics     = _root.Q<VisualElement>("known-topics");
         _avoidedTopics   = _root.Q<VisualElement>("avoided-topics");
+        _fetchedKnowledge = _root.Q<VisualElement>("fetched-knowledge");
         _avoidedHeader   = _root.Q<Label>("avoided-header");
         _memoryCount     = _root.Q<Label>("memory-count");
         _lastTurn        = _root.Q<Label>("last-turn");
@@ -69,6 +102,8 @@ public class NpcInfoHudController : MonoBehaviour
         _debugTrust      = _root.Q<Label>("debug-trust");
         _debugAffection  = _root.Q<Label>("debug-affection");
         _debugSuspicion  = _root.Q<Label>("debug-suspicion");
+
+        ResolveChannel();
 
         return _hudRoot != null;
     }
@@ -149,6 +184,7 @@ public class NpcInfoHudController : MonoBehaviour
 
         ApplyRelationship(npc);
         ApplyTopics(npc);
+        ApplyFetched(npc);
         ApplyMemory(npc);
 
         if (_debugTopic != null) _debugTopic.text = "topic: —";
@@ -209,33 +245,102 @@ public class NpcInfoHudController : MonoBehaviour
         if (avoidedAdded > 0) _avoidedHeader.RemoveFromClassList("hidden");
     }
 
-    private static VisualElement MakeChip(string text, string extraClass)
+    // Shows the recalled knowledge/memories that were sent to the LLM for the
+    // last player input on the focused NPC, so designers can see what the model
+    // actually had to work with. Empty/mismatched → a single faint "—" chip.
+    private void ApplyFetched(NpcContent npc)
     {
-        var chip = new Label(text);
+        if (_fetchedKnowledge == null) return;
+        _fetchedKnowledge.Clear();
+
+        string npcId = npc != null ? npc.npcId : null;
+        bool hasMatch = recalledChannel != null
+            && !string.IsNullOrEmpty(npcId)
+            && string.Equals(recalledChannel.LastNpcId, npcId, System.StringComparison.Ordinal)
+            && recalledChannel.Last != null && recalledChannel.Last.Count > 0;
+
+        if (!hasMatch)
+        {
+            _fetchedKnowledge.Add(MakeChip("—", "empty"));
+            return;
+        }
+
+        var items = recalledChannel.Last;
+        for (int i = 0; i < items.Count; i++)
+        {
+            var e = items[i];
+            if (string.IsNullOrWhiteSpace(e.Text)) continue;
+            string tooltip = string.Format("{0}\n[{1}/{2}] score {3:0.00}", e.Text.Trim(), e.Subject, e.Source, e.Score);
+            _fetchedKnowledge.Add(MakeChip(e.Text, "fetched", tooltip));
+        }
+    }
+
+    private static VisualElement MakeChip(string fullText, string extraClass)
+    {
+        return MakeChip(fullText, extraClass, fullText);
+    }
+
+    private static VisualElement MakeChip(string fullText, string extraClass, string tooltip)
+    {
+        var chip = new Label(Summarize(fullText));
+        chip.tooltip = tooltip;
         chip.AddToClassList("chip");
         if (!string.IsNullOrEmpty(extraClass)) chip.AddToClassList(extraClass);
         return chip;
+    }
+
+    // First ~6 words or ~40 chars, whichever is shorter, with an ellipsis when
+    // truncated. The full text stays available via the chip tooltip.
+    private static string Summarize(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return "";
+        string trimmed = text.Trim();
+
+        string[] words = trimmed.Split((char[])null, System.StringSplitOptions.RemoveEmptyEntries);
+        string byWords = words.Length > chipSummaryWords
+            ? string.Join(" ", words, 0, chipSummaryWords)
+            : trimmed;
+
+        string result = byWords;
+        if (result.Length > chipSummaryChars) result = result.Substring(0, chipSummaryChars).TrimEnd();
+
+        return result.Length < trimmed.Length ? result + "…" : result;
     }
 
     private void ApplyMemory(NpcContent npc)
     {
         string npcId = npc != null && !string.IsNullOrWhiteSpace(npc.npcId) ? npc.npcId : "npc.unknown";
         var manager = SceneLlmManager.Instance != null ? SceneLlmManager.Instance : FindObjectOfType<SceneLlmManager>();
-        var store = manager != null ? manager.memoryStore : null;
-        var memory = store != null ? store.GetOrCreate(npcId) : null;
 
-        int factCount = memory != null && memory.memoryFacts != null ? memory.memoryFacts.Count : 0;
-        int turnCount = memory != null && memory.recentTurns != null ? memory.recentTurns.Count : 0;
+        int factCount, turnCount;
+        string lastTurn;
+
+        // Prefer the live LiteDB (semantic memory). Fall back to the legacy
+        // NpcMemoryStore SO only when semantic memory is unavailable, matching
+        // the dialogue write path so the counter reflects where memories land.
+        if (manager != null && manager.SemanticMemoryReady)
+        {
+            var db = manager.MemoryDb;
+            factCount = db.CountMemories(npcId);
+            turnCount = db.CountChatTurns(npcId);
+            lastTurn = db.GetLastChatTurnText(npcId);
+        }
+        else
+        {
+            var store = manager != null ? manager.memoryStore : null;
+            var memory = store != null ? store.GetOrCreate(npcId) : null;
+            factCount = memory != null && memory.memoryFacts != null ? memory.memoryFacts.Count : 0;
+            turnCount = memory != null && memory.recentTurns != null ? memory.recentTurns.Count : 0;
+            lastTurn = turnCount > 0 ? memory.recentTurns[turnCount - 1] : "";
+        }
 
         if (factCount == 0 && turnCount == 0)
             _memoryCount.text = "No memories yet.";
         else
-            _memoryCount.text = string.Format("{0} fact{1} · {2} turn{3}",
-                factCount, factCount == 1 ? "" : "s",
+            _memoryCount.text = string.Format("{0} memor{1} · {2} turn{3}",
+                factCount, factCount == 1 ? "y" : "ies",
                 turnCount, turnCount == 1 ? "" : "s");
 
-        string lastTurn = "";
-        if (turnCount > 0) lastTurn = memory.recentTurns[turnCount - 1];
         _lastTurn.text = lastTurn;
     }
 }

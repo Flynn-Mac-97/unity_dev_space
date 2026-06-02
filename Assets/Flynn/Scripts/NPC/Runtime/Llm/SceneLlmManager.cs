@@ -45,6 +45,9 @@ public class SceneLlmManager : MonoBehaviour
     [Tooltip("Embedding model settings (Ollama all-minilm) for semantic recall. When unset, semantic memory is disabled and dialogue falls back to chat-history only.")]
     public EmbeddingSettings embeddingSettings;
 
+    [Tooltip("Optional. SO channel dialogue raises each turn with the recalled knowledge/memories sent to the LLM. The NPC Info HUD subscribes to surface them for designers.")]
+    public RecalledKnowledgeChannel recalledKnowledgeChannel;
+
     [Header("Player")]
     [Tooltip("Profile describing who the player character is. Used by NPCs to write player dialogue options in the right voice.")]
     public PlayerDialogueProfile playerProfile;
@@ -108,6 +111,11 @@ public class SceneLlmManager : MonoBehaviour
         string islandId = islandContent.Content.islandId;
 
         yield return StartCoroutine(IslandDbImporter.Import(islandContent.Content, MemoryDb, Embedder));
+
+        // Import yields on embedding round-trips. If the DB was torn down in the
+        // meantime (Play stopped, or scripts recompiled mid-seed), don't hydrate
+        // from a disposed engine.
+        if (MemoryDb == null || !MemoryDb.IsOpen) yield break;
 
         if (!islandContent.LoadFromDatabase(MemoryDb, islandId))
             Debug.LogWarning("[SceneLlmManager] DB hydrate failed; hub keeps its JSON-parsed content.");

@@ -230,6 +230,30 @@ namespace Flynn.Npc.Memory
             return results;
         }
 
+        // ── Stats (for HUD / editor read-outs) ────────────────────────────────
+
+        public int CountMemories(string npcId)
+        {
+            if (_db == null || string.IsNullOrEmpty(npcId)) return 0;
+            return Memories.Count(x => x.NpcId == npcId);
+        }
+
+        public int CountChatTurns(string npcId)
+        {
+            if (_db == null || string.IsNullOrEmpty(npcId)) return 0;
+            return ChatTurns.Count(x => x.NpcId == npcId);
+        }
+
+        // Most recent chat turn's text for this NPC, or "" if none.
+        public string GetLastChatTurnText(string npcId)
+        {
+            if (_db == null || string.IsNullOrEmpty(npcId)) return "";
+            ChatTurnDoc latest = null;
+            foreach (var t in ChatTurns.Find(x => x.NpcId == npcId))
+                if (latest == null || t.TurnIndex > latest.TurnIndex) latest = t;
+            return latest != null ? latest.Content : "";
+        }
+
         // ── Maintenance ───────────────────────────────────────────────────────
 
         public void ClearNpc(string npcId)

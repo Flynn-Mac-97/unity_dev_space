@@ -70,3 +70,20 @@ MonoBehaviour:
     recentTurns: []
     memoryFacts: []
     firedTriggers: []
+  - npcId: npc.tamsin_baker
+    recentTurns: []
+    memoryFacts: []
+    firedTriggers: []
+  - npcId: npc.bram_relay_singer
+    recentTurns: []
+    memoryFacts: []
+    firedTriggers: []
+  - npcId: npc.coll_inventor
+    recentTurns: []
+    memoryFacts: []
+    firedTriggers:
+    - coll.shows_windcatcher
+  - npcId: npc.anske_trader
+    recentTurns: []
+    memoryFacts: []
+    firedTriggers: []

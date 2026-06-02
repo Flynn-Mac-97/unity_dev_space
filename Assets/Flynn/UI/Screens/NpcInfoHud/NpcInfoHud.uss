@@ -117,6 +117,10 @@
     margin-right: 6px;
     margin-bottom: 6px;
     font-size: 13px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .chip.avoided {
@@ -127,6 +131,16 @@
 .chip.locked {
     border-color: rgba(255, 255, 255, 0.45);
     color: rgba(255, 255, 255, 0.45);
+}
+
+.chip.fetched {
+    border-color: rgb(52, 199, 89);
+    color: rgb(52, 199, 89);
+}
+
+.chip.empty {
+    border-color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.35);
 }
 
 .memory-row {

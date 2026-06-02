@@ -45,7 +45,7 @@ Rules:
 - relationship_deltas: integers -2..+2, default 0; move only when this turn earns it.
 - flags: lower_snake_case tags, [] if none.
 - suggested_player_replies: exactly three, distinct stances, under 12 words each, in the player's voice.
-- memory_updates: 0-3 items; pure small talk = []. Each fact is ONE present-tense sentence under 140 chars that names its subject (e.g. ""Maren told Flynn...""), is NEW (not already in Known facts or your persona), and is not an echo of your reply. Skip near-duplicates and vague mood restatements. subject is who/what it's about:
+- memory_updates: record 1-2 on MOST turns; use [] only for pure greetings or filler. Capture anything the player revealed about themselves or decided, any named place/person/item/event/rule that came up, or something notable you just told them (subject: disclosure). Each is ONE present-tense sentence under 140 chars that names its subject (e.g. ""Sela warned Flynn the cave is only safe when the wind is steady.""), is NEW (not already in Known facts or your persona), and is not a word-for-word echo of your reply. subject is who/what it's about:
     player = who the player is or what they did; self = what YOU decided/committed to; world = a named place/person/item/event/rule they just learned; relationship = how you two now regard each other (max one); disclosure = something you just told them, so you don't repeat it.
 - triggers_fired: default []. Only ids from the signals list above, only when your reply genuinely does that thing; never invent ids; usually at most one.
 

@@ -175,6 +175,7 @@ guards null/length/zero-norm.
 | `Runtime/Llm/LocalLlmClient.cs` | Chat HTTP (Ollama native + OpenAI/OpenRouter), `<think>` stripping. |
 | `Runtime/Llm/NpcReplyEnvelope.cs` | Strict JSON contract + tolerant parser. |
 | `Runtime/Memory/NpcMemoryStore.cs` | **Legacy** SO store — fallback + migration source only. |
+| `Runtime/Memory/RecalledKnowledgeChannel.cs` | SO event channel. `DialogueManager` raises it each turn with the recalled items (copy of `RecalledItem`); the NPC Info HUD subscribes (`OnRaised`) to show which knowledge/memories were sent to the LLM for the last player input. Asset: `Configs/NPC/RecalledKnowledge_Channel.asset`, assigned on `SceneLlmManager.recalledKnowledgeChannel`. |
 
 ## Key editor files
 
@@ -215,6 +216,11 @@ guards null/length/zero-norm.
   (knowledge re-embeds when its JSON text changes).
 - Recall is async (one embed round-trip per turn) — done inside the existing
   `HandleAgentTurn` coroutine before building the prompt.
+- **Follow-up anchoring**: `DialogueManager.BuildRecallQuery` embeds the player
+  line *plus*, for anaphoric follow-ups only (`IsFollowUp`: ≤3 words, or 4–8 words
+  with a referential cue like "more/it/that/why"), the previous turn's `topic` +
+  truncated NPC reply. Stops bare "tell me more" recalling junk. Substantive
+  inputs (>8 words) stay un-anchored to avoid topic-smear. Still one embed/turn.
 
 ---
 
