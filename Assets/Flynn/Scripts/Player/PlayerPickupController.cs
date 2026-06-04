@@ -1,9 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// Picks up the WorldItemPickup the player is aiming at when the pickup key is
-/// pressed: grants its item to the inventory and removes it from the world.
-/// Reads the hovered pickup from PlayerMouseAimer; writes to PlayerInventory.
+/// Picks up the key-pickup <see cref="WorldItem"/> the player is aiming at when the pickup key is
+/// pressed: grants its item(s) to the inventory and removes it from the world. Only non-auto-collect
+/// items (e.g. the wrench) need this — auto-collect drops fly to the player on their own.
+/// Reads the hovered item from <see cref="PlayerMouseAimer"/>; writes to <see cref="PlayerInventory"/>.
 /// </summary>
 [RequireComponent(typeof(PlayerMouseAimer))]
 [RequireComponent(typeof(PlayerInventory))]
@@ -24,10 +25,13 @@ public class PlayerPickupController : MonoBehaviour
     {
         if (!Input.GetKeyDown(_pickupKey)) return;
 
-        WorldItemPickup pickup = _aimer.HoveredPickup;
-        if (pickup == null || pickup.Item == null) return;
+        WorldItem item = _aimer.HoveredKeyPickup;
+        if (item == null || item.Item == null) return;
 
-        if (_inventory.TryAddItem(pickup.Item))
-            Destroy(pickup.gameObject);
+        int added = _inventory.TryAddItem(item.Item, item.Count);
+        if (added <= 0) return;
+
+        if (added >= item.Count) Destroy(item.gameObject);
+        else                     item.Reduce(added);
     }
 }

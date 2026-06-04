@@ -268,6 +268,7 @@ That's the entire vocabulary. If a screen needs something not expressible in tho
 | Player (movement, animation, inventory, pickup, swing) | `Scripts/Player/` | `Scripts/Player/Player.md` |
 | Map Loader (JSON → world build) | `Scripts/MapGeneration/` | `Scripts/MapGeneration/MapLoader.md` |
 | NPC LLM dialogue + memory (semantic recall, LiteDB community knowledge DB, Ollama embeddings, authoring editors) | `Scripts/NPC/` | `Scripts/NPC/NPC_Memory.md` |
+| World items / drops (the one droppable+pickupable system: WorldItem, spawner, magnet, currency) | `Scripts/World/` | `Scripts/World/WorldItem.md` |
 
 When you compartmentalize a new system into its own folder, add a `<System>.md` beside it (same pattern) and list it here.
 

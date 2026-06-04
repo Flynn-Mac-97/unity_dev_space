@@ -12,10 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bf6377227fde06429867b3cf395561e, type: 3}
   m_Name: WrenchConfig
   m_EditorClassIdentifier: 
-  swingChargeTime: 0.6
+  swingChargeTime: 1.2
   heavySwingThreshold: 0.6
   lightSwingCooldown: 0.45
   heavySwingCooldown: 0.8
+  lightSwingAnimSpeed: 1
+  heavySwingAnimSpeed: 2.5
   throwChargeTime: 0.8
   minThrowDistance: 3
   maxThrowDistance: 9

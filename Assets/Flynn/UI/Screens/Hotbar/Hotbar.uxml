@@ -1,6 +1,5 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements">
     <ui:Style src="project://database/Assets/Flynn/UI/Screens/Hotbar/Hotbar.uss" />
-    <ui:Style src="../../../Screens/Hotbar/Hotbar.uss" />
     <ui:VisualElement name="ScreenRoot" class="screen-root">
         <ui:VisualElement name="HotbarRoot" class="hotbar-root">
 

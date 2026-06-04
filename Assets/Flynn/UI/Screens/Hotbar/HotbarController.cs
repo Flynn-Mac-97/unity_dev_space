@@ -18,6 +18,7 @@ public class HotbarController : MonoBehaviour
     private UIDocument _doc;
     private readonly VisualElement[] _slots = new VisualElement[InventoryData.SlotCount];
     private readonly VisualElement[] _icons = new VisualElement[InventoryData.SlotCount];
+    private bool _bound;
 
     // ── Unity messages ────────────────────────────────────────────────────────
 
@@ -28,19 +29,11 @@ public class HotbarController : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_doc == null || _inventory == null) return;
-
-        var root = _doc.rootVisualElement;
-        for (int i = 0; i < InventoryData.SlotCount; i++)
-        {
-            _slots[i] = root.Q<VisualElement>($"Slot_{i}");
-            _icons[i] = root.Q<VisualElement>($"Icon_{i}");
-        }
-
+        if (_inventory == null) return;
         _inventory.OnSlotChanged       += RefreshSlot;
         _inventory.OnActiveSlotChanged += RefreshActiveSlot;
-
-        RefreshAll();
+        _bound = false;
+        TryBind();      // may fail this frame if UIDocument hasn't built its tree yet — Update retries.
     }
 
     private void OnDisable()
@@ -50,7 +43,36 @@ public class HotbarController : MonoBehaviour
         _inventory.OnActiveSlotChanged -= RefreshActiveSlot;
     }
 
+    private void Update()
+    {
+        if (!_bound) TryBind();
+    }
+
     // ── Private ───────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Resolve the slot/icon elements once the UIDocument has actually built its visual tree.
+    /// rootVisualElement (and its children) may not exist yet during OnEnable depending on
+    /// component OnEnable order, so this is retried from Update until it succeeds.
+    /// </summary>
+    private void TryBind()
+    {
+        if (_doc == null || _inventory == null) return;
+        var root = _doc.rootVisualElement;
+        if (root == null) return;
+
+        var slot0 = root.Q<VisualElement>("Slot_0");
+        if (slot0 == null) return;      // tree not populated yet — try again next frame.
+
+        for (int i = 0; i < InventoryData.SlotCount; i++)
+        {
+            _slots[i] = root.Q<VisualElement>($"Slot_{i}");
+            _icons[i] = root.Q<VisualElement>($"Icon_{i}");
+        }
+
+        _bound = true;
+        RefreshAll();
+    }
 
     private void RefreshAll()
     {
@@ -64,10 +86,10 @@ public class HotbarController : MonoBehaviour
         if (slotIndex < 0 || slotIndex >= InventoryData.SlotCount) return;
         if (_icons[slotIndex] == null) return;
 
-        var item = _inventory.GetSlot(slotIndex);
-        if (item != null && item.icon != null)
+        InventorySlot slot = _inventory.GetSlot(slotIndex);
+        if (!slot.IsEmpty && slot.item.icon != null)
         {
-            _icons[slotIndex].style.backgroundImage = new StyleBackground(item.icon);
+            _icons[slotIndex].style.backgroundImage = new StyleBackground(slot.item.icon);
             _icons[slotIndex].style.display         = DisplayStyle.Flex;
         }
         else

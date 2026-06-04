@@ -1,0 +1,8 @@
+{
+    "name": "AgentTools.Editor",
+    "rootNamespace": "AgentTools",
+    "includePlatforms": [
+        "Editor"
+    ],
+    "autoReferenced": true
+}

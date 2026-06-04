@@ -2,100 +2,172 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Owns the runtime inventory state (copied from InventoryData SO on Awake —
-/// the SO itself is never mutated at runtime). Handles hotkey input (1-4) to
-/// switch the active slot. Other systems call SetSlot to add items in future
-/// iterations.
+/// Owns the runtime inventory state (copied from <see cref="InventoryData"/> on Awake — the SO
+/// itself is never mutated at runtime). Holds a flat array of <see cref="InventorySlot"/>s:
+/// slot 0 is the wrench slot, slots 1..N are general item slots that stack identical items up to
+/// <see cref="ItemDefinition.maxStack"/>. The slot count is data-driven and extendable.
+///
+/// Accepts any item kind (resources, future tools, etc.). Currency items never enter a slot —
+/// they route to their <see cref="ItemDefinition.currencyTarget"/> at the collection site.
+/// Handles hotkey input (1-4) to switch the active slot; raises events for the HUD.
 /// </summary>
 [RequireComponent(typeof(SolarpunkCharacterController))]
 public class PlayerInventory : MonoBehaviour
 {
+    public const int WrenchSlot = 0;
+
     [SerializeField] private InventoryData _inventoryConfig;
 
     public event Action<int> OnSlotChanged;
     public event Action<int> OnActiveSlotChanged;
 
-    private readonly ItemDefinition[] _runtimeSlots = new ItemDefinition[InventoryData.SlotCount];
+    private InventorySlot[] _runtimeSlots = Array.Empty<InventorySlot>();
     private int _activeSlot;
 
     // ── Public API ────────────────────────────────────────────────────────────
+
+    public int SlotCount => _runtimeSlots.Length;
 
     public int ActiveSlotIndex
     {
         get => _activeSlot;
         private set
         {
-            int clamped = Mathf.Clamp(value, 0, InventoryData.SlotCount - 1);
+            int clamped = Mathf.Clamp(value, 0, SlotCount - 1);
             if (_activeSlot == clamped) return;
             _activeSlot = clamped;
             OnActiveSlotChanged?.Invoke(_activeSlot);
         }
     }
 
-    public ItemDefinition ActiveItem => GetSlot(_activeSlot);
+    public InventorySlot ActiveSlot => GetSlot(_activeSlot);
+    public ItemDefinition ActiveItem => ActiveSlot.item;
 
     /// <summary>ItemType of the currently selected slot, or None if it's empty.</summary>
     public ItemType ActiveItemType => ActiveItem != null ? ActiveItem.itemType : ItemType.None;
 
-    public ItemDefinition GetSlot(int index)
+    /// <summary>True when no general slot is empty (can't accept a new item kind).</summary>
+    public bool IsFull
     {
-        if (index < 0 || index >= InventoryData.SlotCount) return null;
-        return _runtimeSlots[index];
+        get
+        {
+            for (int i = 1; i < _runtimeSlots.Length; i++)
+                if (_runtimeSlots[i].IsEmpty) return false;
+            return true;
+        }
     }
 
-    /// <summary>
-    /// Place an item into the given slot. Pass null to clear. Used by future
-    /// pick-up logic.
-    /// </summary>
-    public void SetSlot(int index, ItemDefinition item)
+    public InventorySlot GetSlot(int index)
     {
-        if (index < 0 || index >= InventoryData.SlotCount) return;
-        _runtimeSlots[index] = item;
-        OnSlotChanged?.Invoke(index);
+        if (index < 0 || index >= _runtimeSlots.Length) return InventorySlot.Empty;
+        return _runtimeSlots[index];
     }
 
     /// <summary>True if any slot currently holds an item of the given type.</summary>
     public bool HasItem(ItemType type)
     {
-        for (int i = 0; i < InventoryData.SlotCount; i++)
-            if (_runtimeSlots[i] != null && _runtimeSlots[i].itemType == type) return true;
+        for (int i = 0; i < _runtimeSlots.Length; i++)
+            if (!_runtimeSlots[i].IsEmpty && _runtimeSlots[i].item.itemType == type) return true;
         return false;
     }
 
     /// <summary>
-    /// Adds an item to the inventory. The wrench multitool always lives in slot 0;
-    /// everything else fills the first empty resource slot (1-3). Returns false when
-    /// there's no room (or the wrench is already held). Used by pickup logic.
+    /// True if at least one unit of <paramref name="item"/> can be accepted right now
+    /// (a matching non-full stack, or an empty slot). Used by world-item magnets to decide
+    /// whether to fly to the player or stay on the ground.
     /// </summary>
-    public bool TryAddItem(ItemDefinition item)
+    public bool HasRoomFor(ItemDefinition item)
     {
-        if (item == null) return false;
+        if (item == null || item.isCurrency) return false;
+
+        if (item.itemType == ItemType.Wrench)
+            return GetSlot(WrenchSlot).IsEmpty;
+
+        for (int i = 1; i < _runtimeSlots.Length; i++)
+        {
+            if (_runtimeSlots[i].IsEmpty) return true;
+            if (_runtimeSlots[i].item == item && !_runtimeSlots[i].IsFull) return true;
+        }
+        return false;
+    }
+
+    /// <summary>
+    /// Add up to <paramref name="count"/> of <paramref name="item"/>, stacking into matching
+    /// slots first then filling empty ones. Returns how many were actually added (0 = no room).
+    /// Currency items are rejected here (they belong on the currency counter, not a slot).
+    /// </summary>
+    public int TryAddItem(ItemDefinition item, int count = 1)
+    {
+        if (item == null || count <= 0 || item.isCurrency) return 0;
 
         if (item.itemType == ItemType.Wrench)
         {
-            if (GetSlot(0) != null) return false; // already carrying the wrench
-            SetSlot(0, item);
-            return true;
+            if (!GetSlot(WrenchSlot).IsEmpty) return 0;
+            _runtimeSlots[WrenchSlot] = InventorySlot.Of(item, 1);
+            OnSlotChanged?.Invoke(WrenchSlot);
+            return 1;
         }
 
-        for (int i = 1; i < InventoryData.SlotCount; i++)
+        int added = 0;
+
+        // 1) Top up existing matching stacks.
+        for (int i = 1; i < _runtimeSlots.Length && added < count; i++)
         {
-            if (_runtimeSlots[i] == null)
-            {
-                SetSlot(i, item);
-                return true;
-            }
+            if (_runtimeSlots[i].item != item || _runtimeSlots[i].IsFull) continue;
+            int take = Mathf.Min(_runtimeSlots[i].SpaceLeft, count - added);
+            _runtimeSlots[i].count += take;
+            added += take;
+            OnSlotChanged?.Invoke(i);
         }
-        return false;
+
+        // 2) Fill empty slots.
+        for (int i = 1; i < _runtimeSlots.Length && added < count; i++)
+        {
+            if (!_runtimeSlots[i].IsEmpty) continue;
+            int take = Mathf.Min(Mathf.Max(1, item.maxStack), count - added);
+            _runtimeSlots[i] = InventorySlot.Of(item, take);
+            added += take;
+            OnSlotChanged?.Invoke(i);
+        }
+
+        return added;
+    }
+
+    /// <summary>Remove one unit from a slot; returns the item removed, or null if the slot was empty.</summary>
+    public ItemDefinition RemoveOne(int index) => RemoveFromSlot(index, 1, out _);
+
+    /// <summary>Remove the whole stack from a slot; returns the item and (via out) how many were removed.</summary>
+    public ItemDefinition RemoveStack(int index, out int removed)
+        => RemoveFromSlot(index, int.MaxValue, out removed);
+
+    /// <summary>Remove up to <paramref name="count"/> units from a slot.</summary>
+    public ItemDefinition RemoveFromSlot(int index, int count, out int removed)
+    {
+        removed = 0;
+        if (index < 0 || index >= _runtimeSlots.Length || count <= 0) return null;
+
+        InventorySlot slot = _runtimeSlots[index];
+        if (slot.IsEmpty) return null;
+
+        ItemDefinition item = slot.item;
+        removed = Mathf.Min(count, slot.count);
+        slot.count -= removed;
+        _runtimeSlots[index] = slot.count <= 0 ? InventorySlot.Empty : slot;
+        OnSlotChanged?.Invoke(index);
+        return item;
     }
 
     // ── Unity messages ────────────────────────────────────────────────────────
 
     private void Awake()
     {
-        if (_inventoryConfig == null) return;
-        for (int i = 0; i < InventoryData.SlotCount; i++)
-            _runtimeSlots[i] = _inventoryConfig.GetDefaultSlot(i);
+        int count = _inventoryConfig != null ? _inventoryConfig.Slots : 4;
+        _runtimeSlots = new InventorySlot[count];
+        for (int i = 0; i < count; i++)
+        {
+            ItemDefinition def = _inventoryConfig != null ? _inventoryConfig.GetDefaultSlot(i) : null;
+            _runtimeSlots[i] = def != null ? InventorySlot.Of(def, 1) : InventorySlot.Empty;
+        }
     }
 
     private void Update()

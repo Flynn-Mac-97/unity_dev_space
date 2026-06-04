@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ffa6dd365c9a2646b4dd99b801a304a, type: 3}
+  m_Name: MetalScrap_Item
+  m_EditorClassIdentifier: 
+  itemId: metal_scrap
+  displayName: Metal Scrap
+  icon: {fileID: 21300000, guid: 2da5a7acc0d576a449de7f80007e744c, type: 3}
+  itemType: 0
+  attackAnimIndex: 0
+  maxStack: 3
+  worldPrefab: {fileID: 7696387373054863776, guid: 4887b2f81abd0f943940107ded2b89d5, type: 3}
+  autoCollect: 1
+  isCurrency: 0
+  currencyTarget: {fileID: 0}

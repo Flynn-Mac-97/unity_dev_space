@@ -2,10 +2,11 @@ using UnityEngine;
 using UnityEngine.UIElements;
 
 /// <summary>
-/// Screen-space HUD for the wrench: a mouse aim reticle that follows the cursor, and a
-/// charge meter that fills while a swing/throw is building. Reads the wrench controllers
-/// (assigned in the Inspector) — no scene lookups. Attach to the same GameObject as a
-/// UIDocument whose Source Asset is WrenchHud.uxml.
+/// Screen-space HUD for the wrench: a charge meter that fills while a swing/throw is building,
+/// a hovered-resource health bar, and the pickup prompt. The aim reticle is retired — the cursor
+/// is a hardware texture now (see CustomCursor), so the UXML "Cursor" element is hidden on enable.
+/// Reads the wrench controllers (assigned in the Inspector) — no scene lookups. Attach to the same
+/// GameObject as a UIDocument whose Source Asset is WrenchHud.uxml.
 ///
 /// Also drives the generic pickup interaction prompt: when the player's mouse aims at a
 /// nearby WorldItemPickup, a small panel appears above it showing the item name and
@@ -21,11 +22,6 @@ public class WrenchHudController : MonoBehaviour
 
     [Tooltip("Vertical offset in panel pixels to push the pickup prompt above the item.")]
     [SerializeField] private float _pickupPromptOffsetY = 56f;
-
-    [Tooltip("Hide the OS hardware cursor and rely on the on-screen reticle.")]
-    [SerializeField] private bool _hideHardwareCursor = false;
-    [Tooltip("Flip mouse Y when mapping to the panel. Toggle if the reticle is vertically inverted.")]
-    [SerializeField] private bool _flipReticleY = true;
 
     private const float TrackInner = 58f; // 60px track minus the 1px borders
 
@@ -58,11 +54,28 @@ public class WrenchHudController : MonoBehaviour
         _cam = Camera.main;
     }
 
+    private bool _bound;
+
     private void OnEnable()
     {
+        _bound = false;
+        TryBind();      // may fail this frame if UIDocument hasn't built its tree yet — Update retries.
+    }
+
+    /// <summary>
+    /// Resolve the UXML elements once the UIDocument has built its visual tree. rootVisualElement's
+    /// children may not exist during OnEnable depending on component OnEnable order, so retry from Update.
+    /// </summary>
+    private void TryBind()
+    {
+        if (_doc == null) return;
         var root = _doc.rootVisualElement;
-        _cursor = root.Q<VisualElement>("Cursor");
+        if (root == null) return;
+
         _charge = root.Q<VisualElement>("Charge");
+        if (_charge == null) return;    // tree not populated yet — try again next frame.
+
+        _cursor = root.Q<VisualElement>("Cursor");
         _fill   = root.Q<VisualElement>("ChargeFill");
         _tick   = root.Q<VisualElement>("ChargeTick");
         _label  = root.Q<Label>("ChargeLabel");
@@ -80,33 +93,21 @@ public class WrenchHudController : MonoBehaviour
         if (_pickupPrompt != null) _pickupPrompt.style.visibility = Visibility.Hidden;
         if (_resourceBar  != null) _resourceBar.style.visibility  = Visibility.Hidden;
 
-        if (_hideHardwareCursor) UnityEngine.Cursor.visible = false;
-    }
+        // The on-screen aim reticle is retired in favour of a hardware cursor texture
+        // (see CustomCursor) — hide the UI element so it doesn't double up with the OS cursor.
+        if (_cursor != null) _cursor.style.display = DisplayStyle.None;
 
-    private void OnDisable()
-    {
-        if (_hideHardwareCursor) UnityEngine.Cursor.visible = true;
+        _bound = true;
     }
 
     private void Update()
     {
         if (_cam == null) _cam = Camera.main;
+        if (!_bound) { TryBind(); if (!_bound) return; }
 
-        UpdateCursor();
         UpdateCharge();
         UpdatePickupPrompt();
         UpdateResourceHealthBar();
-    }
-
-    private void UpdateCursor()
-    {
-        if (_cursor == null || _cursor.panel == null) return;
-
-        Vector2 screen = Input.mousePosition;
-        if (_flipReticleY) screen.y = Screen.height - screen.y;
-        Vector2 p = RuntimePanelUtils.ScreenToPanel(_cursor.panel, screen);
-        // transform.position only triggers a repaint, not a layout pass — safe to set every frame.
-        _cursor.transform.position = new Vector3(p.x, p.y, 0f);
     }
 
     private void UpdateCharge()

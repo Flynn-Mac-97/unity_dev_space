@@ -10,11 +10,16 @@ public class WrenchConfig : ScriptableObject
 {
     [Header("Swing (Left Click)")]
     [Tooltip("Seconds of hold to reach a full-power (heavy) swing.")]
-    public float swingChargeTime = 0.6f;
+    public float swingChargeTime = 1.2f;
     [Tooltip("Charge fraction (0-1) at/above which a swing counts as heavy.")]
     [Range(0f, 1f)] public float heavySwingThreshold = 0.6f;
     public float lightSwingCooldown = 0.45f;
     public float heavySwingCooldown = 0.8f;
+
+    [Tooltip("Release playback speed for a zero-charge (light) swing.")]
+    [Min(0.1f)] public float lightSwingAnimSpeed = 1.0f;
+    [Tooltip("Release playback speed for a full-charge (heavy) swing — fast follow-through, the stored power releasing. Release speed lerps light→heavy by charge.")]
+    [Min(0.1f)] public float heavySwingAnimSpeed = 2.5f;
 
     [Header("Harvest Damage")]
     [Tooltip("Damage points applied to a ResourceNode on a light swing.")]

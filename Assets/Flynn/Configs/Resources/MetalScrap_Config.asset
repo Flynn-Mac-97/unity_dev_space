@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dbedc1ef22e4214428c184311767e120, type: 3}
+  m_Name: MetalScrap_Config
+  m_EditorClassIdentifier: 
+  displayName: Scrap Pile
+  requiredTool: 3
+  maxHealth: 16
+  drops:
+  - item: {fileID: 11400000, guid: b5a56e57334176447b498384cf4a11d9, type: 2}
+    dropChance: 1
+    minCount: 1
+    maxCount: 3
+  dropScatterRadius: 0.3
+  echoShardChancePerHit: 0.12
+  echoShardItem: {fileID: 11400000, guid: 662cb3580e43c804caddea5f6ba63083, type: 2}

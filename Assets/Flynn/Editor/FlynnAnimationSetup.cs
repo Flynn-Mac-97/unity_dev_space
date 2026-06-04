@@ -284,6 +284,9 @@ public static class FlynnAnimationSetup
             var (stateName, clipName, animIndex) = attackDefs[ai];
             var attackState = AddState(sm, clips, stateName, clipName,
                                        new Vector3(300 + ai * 300, -500, 0));
+            // Tag so FlynnAnimationDriver.IsAttacking can detect the attack state (its
+            // double-fire guard and the swing release→idle handoff both depend on this).
+            attackState.tag = "Attack";
 
             // AnyState → attack: trigger fired AND AttackIndex matches
             var anyTrans = sm.AddAnyStateTransition(attackState);

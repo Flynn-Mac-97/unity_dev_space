@@ -16,7 +16,7 @@ public class WrenchThrowController : MonoBehaviour
 
     private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
-    private FlynnAnimationDriver _animDriver;
+    private IPlayerVisual _animDriver;
     private ThrownWrench _airborne;
     private float _chargeTimer;
     private bool _charging;
@@ -38,7 +38,7 @@ public class WrenchThrowController : MonoBehaviour
     {
         _inventory  = GetComponent<PlayerInventory>();
         _aimer      = GetComponent<PlayerMouseAimer>();
-        _animDriver = GetComponent<FlynnAnimationDriver>();
+        _animDriver = GetComponent<IPlayerVisual>();
     }
 
     private void Update()

@@ -20,6 +20,9 @@ public class ResourceNode : MonoBehaviour
     [Tooltip("Data asset for this resource type (health, tool, drops). Create via Flynn/Resource/Node Config.")]
     [SerializeField] private ResourceNodeConfig _config;
 
+    [Tooltip("Channel raised on each hit so the HUD can show a world-anchored HP bar. Optional.")]
+    [SerializeField] private ResourceHitChannel _hitChannel;
+
     // ── Events ────────────────────────────────────────────────────────────────
 
     /// <summary>Raised after each successful hit. Argument is remaining health.</summary>
@@ -34,6 +37,14 @@ public class ResourceNode : MonoBehaviour
 
     /// <summary>Current remaining health this session.</summary>
     public int CurrentHealth { get; private set; }
+
+    /// <summary>Maximum health from the config (1 when unconfigured).</summary>
+    public int MaxHealth => _config != null ? Mathf.Max(1, _config.maxHealth) : 1;
+
+    /// <summary>Remaining health as a 0-1 fraction.</summary>
+    public float Health01 => Mathf.Clamp01((float)CurrentHealth / MaxHealth);
+
+    private bool _depleted;
 
     /// <summary>Convenience accessor so callers don't have to null-check Config.</summary>
     public ItemType RequiredTool => _config != null ? _config.requiredTool : ItemType.Pick;
@@ -74,6 +85,7 @@ public class ResourceNode : MonoBehaviour
 
         CurrentHealth = Mathf.Max(0, CurrentHealth - damage);
         OnDamaged?.Invoke(CurrentHealth);
+        if (_hitChannel != null) _hitChannel.Raise(this, Health01);
 
         if (CurrentHealth <= 0)
             Deplete();
@@ -81,29 +93,19 @@ public class ResourceNode : MonoBehaviour
 
     // ── Private ───────────────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Node is exhausted. Raises <see cref="OnDepleted"/> for the drop-spawner and death-fall
+    /// listeners to react (eject drops, topple + fade). The node only destroys itself here as a
+    /// fallback when no <see cref="ResourceDeathFall"/> is present to own the removal.
+    /// </summary>
     private void Deplete()
     {
+        if (_depleted) return;
+        _depleted = true;
+
         OnDepleted?.Invoke();
-        SpawnDrops();
-        Destroy(gameObject);
-    }
 
-    private void SpawnDrops()
-    {
-        if (_config == null) return;
-
-        foreach (DropEntry drop in _config.drops)
-        {
-            if (drop.prefab == null) continue;
-            if (Random.value > drop.dropChance) continue;
-
-            int count = Random.Range(drop.minCount, Mathf.Max(drop.minCount, drop.maxCount) + 1);
-            for (int i = 0; i < count; i++)
-            {
-                Vector2 scatter   = Random.insideUnitCircle * _config.dropScatterRadius;
-                Vector3 spawnPos  = transform.position + new Vector3(scatter.x, 0f, scatter.y);
-                Instantiate(drop.prefab, spawnPos, Quaternion.identity);
-            }
-        }
+        if (GetComponent<ResourceDeathFall>() == null)
+            Destroy(gameObject);
     }
 }

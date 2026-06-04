@@ -1,0 +1,558 @@
+fileFormatVersion: 2
+guid: 85ff3689992ef2d4d8e11c5d45eed962
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 420
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_0
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 1049
+        width: 543
+        height: 657
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad13751309d92a64ba8585f9c481e81a
+      internalID: -1794317647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_1
+      rect:
+        serializedVersion: 2
+        x: 1207
+        y: 1049
+        width: 548
+        height: 663
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7c802a1d09920764b92d46df93953ac7
+      internalID: -1957172035
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_2
+      rect:
+        serializedVersion: 2
+        x: 2107
+        y: 1049
+        width: 585
+        height: 449
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1577705bbe97f8b4d9f4f692beef2f33
+      internalID: -102507668
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_3
+      rect:
+        serializedVersion: 2
+        x: 3094
+        y: 1049
+        width: 557
+        height: 584
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 46e47894587ac4545b96de9680bbafcc
+      internalID: 479598400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_4
+      rect:
+        serializedVersion: 2
+        x: 3968
+        y: 1049
+        width: 594
+        height: 556
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bd71c296e7a214242bb2881ec70fee3c
+      internalID: 1449808431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_5
+      rect:
+        serializedVersion: 2
+        x: 4880
+        y: 1049
+        width: 686
+        height: 520
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8f6353304038c644ea494a888d37cfc4
+      internalID: 2018320258
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_6
+      rect:
+        serializedVersion: 2
+        x: 169
+        y: 261
+        width: 709
+        height: 487
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7a1f236083890b45b8140f532d12ec4
+      internalID: -1419155716
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_7
+      rect:
+        serializedVersion: 2
+        x: 861
+        y: 323
+        width: 31
+        height: 40
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 17762984506703049bcae06948472f16
+      internalID: 818960617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_8
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 315
+        width: 48
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae12345655751fc4a950260df4c64d98
+      internalID: 1295691730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_9
+      rect:
+        serializedVersion: 2
+        x: 1170
+        y: 273
+        width: 599
+        height: 455
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 428a572d4d5671e40b6942439f040b5a
+      internalID: -458914807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_10
+      rect:
+        serializedVersion: 2
+        x: 1676
+        y: 273
+        width: 152
+        height: 84
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 38b70f2e4d4fa60458b6cbbc4aba8584
+      internalID: -39412850
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_11
+      rect:
+        serializedVersion: 2
+        x: 2118
+        y: 273
+        width: 500
+        height: 576
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e4a2b945c3144bb49a478d57bd5f7e3b
+      internalID: 1181474228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_12
+      rect:
+        serializedVersion: 2
+        x: 3054
+        y: 245
+        width: 515
+        height: 632
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6b7d33ece0a17164983e1a82e96a0130
+      internalID: 1490947771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_13
+      rect:
+        serializedVersion: 2
+        x: 4011
+        y: 245
+        width: 509
+        height: 632
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ff87c5dba954c0f4fad58e84fbb698fe
+      internalID: 671362573
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_14
+      rect:
+        serializedVersion: 2
+        x: 4922
+        y: 245
+        width: 509
+        height: 632
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 606f215df48d5634bba8a9b156ff1681
+      internalID: -641571109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_15
+      rect:
+        serializedVersion: 2
+        x: 883
+        y: 273
+        width: 31
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4579e0049287ab45b55b4f5764ed2de
+      internalID: -106593528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_16
+      rect:
+        serializedVersion: 2
+        x: 1094
+        y: 273
+        width: 48
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 945750e1c2bda0a438c3f4eeb5bf62e2
+      internalID: -777138987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_17
+      rect:
+        serializedVersion: 2
+        x: 1148
+        y: 273
+        width: 19
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6cebbad3368cbdc4183d86a41c376b73
+      internalID: 1622233129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: attack_unarmed_spritesheet_5760x1920_18
+      rect:
+        serializedVersion: 2
+        x: 1811
+        y: 273
+        width: 34
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf49c7e627cc3b04bb97d2cb22b1173c
+      internalID: -1597141285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      attack_unarmed_spritesheet_5760x1920_0: -1794317647
+      attack_unarmed_spritesheet_5760x1920_1: -1957172035
+      attack_unarmed_spritesheet_5760x1920_10: -39412850
+      attack_unarmed_spritesheet_5760x1920_11: 1181474228
+      attack_unarmed_spritesheet_5760x1920_12: 1490947771
+      attack_unarmed_spritesheet_5760x1920_13: 671362573
+      attack_unarmed_spritesheet_5760x1920_14: -641571109
+      attack_unarmed_spritesheet_5760x1920_15: -106593528
+      attack_unarmed_spritesheet_5760x1920_16: -777138987
+      attack_unarmed_spritesheet_5760x1920_17: 1622233129
+      attack_unarmed_spritesheet_5760x1920_18: -1597141285
+      attack_unarmed_spritesheet_5760x1920_2: -102507668
+      attack_unarmed_spritesheet_5760x1920_3: 479598400
+      attack_unarmed_spritesheet_5760x1920_4: 1449808431
+      attack_unarmed_spritesheet_5760x1920_5: 2018320258
+      attack_unarmed_spritesheet_5760x1920_6: -1419155716
+      attack_unarmed_spritesheet_5760x1920_7: 818960617
+      attack_unarmed_spritesheet_5760x1920_8: 1295691730
+      attack_unarmed_spritesheet_5760x1920_9: -458914807
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

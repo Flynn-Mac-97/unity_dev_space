@@ -32,4 +32,11 @@ public class ResourceNodeConfig : ScriptableObject
 
     [Tooltip("Radius around the node position to scatter dropped items.")]
     [Min(0f)] public float dropScatterRadius = 0.8f;
+
+    [Header("Echo Shards")]
+    [Tooltip("Chance (0–1) that each hit also drops an echo shard.")]
+    [Range(0f, 1f)] public float echoShardChancePerHit = 0.15f;
+
+    [Tooltip("The echo-shard currency item dropped on a successful roll. Leave empty to disable.")]
+    public ItemDefinition echoShardItem;
 }

@@ -25,7 +25,7 @@ public class PlayerAimReticle : MonoBehaviour
 
     private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
-    private FlynnAnimationDriver _animDriver;
+    private IPlayerVisual _animDriver;
     private Camera _cam;
     private Vector3 _baseArrowScale = Vector3.one;
 
@@ -33,7 +33,7 @@ public class PlayerAimReticle : MonoBehaviour
     {
         _inventory  = GetComponent<PlayerInventory>();
         _aimer      = GetComponent<PlayerMouseAimer>();
-        _animDriver = GetComponent<FlynnAnimationDriver>();
+        _animDriver = GetComponent<IPlayerVisual>();
         _cam        = Camera.main;
         if (_arrow != null) _baseArrowScale = _arrow.localScale;
     }
