@@ -38,7 +38,7 @@ public class IslandGeneratorTwo : MonoBehaviour
     private readonly List<GameObject>          _debugTiles               = new List<GameObject>();
 
     // Public data exposed to sub-generators and other systems.
-    public David.Terrain[,]                        Grid                    => _terrainGrid;
+    // public David.Terrain[,]                        Grid                    => _terrainGrid;
     public IReadOnlyList<List<Vector3>>            IslandPerimeters        => _islandDetailPoints;
     public IReadOnlyList<List<Vector3>>            IslandPerimeterVertices => _islandPerimeterVertices;
     public IReadOnlyList<List<Vector3>>            LakePerimeterVertices   => _lakePerimeterVertices;
@@ -51,8 +51,8 @@ public class IslandGeneratorTwo : MonoBehaviour
             Debug.LogError("IslandGeneratorTwo: _mapGenerator is not assigned.");
             return;
         }
-        _mapGenerator.Generate();
-        _terrainGrid = _mapGenerator.Grid;
+        // _mapGenerator.Generate();
+        // _terrainGrid = _mapGenerator.Grid;
 
         // Hide the template so it doesn't render an empty spline.
         if (grassSpriteShape != null)
@@ -77,8 +77,8 @@ public class IslandGeneratorTwo : MonoBehaviour
     private void RegenerateAll()
     {
         if (_mapGenerator == null) return;
-        _mapGenerator.Generate();
-        _terrainGrid = _mapGenerator.Grid;
+        // _mapGenerator.Generate();
+        // _terrainGrid = _mapGenerator.Grid;
         ClearAll();
         BuildAllIslands();
     }

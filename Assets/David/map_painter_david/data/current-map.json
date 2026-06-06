@@ -1,0 +1,988 @@
+{
+  "version": 1,
+  "mapName": "Floating Island Map",
+  "canvas": {
+    "size": 1024,
+    "cellSize": 32,
+    "gridWidth": 32,
+    "gridHeight": 32
+  },
+  "toolset": {
+    "groundTypes": [
+      {
+        "id": 0,
+        "name": "Empty / Void",
+        "stringKey": "void",
+        "color": "#0F172A",
+        "enabled": true
+      },
+      {
+        "id": 1,
+        "name": "Soft Grass",
+        "stringKey": "ground_grass_soft",
+        "color": "#72B86A",
+        "enabled": true
+      },
+      {
+        "id": 2,
+        "name": "Wild Grass",
+        "stringKey": "ground_grass_wild",
+        "color": "#4E9B47",
+        "enabled": true
+      },
+      {
+        "id": 3,
+        "name": "Dirt Path",
+        "stringKey": "ground_dirt_path",
+        "color": "#9B6B3A",
+        "enabled": true
+      },
+      {
+        "id": 4,
+        "name": "Mossy Stone",
+        "stringKey": "ground_mossy_stone",
+        "color": "#6E7F62",
+        "enabled": true
+      },
+      {
+        "id": 5,
+        "name": "Garden Soil",
+        "stringKey": "ground_garden_soil",
+        "color": "#5B3F2C",
+        "enabled": true
+      },
+      {
+        "id": 6,
+        "name": "Shallow Water",
+        "stringKey": "ground_shallow_water",
+        "color": "#57A0FF",
+        "enabled": true
+      },
+      {
+        "id": 7,
+        "name": "Polluted Soil",
+        "stringKey": "ground_polluted_soil",
+        "color": "#6B5A37",
+        "enabled": true
+      },
+      {
+        "id": 8,
+        "name": "Ancient Tech Floor",
+        "stringKey": "ground_tech_floor",
+        "color": "#61708A",
+        "enabled": true
+      },
+      {
+        "id": 9,
+        "name": "Cobble",
+        "stringKey": "",
+        "color": "#f242ff",
+        "enabled": true
+      }
+    ],
+    "decalTypes": [
+      {
+        "id": 1000,
+        "name": "Small Flowers",
+        "stringKey": "decal_flowers_small",
+        "color": "#E7A6CF",
+        "enabled": true
+      },
+      {
+        "id": 1001,
+        "name": "Tall Grass Tuft",
+        "stringKey": "decal_tall_grass",
+        "color": "#3F8F48",
+        "enabled": true
+      },
+      {
+        "id": 1002,
+        "name": "Moss Patch",
+        "stringKey": "decal_moss_patch",
+        "color": "#4D7C4F",
+        "enabled": true
+      },
+      {
+        "id": 1003,
+        "name": "Old Cable",
+        "stringKey": "decal_old_cable",
+        "color": "#7A6C5A",
+        "enabled": true
+      },
+      {
+        "id": 1004,
+        "name": "Broken Gear",
+        "stringKey": "decal_broken_gear",
+        "color": "#8B8F96",
+        "enabled": true
+      }
+    ],
+    "resourceTypes": [
+      {
+        "id": 2000,
+        "name": "Wood / Branches",
+        "stringKey": "res_wood",
+        "color": "#8E5A34",
+        "enabled": true
+      },
+      {
+        "id": 2001,
+        "name": "Stone Chunk",
+        "stringKey": "res_stone",
+        "color": "#9A9EA8",
+        "enabled": true
+      },
+      {
+        "id": 2002,
+        "name": "Scrap Metal",
+        "stringKey": "res_scrap_metal",
+        "color": "#6D7A89",
+        "enabled": true
+      },
+      {
+        "id": 2003,
+        "name": "Solar Shard",
+        "stringKey": "res_solar_shard",
+        "color": "#F5D04F",
+        "enabled": true
+      },
+      {
+        "id": 2004,
+        "name": "Seed Pod",
+        "stringKey": "res_seed_pod",
+        "color": "#84A64A",
+        "enabled": true
+      },
+      {
+        "id": 2005,
+        "name": "Ancient Circuit",
+        "stringKey": "res_ancient_circuit",
+        "color": "#4DD4AC",
+        "enabled": true
+      },
+      {
+        "id": 2006,
+        "name": "Polluted Core",
+        "stringKey": "res_polluted_core",
+        "color": "#875E3B",
+        "enabled": true
+      }
+    ],
+    "npcTypes": [
+      {
+        "id": 3000,
+        "name": "Player Start",
+        "stringKey": "npc_player_start",
+        "color": "#22C55E",
+        "enabled": true
+      },
+      {
+        "id": 3001,
+        "name": "Helper Bot",
+        "stringKey": "npc_helper_bot",
+        "color": "#60A5FA",
+        "enabled": true
+      },
+      {
+        "id": 3002,
+        "name": "Villager",
+        "stringKey": "npc_villager",
+        "color": "#FBBF24",
+        "enabled": true
+      },
+      {
+        "id": 3003,
+        "name": "Engineer NPC",
+        "stringKey": "npc_engineer",
+        "color": "#F97316",
+        "enabled": true
+      },
+      {
+        "id": 3004,
+        "name": "Wildlife Small",
+        "stringKey": "npc_wildlife_small",
+        "color": "#A3E635",
+        "enabled": true
+      },
+      {
+        "id": 3005,
+        "name": "Quest Marker",
+        "stringKey": "npc_quest_marker",
+        "color": "#F43F5E",
+        "enabled": true
+      }
+    ],
+    "largeSpriteTypes": [
+      {
+        "id": 4000,
+        "name": "Central Transmitter",
+        "stringKey": "sprite_central_transmitter",
+        "color": "#3B82F6",
+        "enabled": true,
+        "width": 3,
+        "height": 3
+      },
+      {
+        "id": 4001,
+        "name": "Small Solar Panel",
+        "stringKey": "sprite_solar_panel_small",
+        "color": "#FACC15",
+        "enabled": true,
+        "width": 2,
+        "height": 1
+      },
+      {
+        "id": 4002,
+        "name": "Ancient Machine Core",
+        "stringKey": "sprite_machine_core",
+        "color": "#8B5CF6",
+        "enabled": true,
+        "width": 3,
+        "height": 3
+      },
+      {
+        "id": 4003,
+        "name": "Broken Ruin Wall",
+        "stringKey": "sprite_ruin_wall_broken",
+        "color": "#71717A",
+        "enabled": true,
+        "width": 3,
+        "height": 1
+      },
+      {
+        "id": 4004,
+        "name": "Large Tree",
+        "stringKey": "sprite_tree_large",
+        "color": "#16A34A",
+        "enabled": true,
+        "width": 2,
+        "height": 2
+      },
+      {
+        "id": 4005,
+        "name": "Greenhouse Small",
+        "stringKey": "sprite_greenhouse_small",
+        "color": "#10B981",
+        "enabled": true,
+        "width": 3,
+        "height": 2
+      },
+      {
+        "id": 4006,
+        "name": "Locked Island Beacon",
+        "stringKey": "sprite_locked_beacon",
+        "color": "#06B6D4",
+        "enabled": true,
+        "width": 2,
+        "height": 2
+      },
+      {
+        "id": 4007,
+        "name": "Village Hut",
+        "stringKey": "sprite_village_hut",
+        "color": "#B45309",
+        "enabled": true,
+        "width": 3,
+        "height": 3
+      },
+      {
+        "id": 4008,
+        "name": "Workshop Hut",
+        "stringKey": "sprite_workshop_hut",
+        "color": "#A16207",
+        "enabled": true,
+        "width": 3,
+        "height": 2
+      }
+    ]
+  },
+  "islands": [
+    {
+      "id": "island_001",
+      "name": "Home",
+      "outlineColor": "#FFFFFF",
+      "tiles": [
+        {
+          "x": 7,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 11,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 11,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 14,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 14,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 14,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 11,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "ground": 1
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 5,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 5,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 6,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 8,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 10,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 11,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 14,
+          "y": 3,
+          "ground": 1
+        },
+        {
+          "x": 16,
+          "y": 5,
+          "ground": 1
+        },
+        {
+          "x": 16,
+          "y": 6,
+          "ground": 1
+        },
+        {
+          "x": 17,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 17,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 17,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 16,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 15,
+          "y": 9,
+          "ground": 1
+        },
+        {
+          "x": 16,
+          "y": 8,
+          "ground": 1
+        },
+        {
+          "x": 16,
+          "y": 7,
+          "ground": 1
+        },
+        {
+          "x": 13,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 12,
+          "y": 10,
+          "ground": 1
+        },
+        {
+          "x": 9,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 10,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 11,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 12,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 12,
+          "y": 7,
+          "ground": 6
+        },
+        {
+          "x": 11,
+          "y": 7,
+          "ground": 6
+        },
+        {
+          "x": 10,
+          "y": 7,
+          "ground": 6
+        },
+        {
+          "x": 11,
+          "y": 6,
+          "ground": 6
+        },
+        {
+          "x": 13,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 14,
+          "y": 8,
+          "ground": 6
+        },
+        {
+          "x": 14,
+          "y": 7,
+          "ground": 6
+        },
+        {
+          "x": 13,
+          "y": 7,
+          "ground": 6
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "ground": 0
+        },
+        {
+          "x": 7,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 8,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 9,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 10,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 11,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 12,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 13,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 14,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 15,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 16,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 16,
+          "y": 3,
+          "ground": 5
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 5,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 6,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 3,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 17,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 16,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 15,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 14,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 13,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 12,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 11,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 10,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 9,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 8,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 7,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 6,
+          "y": 1,
+          "ground": 5
+        },
+        {
+          "x": 6,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 6,
+          "y": 3,
+          "ground": 5
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "ground": 5
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "ground": 5
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "ground": 5
+        }
+      ]
+    }
+  ],
+  "layers": {
+    "decals": [
+      {
+        "id": "decal_000",
+        "typeId": 1001,
+        "x": 13,
+        "y": 6,
+        "islandId": "island_001"
+      },
+      {
+        "id": "decal_001",
+        "typeId": 1001,
+        "x": 13,
+        "y": 5,
+        "islandId": "island_001"
+      }
+    ],
+    "resources": [
+      {
+        "id": "resource_000",
+        "typeId": 2001,
+        "x": 7,
+        "y": 7,
+        "islandId": "island_001"
+      }
+    ],
+    "npcs": [
+      {
+        "id": "npc_000",
+        "typeId": 3000,
+        "x": 8,
+        "y": 6,
+        "islandId": "island_001"
+      }
+    ],
+    "largeSprites": [
+      {
+        "id": "large_000",
+        "typeId": 4004,
+        "x": 15,
+        "y": 7,
+        "islandId": "island_001",
+        "width": 2,
+        "height": 2,
+        "anchor": "topLeft"
+      }
+    ]
+  },
+  "_nid": {
+    "gT": 10,
+    "dT": 1005,
+    "rT": 2007,
+    "nT": 3006,
+    "lT": 4009,
+    "isl": 2,
+    "dI": 2,
+    "rI": null,
+    "nI": null,
+    "lI": 1
+  }
+}
