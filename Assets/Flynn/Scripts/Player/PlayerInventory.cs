@@ -10,10 +10,23 @@ using UnityEngine;
 /// Accepts any item kind (resources, future tools, etc.). Currency items never enter a slot —
 /// they route to their <see cref="ItemDefinition.currencyTarget"/> at the collection site.
 /// Handles hotkey input (1-4) to switch the active slot; raises events for the HUD.
+///
+/// Acts as the game's inventory manager: a singleton (<see cref="Instance"/>) so the HUD, pickup,
+/// drop, magnets and the wrench controllers all reach inventory through one access point and
+/// subscribe to its events — no FindObjectOfType, no per-system GetComponent. Single-player, so one
+/// instance is assumed. Runs early (negative execution order) so <see cref="Instance"/> exists
+/// before any subscriber's Awake/OnEnable.
+///
+/// Pure manager — holds no scene-position state and never touches the character controller, so it
+/// lives on a dedicated manager GameObject (e.g. MANAGERS/INVENTORY), not on the Player. All users
+/// reach it through <see cref="Instance"/>; nothing requires it to share the Player's GameObject.
 /// </summary>
-[RequireComponent(typeof(SolarpunkCharacterController))]
+[DefaultExecutionOrder(-50)]
 public class PlayerInventory : MonoBehaviour
 {
+    /// <summary>The active inventory manager. Set in Awake, cleared on destroy.</summary>
+    public static PlayerInventory Instance { get; private set; }
+
     public const int WrenchSlot = 0;
 
     [SerializeField] private InventoryData _inventoryConfig;
@@ -157,10 +170,31 @@ public class PlayerInventory : MonoBehaviour
         return item;
     }
 
+    // ── Signals (inbound) ───────────────────────────────────────────────────────
+    // Readability aliases over the API above. Same pattern as ResourceManager.RaiseHit:
+    // a gameplay system "signals" the inventory (e.g. a pickup collision), the inventory
+    // mutates its slots, then broadcasts OnSlotChanged / OnActiveSlotChanged outward.
+    // The store is the one place that owns slot state — these just read like events.
+
+    /// <summary>Signal: an item pickup was requested (e.g. by a collision/magnet). Returns how
+    /// many units actually entered the inventory. Forwards to <see cref="TryAddItem"/>.</summary>
+    public int SignalPickup(ItemDefinition item, int count = 1) => TryAddItem(item, count);
+
+    /// <summary>Signal: drop one unit from a slot. Returns the item removed, or null if empty.
+    /// Forwards to <see cref="RemoveOne"/>.</summary>
+    public ItemDefinition SignalDropOne(int slot) => RemoveOne(slot);
+
+    /// <summary>Signal: drop a whole stack from a slot. Forwards to <see cref="RemoveStack"/>.</summary>
+    public ItemDefinition SignalDropStack(int slot, out int removed) => RemoveStack(slot, out removed);
+
     // ── Unity messages ────────────────────────────────────────────────────────
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+            Debug.LogWarning($"[PlayerInventory] Second instance on '{name}'; overriding the previous Instance.", this);
+        Instance = this;
+
         int count = _inventoryConfig != null ? _inventoryConfig.Slots : 4;
         _runtimeSlots = new InventorySlot[count];
         for (int i = 0; i < count; i++)
@@ -168,6 +202,11 @@ public class PlayerInventory : MonoBehaviour
             ItemDefinition def = _inventoryConfig != null ? _inventoryConfig.GetDefaultSlot(i) : null;
             _runtimeSlots[i] = def != null ? InventorySlot.Of(def, 1) : InventorySlot.Empty;
         }
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this) Instance = null;
     }
 
     private void Update()

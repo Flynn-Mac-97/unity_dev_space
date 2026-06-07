@@ -6,7 +6,6 @@ using UnityEngine;
 /// spawn through <see cref="WorldItemSpawner"/> and get a short re-collect delay so an auto-collecting
 /// resource doesn't instantly fly back into the inventory.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 public class PlayerDropController : MonoBehaviour
 {
     [SerializeField] private KeyCode _dropKey = KeyCode.G;
@@ -16,14 +15,12 @@ public class PlayerDropController : MonoBehaviour
     [Tooltip("Seconds before a dropped auto-collect item may fly back to the player.")]
     [SerializeField] private float _reCollectDelay = 1.5f;
 
-    private PlayerInventory _inventory;
-
-    private void Awake() => _inventory = GetComponent<PlayerInventory>();
+    private static PlayerInventory Inv => PlayerInventory.Instance;
 
     private void Update()
     {
-        if (Input.GetKeyDown(_dropKey))
-            DropFromSlot(_inventory.ActiveSlotIndex, wholeStack: false);
+        if (Input.GetKeyDown(_dropKey) && Inv != null)
+            DropFromSlot(Inv.ActiveSlotIndex, wholeStack: false);
     }
 
     /// <summary>Drop the entire stack in a slot (used by the hotbar drag-to-drop).</summary>
@@ -31,7 +28,8 @@ public class PlayerDropController : MonoBehaviour
 
     private void DropFromSlot(int index, bool wholeStack)
     {
-        InventorySlot slot = _inventory.GetSlot(index);
+        if (Inv == null) return;
+        InventorySlot slot = Inv.GetSlot(index);
         if (slot.IsEmpty) return;
 
         ItemDefinition item = slot.item;
@@ -43,8 +41,8 @@ public class PlayerDropController : MonoBehaviour
         }
 
         int count;
-        if (wholeStack) _inventory.RemoveStack(index, out count);
-        else          { _inventory.RemoveOne(index); count = 1; }
+        if (wholeStack) Inv.RemoveStack(index, out count);
+        else          { Inv.RemoveOne(index); count = 1; }
 
         if (item == null || count <= 0) return;
 

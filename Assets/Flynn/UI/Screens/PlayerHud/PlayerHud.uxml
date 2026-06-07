@@ -1,0 +1,52 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss" />
+    <ui:Style src="project://database/Assets/Flynn/UI/Screens/PlayerHud/PlayerHud.uss" />
+
+    <!-- picking-mode=Ignore everywhere: the HUD never eats gameplay clicks. -->
+    <ui:VisualElement name="HudRoot" class="hud-root" picking-mode="Ignore">
+
+        <!-- Robot battery, top-left -->
+        <ui:VisualElement name="Battery" class="battery" picking-mode="Ignore">
+            <ui:Label text="BATTERY" class="battery-cap text-xs token-text-muted" />
+            <ui:VisualElement name="BatteryGauge" class="battery-gauge outline" picking-mode="Ignore">
+                <ui:VisualElement name="BatteryFill" class="battery-fill" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="BatteryLabel" text="100%" class="battery-pct text-sm token-text" />
+        </ui:VisualElement>
+
+        <!-- Echo shard counter, top-right -->
+        <ui:VisualElement name="Echo" class="echo outline" picking-mode="Ignore">
+            <ui:Label text="◇" class="echo-icon text-lg token-text" />
+            <ui:Label name="EchoCount" text="0" class="echo-count text-lg token-text" />
+        </ui:VisualElement>
+
+        <!-- Hotbar, bottom-center -->
+        <ui:VisualElement name="Hotbar" class="hotbar" picking-mode="Ignore">
+
+            <ui:VisualElement name="Slot_0" class="hotbar-slot" picking-mode="Ignore">
+                <ui:Label name="SlotKey_0" text="1" class="slot-key" />
+                <ui:VisualElement name="Icon_0" class="slot-icon" />
+                <ui:Label name="Count_0" text="" class="slot-count" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_1" class="hotbar-slot" picking-mode="Ignore">
+                <ui:Label name="SlotKey_1" text="2" class="slot-key" />
+                <ui:VisualElement name="Icon_1" class="slot-icon" />
+                <ui:Label name="Count_1" text="" class="slot-count" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_2" class="hotbar-slot" picking-mode="Ignore">
+                <ui:Label name="SlotKey_2" text="3" class="slot-key" />
+                <ui:VisualElement name="Icon_2" class="slot-icon" />
+                <ui:Label name="Count_2" text="" class="slot-count" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="Slot_3" class="hotbar-slot" picking-mode="Ignore">
+                <ui:Label name="SlotKey_3" text="4" class="slot-key" />
+                <ui:VisualElement name="Icon_3" class="slot-icon" />
+                <ui:Label name="Count_3" text="" class="slot-count" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

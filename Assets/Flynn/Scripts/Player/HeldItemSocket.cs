@@ -6,8 +6,11 @@ using UnityEngine;
 /// item's <see cref="ItemDefinition.worldPrefab"/> is instantiated (stripped of its
 /// world-pickup behaviour and physics so it's purely cosmetic), or a small placeholder
 /// cube if the item has no prefab. Empty / no active item → empty hand.
+///
+/// Player-side visual (parents the prop under the hand <see cref="_socket"/>), so it stays on the
+/// Player GameObject. It no longer requires <see cref="PlayerInventory"/> on the same object — the
+/// inventory is now a standalone manager, reached via <see cref="PlayerInventory.Instance"/>.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 public class HeldItemSocket : MonoBehaviour
 {
     [SerializeField] private PlayerInventory _inventory;
@@ -23,7 +26,7 @@ public class HeldItemSocket : MonoBehaviour
 
     private void Awake()
     {
-        if (_inventory == null) _inventory = GetComponent<PlayerInventory>();
+        if (_inventory == null) _inventory = PlayerInventory.Instance;
     }
 
     private void OnEnable()

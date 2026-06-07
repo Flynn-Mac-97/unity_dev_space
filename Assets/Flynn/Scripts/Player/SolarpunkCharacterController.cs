@@ -48,6 +48,8 @@ public class SolarpunkCharacterController : MonoBehaviour
     /// SteeringControl) so the player can nudge off the ice. Auto-resets to false.</summary>
     public bool LowGrip { get; set; } = false;
 
+    public Vector3 RbVelocityDirection { get; private set; }
+
     private Rigidbody rb;
     private Collider bodyCollider;
     private bool isGrounded;
@@ -67,10 +69,13 @@ public class SolarpunkCharacterController : MonoBehaviour
     {
         moveInput.x = Input.GetAxisRaw("Horizontal");
         moveInput.z = Input.GetAxisRaw("Vertical");
+        RbVelocityDirection = rb.velocity.normalized;
         if (moveInput.sqrMagnitude > 1f) moveInput.Normalize();
 
         if (Input.GetButtonDown("Jump")) jumpQueued = true;
     }
+
+
 
     private void FixedUpdate()
     {

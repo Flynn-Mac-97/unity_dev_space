@@ -27,7 +27,12 @@ Glob: .claude/skills/**/unity_skills.py   (fallback: ~/.claude/skills/**/unity_s
 
 Knowledge base: read the installed `SKILL.md` (sibling of the client) for invocation rules. Load a module doc from `skills/<module>/` **on demand by topic** (e.g. `uitoolkit`, `shadergraph`, `navmesh`, `yaml-editing`) before writing for that area — prevents API hallucination. Never load all modules.
 
-Health/mode handshake: client talks to the server on its configured port (default 8091). If the server is down → receipt `SERVER DOWN — user must Window > UnitySkills > Start Server`. Do not retry blind.
+Health/mode handshake: `u.health()` → bool; `u.get_server_status()` → mode/version/instanceId. Server auto-discovered on ports 8090–8100 (this project's instance "Solarpunk" = **8090**). If down → receipt `SERVER DOWN — user must Window > UnitySkills > Start Server`. Do not retry blind.
+
+**PROXY GOTCHA (mandatory):** `.claude/settings.local.json` sets `HTTP_PROXY/HTTPS_PROXY=127.0.0.1:7890`. That routes localhost→server through the proxy and the client dies with `No Unity instance found on ports 8090-8100`. EVERY client invocation must bypass it — prefix the Bash call:
+```
+NO_PROXY="localhost,127.0.0.1" HTTP_PROXY="" HTTPS_PROXY="" python <script>
+```
 
 ## Invocation (token-disciplined)
 

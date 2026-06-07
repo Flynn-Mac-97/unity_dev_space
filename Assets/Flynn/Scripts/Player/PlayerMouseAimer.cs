@@ -1,41 +1,23 @@
 using UnityEngine;
 
 /// <summary>
-/// Single-responsibility component that owns all mouse → world target detection.
-/// Every interaction reads what's under the cursor from here; nothing keeps its own
-/// proximity registry. One Physics raycast per concern, identified by component:
-///   1. WorldAimPoint — where the mouse cursor lands in world space (plane at
-///      player Y, with Physics fallback for ground hits).
-///   2. HoveredResource — the ResourceNode under the cursor, gated by _interactionRange.
-///   3. HoveredPickup — the WorldItemPickup under the cursor, gated by _interactionRange.
-///   4. HoveredAnchor / HoveredPullable / HoveredGrapplePoint — the rope-lasso target
-///      under the cursor and the exact surface point hit. NOT range-gated here: range is
-///      a designer concern owned by RopeLassoConfig (min/maxRange), so the controller
-///      applies it. Anchor and pullable are mutually exclusive (one raycast).
+/// Single-responsibility component that owns all mouse → world target detection. Every interaction
+/// reads what's under the cursor from here; nothing keeps its own proximity registry.
+///
+/// It no longer casts its own rays: <see cref="MousePointer"/> does ONE cursor raycast per frame
+/// (against its combined world mask) and this component derives every hovered target from that one
+/// shared hit. The object under the cursor is resolved once; each concern asks it for the component
+/// it cares about and applies its own range gate. Consequence of the single union cast: the closest
+/// object under the cursor wins across all layers (uniform occlusion) — there are no per-concern
+/// masks that can see a target through something in front of it.
 ///
 /// Other systems read the public properties; this component only ever reads — it writes nothing.
+/// Requires a <see cref="MousePointer"/> in the scene whose mask covers ground + resources + pickups
+/// + grapple + melee surfaces (the union of what used to be per-concern masks here).
 /// </summary>
 [RequireComponent(typeof(SolarpunkCharacterController))]
 public class PlayerMouseAimer : MonoBehaviour
 {
-    [Tooltip("Layers that the mouse-to-world raycast should hit (ground, terrain, etc.).")]
-    [SerializeField] private LayerMask _aimLayers = ~0;
-
-    [Tooltip("Layers checked when raycasting for ResourceNodes. Should include whatever layer your resource prefabs live on. Triggers are always excluded.")]
-    [SerializeField] private LayerMask _resourceLayers = ~0;
-
-    [Tooltip("Layers checked when raycasting for WorldItemPickups. Triggers are always excluded.")]
-    [SerializeField] private LayerMask _pickupLayers = ~0;
-
-    [Tooltip("Layers checked when raycasting for rope-lasso targets (RopeAnchor / RopePullable). Triggers are always excluded.")]
-    [SerializeField] private LayerMask _grappleLayers = ~0;
-
-    [Tooltip("Layers checked when raycasting for the wrench swing target (ResourceNode / HittableSurface). Triggers are always excluded.")]
-    [SerializeField] private LayerMask _meleeLayers = ~0;
-
-    [Tooltip("Layers checked for generic interaction-prompt providers (pickups, NPCs, inspectables...). Triggers excluded.")]
-    [SerializeField] private LayerMask _interactLayers = ~0;
-
     [SerializeField] private float _maxAimDistance = 30f;
 
     [Tooltip("Max distance from the player to a resource or pickup for it to count as interactable.")]
@@ -44,7 +26,7 @@ public class PlayerMouseAimer : MonoBehaviour
     [Tooltip("Max distance from the player to a melee surface for a wrench swing to register its tool/hit.")]
     [SerializeField] private float _meleeRange = 2.5f;
 
-    private Camera _cam;
+    private MousePointer _pointer;
 
     // ── Public properties ─────────────────────────────────────────────────────
 
@@ -101,68 +83,64 @@ public class PlayerMouseAimer : MonoBehaviour
 
     // ── Unity messages ────────────────────────────────────────────────────────
 
-    private void Awake()
-    {
-        _cam = Camera.main;
-    }
-
     private void Update()
     {
-        if (_cam == null) _cam = Camera.main;
-        UpdateAimPoint();
-        UpdateHoveredResource();
-        UpdateHoveredPickup();
-        UpdateHoveredKeyPickup();
-        UpdateHoveredGrapple();
-        UpdateMeleeTarget();
-        UpdateHoveredInteractable();
+        if (_pointer == null) _pointer = MousePointer.Instance;
+        if (_pointer == null) return; // no pointer in scene → nothing to aim with this frame
+
+        GameObject hovered = _pointer.HoverObject;
+        bool hasHit = _pointer.HasHit;
+        Vector3 point = _pointer.WorldPoint;
+
+        UpdateAimPoint(hasHit, point);
+        UpdateHoveredResource(hovered);
+        UpdateHoveredPickup(hovered);
+        UpdateHoveredKeyPickup(hovered);
+        UpdateHoveredGrapple(hovered, point);
+        UpdateMeleeTarget(hovered, hasHit, point);
+        UpdateHoveredInteractable(hovered, hasHit, point);
     }
 
     // ── Private ───────────────────────────────────────────────────────────────
 
-    private void UpdateAimPoint()
+    private void UpdateAimPoint(bool hasHit, Vector3 point)
     {
-        Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
-
-        if (Physics.Raycast(ray, out RaycastHit hit, _maxAimDistance, _aimLayers, QueryTriggerInteraction.Ignore))
+        if (hasHit)
         {
-            WorldAimPoint = hit.point;
+            WorldAimPoint = point;
+            return;
         }
-        else
-        {
-            // Fallback: intersect the horizontal plane at this object's Y.
-            var plane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
-            if (plane.Raycast(ray, out float dist))
-                WorldAimPoint = ray.GetPoint(Mathf.Min(dist, _maxAimDistance));
-        }
+        // Miss: intersect the horizontal plane at this object's Y so aim still resolves over open ground.
+        var plane = new Plane(Vector3.up, new Vector3(0f, transform.position.y, 0f));
+        if (plane.Raycast(_pointer.WorldRay, out float dist))
+            WorldAimPoint = _pointer.WorldRay.GetPoint(Mathf.Min(dist, _maxAimDistance));
     }
 
-    private void UpdateHoveredResource()
+    private void UpdateHoveredResource(GameObject hovered)
     {
-        ResourceNode node = RaycastForComponent<ResourceNode>(_resourceLayers, out _);
-        // Gate on player distance so out-of-reach resources are never highlighted.
+        ResourceNode node = Find<ResourceNode>(hovered);
         HoveredResource = node != null && WithinInteractionRange(node.transform.position) ? node : null;
     }
 
-    private void UpdateHoveredPickup()
+    private void UpdateHoveredPickup(GameObject hovered)
     {
-        WorldItemPickup pickup = RaycastForComponent<WorldItemPickup>(_pickupLayers, out _);
+        WorldItemPickup pickup = Find<WorldItemPickup>(hovered);
         HoveredPickup = pickup != null && WithinInteractionRange(pickup.transform.position) ? pickup : null;
     }
 
-    private void UpdateHoveredKeyPickup()
+    private void UpdateHoveredKeyPickup(GameObject hovered)
     {
-        WorldItem item = RaycastForComponent<WorldItem>(_pickupLayers, out _);
+        WorldItem item = Find<WorldItem>(hovered);
         // Only key-pickup items (e.g. the wrench) surface here; auto-collect items magnet themselves.
         bool needsKey = item != null && item.Item != null && !item.Item.AutoCollects;
         HoveredKeyPickup = needsKey && WithinInteractionRange(item.transform.position) ? item : null;
     }
 
-    private void UpdateHoveredGrapple()
+    private void UpdateHoveredGrapple(GameObject hovered, Vector3 point)
     {
-        // One raycast against the grapple layers. Whichever marker the hit collider carries
-        // decides the kind; range is left to the controller (RopeLassoConfig owns it).
-        RopeAnchor anchor = RaycastForComponent<RopeAnchor>(_grappleLayers, out Vector3 point);
+        // Whichever marker the hovered object carries decides the kind; range is left to the
+        // controller (RopeLassoConfig owns it). Anchor and pullable are mutually exclusive.
+        RopeAnchor anchor = Find<RopeAnchor>(hovered);
         if (anchor != null)
         {
             HoveredAnchor = anchor;
@@ -171,23 +149,42 @@ public class PlayerMouseAimer : MonoBehaviour
             return;
         }
 
-        RopePullable pullable = RaycastForComponent<RopePullable>(_grappleLayers, out point);
+        RopePullable pullable = Find<RopePullable>(hovered);
         HoveredAnchor = null;
         HoveredPullable = pullable;
         if (pullable != null) HoveredGrapplePoint = point;
     }
 
-    private void UpdateHoveredInteractable()
+    private void UpdateMeleeTarget(GameObject hovered, bool hasHit, Vector3 point)
+    {
+        // ResourceNode wins (it carries damage + its own tool); otherwise a HittableSurface decides
+        // the tool; nothing in reach = wrench (air).
+        MeleeResource = null;
+        SwingAnimIndex = 4;
+        if (!hasHit || hovered == null) return;
+        if (Vector3.Distance(transform.position, point) > _meleeRange) return;
+
+        ResourceNode node = Find<ResourceNode>(hovered);
+        if (node != null)
+        {
+            MeleeResource = node;
+            SwingAnimIndex = node.AttackAnimIndex;
+            return;
+        }
+
+        HittableSurface surface = Find<HittableSurface>(hovered);
+        if (surface != null)
+            SwingAnimIndex = surface.AttackAnimIndex;
+    }
+
+    private void UpdateHoveredInteractable(GameObject hovered, bool hasHit, Vector3 point)
     {
         HoveredInteractable = null;
 
-        // 1) Generic interaction raycast within reach — pickups, NPCs, inspectables, etc.
-        if (_cam != null &&
-            Physics.Raycast(_cam.ScreenPointToRay(Input.mousePosition), out RaycastHit hit,
-                            _maxAimDistance, _interactLayers, QueryTriggerInteraction.Ignore) &&
-            Vector3.Distance(transform.position, hit.point) <= _interactionRange)
+        // 1) Generic interaction target within reach — pickups, NPCs, inspectables, etc.
+        if (hasHit && hovered != null && Vector3.Distance(transform.position, point) <= _interactionRange)
         {
-            var provider = hit.collider.GetComponentInParent<IInteractionPromptProvider>();
+            var provider = hovered.GetComponentInParent<IInteractionPromptProvider>();
             if (provider != null) { HoveredInteractable = provider; return; }
         }
 
@@ -197,51 +194,9 @@ public class PlayerMouseAimer : MonoBehaviour
         else if (HoveredPullable is IInteractionPromptProvider pull)   HoveredInteractable = pull;
     }
 
-    private void UpdateMeleeTarget()
-    {
-        // One raycast against the melee layers. ResourceNode wins (it carries damage + its own
-        // tool); otherwise a HittableSurface decides the tool; nothing in reach = wrench (air).
-        MeleeResource = null;
-        SwingAnimIndex = 4;
-        if (_cam == null) return;
-
-        Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit, _maxAimDistance, _meleeLayers, QueryTriggerInteraction.Ignore))
-            return;
-        if (Vector3.Distance(transform.position, hit.point) > _meleeRange)
-            return;
-
-        ResourceNode node = hit.collider.GetComponentInParent<ResourceNode>();
-        if (node != null)
-        {
-            MeleeResource = node;
-            SwingAnimIndex = node.AttackAnimIndex;
-            return;
-        }
-
-        HittableSurface surface = hit.collider.GetComponentInParent<HittableSurface>();
-        if (surface != null)
-            SwingAnimIndex = surface.AttackAnimIndex;
-    }
-
-    /// <summary>
-    /// Raycast the mouse cursor against <paramref name="mask"/> (triggers ignored) and return
-    /// the first <typeparamref name="T"/> found on the hit collider or its parents, or null.
-    /// Outputs the world-space hit point when something is hit.
-    /// </summary>
-    private T RaycastForComponent<T>(LayerMask mask, out Vector3 hitPoint) where T : Component
-    {
-        hitPoint = default;
-        if (_cam == null) return null;
-
-        Ray ray = _cam.ScreenPointToRay(Input.mousePosition);
-        if (!Physics.Raycast(ray, out RaycastHit hit, _maxAimDistance, mask, QueryTriggerInteraction.Ignore))
-            return null;
-
-        hitPoint = hit.point;
-        // Walk up the hierarchy — the collider may be on a child of the marker's root.
-        return hit.collider.GetComponentInParent<T>();
-    }
+    /// <summary>Component of type T on the hovered object or its parents, or null.</summary>
+    private static T Find<T>(GameObject hovered) where T : Component
+        => hovered != null ? hovered.GetComponentInParent<T>() : null;
 
     private bool WithinInteractionRange(Vector3 worldPos)
         => Vector3.Distance(transform.position, worldPos) <= _interactionRange;
