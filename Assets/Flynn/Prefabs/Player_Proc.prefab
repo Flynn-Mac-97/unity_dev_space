@@ -477,7 +477,6 @@ GameObject:
   - component: {fileID: 5868385324890666621}
   - component: {fileID: 140473381601090241}
   - component: {fileID: 3345510925618114194}
-  - component: {fileID: -7432765075915259156}
   - component: {fileID: 2166158692376279663}
   - component: {fileID: 2830825641149277794}
   m_Layer: 0
@@ -696,20 +695,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config: {fileID: 11400000, guid: 8376fbc6f429a3248bc3ee8c8ef49173, type: 2}
   _ropeLine: {fileID: 7262477345049162321}
---- !u!114 &-7432765075915259156
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 42002215e53246b4799e7f5091c6de91, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _cursor: {fileID: 2800000, guid: 2865686e42d1b2e468432bef3e069676, type: 3}
-  _hotspot: {x: 16, y: 16}
 --- !u!114 &2166158692376279663
 MonoBehaviour:
   m_ObjectHideFlags: 0

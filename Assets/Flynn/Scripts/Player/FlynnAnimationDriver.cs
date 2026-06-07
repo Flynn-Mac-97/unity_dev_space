@@ -1,9 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// Single-responsibility component that reads SolarpunkCharacterController state
-/// and drives the Animator + SpriteRenderer flip for 2.5D 4-direction animation.
-/// FacingDir values: 0 = front (positive), 1 = back, 2 = side
+/// Reads SolarpunkCharacterController state and feeds the Animator. Locomotion is now a
+/// velocity blend tree: this just pushes VelocityX/Y/Z (Rigidbody velocity) plus Speed and
+/// IsGrounded; the tree owns direction/clip selection. Also owns the wrench swing phase
+/// (windup freeze / release scale on animator.speed) and exposes the IPlayerVisual surface
+/// (VisualCenter, attack/charge) for the combat & interaction controllers.
 /// </summary>
 [RequireComponent(typeof(SolarpunkCharacterController))]
 public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
@@ -13,6 +15,12 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
     [Tooltip("Assign the child Visual GameObject that holds the SpriteRenderer. Only this object will billboard — the physics root stays unrotated.")]
     [SerializeField] private Transform _visualRoot;
     [SerializeField, Range(0.1f, 5f)] private float _visualScale = 1f;
+
+    [Header("Facing (sprite flip)")]
+    [Tooltip("SpriteRenderer to flip. Auto-found on _visualRoot at Awake if left empty.")]
+    [SerializeField] private SpriteRenderer _sprite;
+    [Tooltip("Min horizontal speed before facing updates. Below this the last facing is held (no flip flicker when idling).")]
+    [SerializeField, Range(0f, 1f)] private float _faceDeadzone = 0.05f;
 
     [Header("Visual Center (for throw origin & aim reticle)")]
     [Tooltip("Half the sprite's visible height in world units. Used to compute the billboard's visual centre for camera-corrected spawn/reticle positions.")]
@@ -38,20 +46,11 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
     public Vector3 VisualGroundCenter =>
         new Vector3(VisualCenter.x, transform.position.y, VisualCenter.z);
 
-    [Header("Animation Speed Multipliers")]
-    [SerializeField, Range(0.1f, 5f)] private float _idleFrontSpeed = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _idleBackSpeed  = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _idleSideSpeed  = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _runFrontSpeed  = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _runBackSpeed   = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _runSideSpeed   = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _jumpFrontSpeed = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _jumpBackSpeed  = 1f;
-    [SerializeField, Range(0.1f, 5f)] private float _jumpSideSpeed  = 1f;
-
     private Animator _animator;
-    private SpriteRenderer _spriteRenderer;
-    private int _currentFacingDir = 0;
+
+    // Last pressed XZ facing direction, held while idle so the blend tree doesn't snap back to
+    // the front/Down pose on release. Starts facing front (Down = -Z).
+    private Vector2 _lastFacingXZ = new Vector2(0f, -1f);
 
     // ── Swing (wrench) phase ────────────────────────────────────────────────────
     // The charge windup freezes the attack clip on frame 0; the release plays it at a
@@ -83,9 +82,12 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
 
     private static readonly int SpeedHash       = Animator.StringToHash("Speed");
     private static readonly int IsGroundedHash  = Animator.StringToHash("IsGrounded");
-    private static readonly int FacingDirHash   = Animator.StringToHash("FacingDir");
     private static readonly int AttackHash      = Animator.StringToHash("Attack");
     private static readonly int AttackIndexHash = Animator.StringToHash("AttackIndex");
+
+    private static readonly int xVelocityHash = Animator.StringToHash("VelocityX");
+    private static readonly int yVelocityHash = Animator.StringToHash("VelocityY");
+    private static readonly int zVelocityHash = Animator.StringToHash("VelocityZ");
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -126,6 +128,7 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
     /// </summary>
     public void UpdateChargePose(int animIndex, float charge01)
     {
+        return; // TODO
         if (_animator == null || _swingPhase != SwingPhase.Charging) return;
         _swingIndex = animIndex;
         _animator.Play(AttackStateName(animIndex), 0, WindupNormalizedTime(animIndex, charge01));
@@ -181,32 +184,42 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
          (_animator.IsInTransition(0) && _animator.GetNextAnimatorStateInfo(0).IsTag("Attack")));
 
     /// <summary>
-    /// Orients the sprite to a world-space XZ direction (front/back/side + flip).
-    /// Shared by movement and aim-based attacks. Ignores Y; no-op on a zero vector.
+    /// No-op. Facing is now driven by the velocity blend tree (VelocityX/Y/Z), so explicit
+    /// orientation is no longer needed. Kept to satisfy <see cref="IPlayerVisual"/>; the
+    /// combat/interaction controllers still call it but the blend tree owns facing.
     /// </summary>
-    public void FaceWorldDirection(Vector3 worldDir)
+    public void FaceWorldDirection(Vector3 worldDir) { }
+
+    /// <summary>
+    /// Sets SpriteRenderer.flipX from the 8-direction facing sector of the XZ velocity.
+    /// The source art is NOT consistently oriented: the side sprite faces RIGHT (flip to go
+    /// left) while both diagonal sprites face LEFT (flip to go right). So flip is a per-sector
+    /// lookup, not sign-of-X — this reproduces what the baked m_FlipX curves used to do.
+    /// Straight up / down never flip (symmetric front/back art). Below the deadzone the last
+    /// facing is held so idling doesn't snap the flip.
+    /// </summary>
+    private void UpdateFacing(Vector3 velocity)
     {
-        if (_animator == null || _spriteRenderer == null) return;
+        if (_sprite == null) return;
 
-        float dx = worldDir.x;
-        float dz = worldDir.z;
-        if (Mathf.Abs(dx) < 0.0001f && Mathf.Abs(dz) < 0.0001f) return;
+        Vector2 dir = new Vector2(velocity.x, velocity.z);
+        if (dir.sqrMagnitude < _faceDeadzone * _faceDeadzone) return; // hold last facing
 
-        if (Mathf.Abs(dz) >= Mathf.Abs(dx))
+        // 0=E 1=NE 2=N 3=NW 4=W 5=SW 6=S 7=SE  (atan2: x=right, z=up/away)
+        float ang = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+        int sector = ((Mathf.RoundToInt(ang / 45f) % 8) + 8) % 8;
+
+        switch (sector)
         {
-            // Z dominant: front (z<0) or back (z>0).
-            _currentFacingDir = dz < 0f ? 0 : 1;
-            // Front-walk sprite has a built-in right lean; mirror it on any leftward component.
-            _spriteRenderer.flipX = _currentFacingDir == 0 && dx < 0f;
+            case 0: _sprite.flipX = false; break; // E  Right
+            case 1: _sprite.flipX = true;  break; // NE UR
+            case 2: _sprite.flipX = false; break; // N  Up   (no flip)
+            case 3: _sprite.flipX = false; break; // NW UL
+            case 4: _sprite.flipX = true;  break; // W  Left
+            case 5: _sprite.flipX = false; break; // SW DL
+            case 6: _sprite.flipX = false; break; // S  Down (no flip)
+            case 7: _sprite.flipX = true;  break; // SE DR
         }
-        else
-        {
-            // X dominant: side view, flip for left.
-            _currentFacingDir = 2;
-            _spriteRenderer.flipX = dx < 0f;
-        }
-
-        _animator.SetInteger(FacingDirHash, _currentFacingDir);
     }
 
     // ── Unity messages ────────────────────────────────────────────────────────
@@ -216,10 +229,10 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
         _animator = _visualRoot != null
             ? _visualRoot.GetComponent<Animator>()
             : GetComponent<Animator>();
-        _spriteRenderer = _visualRoot != null
-            ? _visualRoot.GetComponent<SpriteRenderer>()
-            : GetComponentInChildren<SpriteRenderer>();
+        if (_sprite == null && _visualRoot != null) _sprite = _visualRoot.GetComponentInChildren<SpriteRenderer>();
         if (_camera == null) _camera = Camera.main;
+
+        if (_visualRoot != null) _visualRoot.localScale = Vector3.one * _visualScale;
 
         CacheAttackClipFrames();
     }
@@ -252,20 +265,36 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
     private void LateUpdate()
     {
         if (_camera == null || _visualRoot == null) return;
-        _visualRoot.rotation = _camera.transform.rotation;
-        _visualRoot.localScale = Vector3.one * _visualScale;
+        //_visualRoot.rotation = _camera.transform.rotation;
+        //_visualRoot.localScale = Vector3.one * _visualScale;
     }
 
     private void Update()
     {
-        Vector3 move  = _controller.MoveInput;
-        float   speed = new Vector2(move.x, move.z).magnitude;
+        // Locomotion is selected by a velocity blend tree: feed the Rigidbody velocity
+        // (VelocityX/Y/Z), plus Speed (XZ magnitude) and IsGrounded for the idle/run/air split.
+        Vector3 velocity = _controller.MoveInput; // use input for more responsive facing in the blend tree; the Rigidbody velocity feeds the actual speed parameter
 
-        _animator.SetFloat(SpeedHash, speed);
+        // The blend tree's (0,0) cell is the front/Down pose, so a raw zero input snaps the
+        // facing back to front on release. Hold the last pressed XZ direction instead, so the
+        // idle pose keeps facing wherever Flynn was last heading. Speed is still the real
+        // magnitude, so this only steers the facing cell — it never fakes movement.
+        Vector2 xz = new Vector2(velocity.x, velocity.z);
+        if (xz.sqrMagnitude >= _faceDeadzone * _faceDeadzone) _lastFacingXZ = xz.normalized;
+        Vector2 facingFeed = xz.sqrMagnitude >= _faceDeadzone * _faceDeadzone ? xz : _lastFacingXZ;
+
+        _animator.SetFloat(xVelocityHash, facingFeed.x);
+        _animator.SetFloat(yVelocityHash, velocity.y);
+        _animator.SetFloat(zVelocityHash, facingFeed.y);
+        _animator.SetFloat(SpeedHash, xz.magnitude);
         _animator.SetBool(IsGroundedHash, _controller.IsGrounded);
 
+        // Flip is no longer baked into the locomotion clips (a 2D blend tree averages an
+        // animated m_FlipX into nothing). Drive it here from the facing sector instead.
+        UpdateFacing(new Vector3(facingFeed.x, velocity.y, facingFeed.y));
+
         // While swinging, the swing phase owns animator.speed (freeze on windup, scaled on
-        // release) and facing is left to the controller's aim — skip the locomotion logic.
+        // release) — skip the locomotion playback-speed reset.
         if (_swingPhase == SwingPhase.Charging)
         {
             _animator.speed = 0f;
@@ -281,21 +310,7 @@ public class FlynnAnimationDriver : MonoBehaviour, IPlayerVisual
             return;
         }
 
-        bool isJumping = !_controller.IsGrounded;
-        bool isRunning = speed > 0.1f;
-        float normalizedSpeed = _controller.NormalizedSpeed;
-
-        float baseSpeed = _currentFacingDir switch
-        {
-            1 => isJumping ? _jumpBackSpeed  : isRunning ? _runBackSpeed  * normalizedSpeed : _idleBackSpeed,
-            2 => isJumping ? _jumpSideSpeed  : isRunning ? _runSideSpeed  * normalizedSpeed : _idleSideSpeed,
-            _ => isJumping ? _jumpFrontSpeed : isRunning ? _runFrontSpeed * normalizedSpeed : _idleFrontSpeed,
-        };
-        _animator.speed = Mathf.Max(0.1f, baseSpeed);
-
-        if (speed > 0.01f)
-        {
-            FaceWorldDirection(move);
-        }
+        // Blend tree plays at native rate; a prior swing may have left animator.speed scaled.
+        _animator.speed = 1f;
     }
 }

@@ -7,14 +7,12 @@ using UnityEngine;
 /// Only one throw may be airborne at a time. Exposes IsCharging / ChargeNormalized /
 /// IsAirborne for the aim reticle and the swing controller.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerMouseAimer))]
 public class WrenchThrowController : MonoBehaviour
 {
     [SerializeField] private WrenchConfig _config;
     [SerializeField] private GameObject _thrownWrenchPrefab;
 
-    private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
     private IPlayerVisual _animDriver;
     private ThrownWrench _airborne;
@@ -36,14 +34,15 @@ public class WrenchThrowController : MonoBehaviour
 
     private void Awake()
     {
-        _inventory  = GetComponent<PlayerInventory>();
         _aimer      = GetComponent<PlayerMouseAimer>();
         _animDriver = GetComponent<IPlayerVisual>();
     }
 
     private void Update()
     {
-        bool usable = _inventory.ActiveItemType == ItemType.Wrench && !IsAirborne;
+        bool usable = PlayerInventory.Instance != null
+                      && PlayerInventory.Instance.ActiveItemType == ItemType.Wrench
+                      && !IsAirborne;
         if (!usable)
         {
             _charging = false;

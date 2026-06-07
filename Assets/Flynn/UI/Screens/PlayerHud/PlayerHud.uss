@@ -1,0 +1,117 @@
+/* PlayerHUD — always-present dynamic UI. Flynn draft palette (mono, 1px white, square). */
+
+.hud-root {
+    flex-grow: 1;
+}
+
+/* ── Battery (top-left) ─────────────────────────────────────────────────────── */
+
+.battery {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.battery-cap {
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+}
+
+.battery-gauge {
+    width: 140px;
+    height: 16px;
+    background-color: rgb(0, 0, 0);
+    padding: 2px;
+    flex-direction: row;
+}
+
+.battery-fill {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+}
+
+.battery-pct {
+    margin-top: 4px;
+}
+
+/* ── Echo counter (top-right) ──────────────────────────────────────────────── */
+
+.echo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    flex-direction: row;
+    align-items: center;
+    background-color: rgb(0, 0, 0);
+    padding-left: 12px;
+    padding-right: 12px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.echo-icon {
+    margin-right: 8px;
+}
+
+.echo-count {
+    min-width: 28px;
+    -unity-text-align: middle-right;
+}
+
+/* ── Hotbar (bottom-center) ────────────────────────────────────────────────── */
+
+.hotbar {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.hotbar-slot {
+    width: 64px;
+    height: 64px;
+    background-color: rgb(0, 0, 0);
+    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
+    border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+    margin-left: 4px;
+    margin-right: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Active slot: 2px border + faint fill. */
+.hotbar-slot--active {
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
+    background-color: rgb(18, 18, 18);
+}
+
+.slot-key {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.slot-icon {
+    width: 44px;
+    height: 44px;
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
+.slot-count {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 12px;
+    color: rgb(255, 255, 255);
+    display: none;
+}
