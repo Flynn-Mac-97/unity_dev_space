@@ -1,0 +1,28 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="DialogueUI.uss" />
+
+    <!-- Full-screen overlay root. The panel is hidden/shown by toggling the
+         "hidden" class on #dialogue-panel from DialogueManager. -->
+    <ui:VisualElement name="dialogue-root" class="dialogue-root">
+
+        <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
+
+            <ui:Button name="close-button" text="X" class="close-button" />
+
+            <ui:Label name="npc-name" text="Stranger" class="npc-name-badge" />
+
+            <ui:VisualElement name="content-row" class="dialogue-content-row">
+                <ui:VisualElement name="npc-portrait" class="npc-portrait hidden" />
+                <ui:Label name="dialogue-text" text="" class="dialogue-text" />
+            </ui:VisualElement>
+
+            <ui:VisualElement name="suggestions-row" class="suggestions-row" />
+
+            <ui:VisualElement name="input-row" class="input-row">
+                <ui:TextField name="player-input" class="player-input" />
+                <ui:Button name="send-button" text="Send" class="send-button" />
+            </ui:VisualElement>
+
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
