@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 using System.Collections;
 using System.Collections.Generic;
 using Flynn.Npc.Memory;
+using Flynn.Events;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -82,6 +83,9 @@ public class DialogueManager : MonoBehaviour
         ClearSuggestions();
         _panel.RemoveFromClassList("hidden");
         Time.timeScale = 0f;
+
+        if (GameEventBus.Instance != null)
+            GameEventBus.Instance.Publish(new NpcDialogueOpened(npcId));
     }
 
     public void Close()
@@ -92,6 +96,11 @@ public class DialogueManager : MonoBehaviour
         Time.timeScale = 1f;
         _playerInput.value = string.Empty;
         ClearSuggestions();
+
+        string closedId = _activeNpcId;
+        _activeNpcId = null;
+        if (GameEventBus.Instance != null && !string.IsNullOrWhiteSpace(closedId))
+            GameEventBus.Instance.Publish(new NpcDialogueClosed(closedId));
     }
 
     public void SubmitPlayerInput()

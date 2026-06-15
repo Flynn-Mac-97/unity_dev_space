@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4155156534650276043}
   - component: {fileID: 8077082858709095425}
   - component: {fileID: 4550120821290675896}
-  - component: {fileID: 6633560956592019890}
+  - component: {fileID: 5957541379434581805}
   m_Layer: 9
   m_Name: Wrench_Drop
   m_TagString: Untagged
@@ -32,7 +32,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -57,7 +57,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 1fe13a3da6fe91b47aa54bfb8eb90870, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 2da5a7acc0d576a449de7f80007e744c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b9e1fae042393ee4b995fa7ad2c64cfc, type: 3}
   m_Color: {r: 0.75, g: 0.75, b: 0.75, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -163,7 +163,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _item: {fileID: 11400000, guid: b3c180ef48b8c684490a7ffaf79ecd2f, type: 2}
   _count: 1
---- !u!114 &6633560956592019890
+--- !u!114 &5957541379434581805
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,10 +172,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 271991325324456456}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5f37a9b86f232b346ae1aa4ee845b725, type: 3}
+  m_Script: {fileID: 11500000, guid: 3dee05a944f3e064d806ef6f5cef2f4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _worldOffset: {x: 0, y: 1.5, z: 0}
-  _fontSize: 4
-  _textColor: {r: 1, g: 1, b: 1, a: 1}
-  _label: {fileID: 0}
+  _overrideTransform: {fileID: 0}
+  _scaleMultiplier: 1

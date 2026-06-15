@@ -1,14 +1,16 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Flynn.Events;
 
 /// <summary>
-/// The always-present player HUD as a single UI Toolkit panel: hotbar, echo-shard counter and the
-/// robot battery gauge. A thin controller — the layout lives in PlayerHud.uxml/.uss, this only binds
-/// elements and pushes values when the source data raises an event (no polling).
+/// The always-present player HUD: hotbar, echo-shard counter, battery gauge,
+/// and power buildup bar. A thin controller — the layout lives in
+/// PlayerHud.uxml/.uss; this only binds elements and pushes values when source
+/// data raises an event (no polling).
 ///
-/// Driven by: <see cref="PlayerInventory"/> (hotbar), an <see cref="IntVariable"/> for echo shards
-/// and an <see cref="IntVariable"/> (0–100) for the battery. Registered with <see cref="UIManager"/>
-/// as <see cref="UIPanelId.Hud"/>; left visible the whole game.
+/// Driven by: <see cref="PlayerInventory"/> (hotbar), <see cref="IntVariable"/>
+/// for echo shards and battery, and <see cref="GameEventBus"/> for power buildup
+/// events. Registered with <see cref="UIManager"/> as <see cref="UIPanelId.Hud"/>.
 /// </summary>
 public class PlayerHudPanel : UIToolkitPanel
 {
@@ -17,6 +19,10 @@ public class PlayerHudPanel : UIToolkitPanel
     [SerializeField] private IntVariable _echoShards;
     [SerializeField] private IntVariable _battery; // 0..100
 
+    [Header("Power buildup perfect zone (must match PowerBuildupSettings)")]
+    [SerializeField, Range(0f, 1f)] private float _perfectZoneStart = 0.75f;
+    [SerializeField, Range(0f, 1f)] private float _perfectZoneEnd = 0.90f;
+
     private readonly VisualElement[] _slots = new VisualElement[InventoryData.SlotCount];
     private readonly VisualElement[] _icons = new VisualElement[InventoryData.SlotCount];
     private readonly Label[] _counts = new Label[InventoryData.SlotCount];
@@ -24,6 +30,17 @@ public class PlayerHudPanel : UIToolkitPanel
     private Label _echoLabel;
     private VisualElement _batteryFill;
     private Label _batteryLabel;
+
+    // Transmitter objective gauge
+    private VisualElement _transmitterFill;
+    private Label _transmitterLabel;
+    private const float TransmitterLowPercent = 0.25f; // fill turns red below this
+
+    // Power buildup elements
+    private VisualElement _buildupRoot;
+    private VisualElement _buildupFill;
+    private VisualElement _buildupPerfect;
+    private Label _buildupLabel;
 
     // ── Unity messages ────────────────────────────────────────────────────────
 
@@ -39,6 +56,16 @@ public class PlayerHudPanel : UIToolkitPanel
         }
         if (_echoShards != null) _echoShards.OnChanged += SetEcho;
         if (_battery    != null) _battery.OnChanged    += SetBattery;
+
+        if (GameEventBus.Instance != null)
+        {
+            GameEventBus.Instance.Subscribe<CurrencyCollected>(OnCurrencyCollected);
+            GameEventBus.Instance.Subscribe<PowerBuildupStarted>(OnBuildupStarted);
+            GameEventBus.Instance.Subscribe<PowerBuildupChanged>(OnBuildupChanged);
+            GameEventBus.Instance.Subscribe<PowerBuildupReleased>(OnBuildupReleased);
+            GameEventBus.Instance.Subscribe<TransmitterPowerChanged>(OnTransmitterPower);
+            GameEventBus.Instance.Subscribe<TransmitterDepleted>(OnTransmitterDepleted);
+        }
     }
 
     private void OnDisable()
@@ -50,6 +77,16 @@ public class PlayerHudPanel : UIToolkitPanel
         }
         if (_echoShards != null) _echoShards.OnChanged -= SetEcho;
         if (_battery    != null) _battery.OnChanged    -= SetBattery;
+
+        if (GameEventBus.Instance != null)
+        {
+            GameEventBus.Instance.Unsubscribe<CurrencyCollected>(OnCurrencyCollected);
+            GameEventBus.Instance.Unsubscribe<PowerBuildupStarted>(OnBuildupStarted);
+            GameEventBus.Instance.Unsubscribe<PowerBuildupChanged>(OnBuildupChanged);
+            GameEventBus.Instance.Unsubscribe<PowerBuildupReleased>(OnBuildupReleased);
+            GameEventBus.Instance.Unsubscribe<TransmitterPowerChanged>(OnTransmitterPower);
+            GameEventBus.Instance.Unsubscribe<TransmitterDepleted>(OnTransmitterDepleted);
+        }
     }
 
     // ── Binding ─────────────────────────────────────────────────────────────────
@@ -67,6 +104,16 @@ public class PlayerHudPanel : UIToolkitPanel
         _echoLabel    = root.Q<Label>("EchoCount");
         _batteryFill  = root.Q<VisualElement>("BatteryFill");
         _batteryLabel = root.Q<Label>("BatteryLabel");
+
+        _transmitterFill  = root.Q<VisualElement>("TransmitterFill");
+        _transmitterLabel = root.Q<Label>("TransmitterLabel");
+
+        // Power buildup elements
+        _buildupRoot    = root.Q<VisualElement>("PowerBuildup");
+        _buildupFill    = root.Q<VisualElement>("PowerBuildupFill");
+        _buildupPerfect = root.Q<VisualElement>("PowerBuildupPerfect");
+        _buildupLabel   = root.Q<Label>("PowerBuildupLabel");
+
         return true;
     }
 
@@ -75,6 +122,9 @@ public class PlayerHudPanel : UIToolkitPanel
         RefreshAll();
         if (_echoShards != null) SetEcho(_echoShards.Value);
         if (_battery    != null) SetBattery(_battery.Value);
+
+        // Position the perfect zone indicator
+        PositionPerfectZone();
     }
 
     // ── Refresh (event-driven) ──────────────────────────────────────────────────
@@ -134,5 +184,91 @@ public class PlayerHudPanel : UIToolkitPanel
         int pct = Mathf.Clamp(value, 0, 100);
         if (_batteryFill != null) _batteryFill.style.width = new StyleLength(Length.Percent(pct));
         if (_batteryLabel != null) _batteryLabel.text = pct + "%";
+    }
+
+    private void OnCurrencyCollected(CurrencyCollected evt) { }
+
+    // ── Transmitter objective gauge (event-driven) ──────────────────────────────
+
+    private void OnTransmitterPower(TransmitterPowerChanged evt)
+    {
+        float pct = Mathf.Clamp01(evt.Percent);
+        if (_transmitterFill != null)
+        {
+            _transmitterFill.style.width = new StyleLength(Length.Percent(pct * 100f));
+            if (pct <= TransmitterLowPercent)
+                _transmitterFill.AddToClassList("transmitter-fill--low");
+            else
+                _transmitterFill.RemoveFromClassList("transmitter-fill--low");
+        }
+        if (_transmitterLabel != null)
+            _transmitterLabel.text = Mathf.RoundToInt(pct * 100f) + "%";
+    }
+
+    private void OnTransmitterDepleted(TransmitterDepleted evt)
+    {
+        if (_transmitterFill != null)
+            _transmitterFill.AddToClassList("transmitter-fill--low");
+        if (_transmitterLabel != null)
+            _transmitterLabel.text = "OFFLINE";
+    }
+
+    // ── Power buildup bar ─────────────────────────────────────────────────────
+
+    private void PositionPerfectZone()
+    {
+        if (_buildupPerfect == null) return;
+        float startPct = _perfectZoneStart * 100f;
+        float widthPct = (_perfectZoneEnd - _perfectZoneStart) * 100f;
+        _buildupPerfect.style.left = new StyleLength(Length.Percent(startPct));
+        _buildupPerfect.style.width = new StyleLength(Length.Percent(widthPct));
+    }
+
+    private void OnBuildupStarted(PowerBuildupStarted evt)
+    {
+        if (_buildupRoot == null) return;
+        _buildupRoot.style.display = DisplayStyle.Flex;
+        if (_buildupFill != null)
+        {
+            _buildupFill.style.width = new StyleLength(Length.Percent(0));
+            _buildupFill.RemoveFromClassList("power-buildup-fill--perfect");
+            _buildupFill.RemoveFromClassList("power-buildup-fill--flash");
+        }
+        if (_buildupLabel != null) _buildupLabel.text = "";
+    }
+
+    private void OnBuildupChanged(PowerBuildupChanged evt)
+    {
+        if (_buildupFill == null) return;
+        float pct = Mathf.Clamp01(evt.Normalized) * 100f;
+        _buildupFill.style.width = new StyleLength(Length.Percent(pct));
+
+        if (evt.InPerfectZone)
+            _buildupFill.AddToClassList("power-buildup-fill--perfect");
+        else
+            _buildupFill.RemoveFromClassList("power-buildup-fill--perfect");
+
+        if (_buildupLabel != null)
+            _buildupLabel.text = evt.InPerfectZone ? "PERFECT!" : "";
+    }
+
+    private void OnBuildupReleased(PowerBuildupReleased evt)
+    {
+        if (_buildupFill != null)
+        {
+            _buildupFill.AddToClassList("power-buildup-fill--flash");
+            _buildupFill.RemoveFromClassList("power-buildup-fill--perfect");
+        }
+
+        if (_buildupLabel != null)
+            _buildupLabel.text = evt.IsPerfect ? "PERFECT!" : "";
+
+        // Hide the bar after a brief flash
+        if (_buildupRoot != null)
+            _buildupRoot.schedule.Execute(() =>
+            {
+                if (_buildupRoot != null) _buildupRoot.style.display = DisplayStyle.None;
+                if (_buildupFill != null) _buildupFill.RemoveFromClassList("power-buildup-fill--flash");
+            }).StartingIn(200);
     }
 }

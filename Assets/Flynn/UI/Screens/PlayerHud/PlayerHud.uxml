@@ -14,10 +14,28 @@
             <ui:Label name="BatteryLabel" text="100%" class="battery-pct text-sm token-text" />
         </ui:VisualElement>
 
+        <!-- Transmitter power (start-zone objective), top-center -->
+        <ui:VisualElement name="Transmitter" class="transmitter" picking-mode="Ignore">
+            <ui:Label text="TRANSMITTER" class="transmitter-cap text-xs token-text-muted" />
+            <ui:VisualElement name="TransmitterGauge" class="transmitter-gauge outline" picking-mode="Ignore">
+                <ui:VisualElement name="TransmitterFill" class="transmitter-fill" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="TransmitterLabel" text="0%" class="transmitter-pct text-sm token-text" />
+        </ui:VisualElement>
+
         <!-- Echo shard counter, top-right -->
         <ui:VisualElement name="Echo" class="echo outline" picking-mode="Ignore">
             <ui:Label text="◇" class="echo-icon text-lg token-text" />
             <ui:Label name="EchoCount" text="0" class="echo-count text-lg token-text" />
+        </ui:VisualElement>
+
+        <!-- Power buildup bar, above hotbar -->
+        <ui:VisualElement name="PowerBuildup" class="power-buildup" picking-mode="Ignore" style="display: none;">
+            <ui:VisualElement name="PowerBuildupBar" class="power-buildup-bar outline" picking-mode="Ignore">
+                <ui:VisualElement name="PowerBuildupPerfect" class="power-buildup-perfect" picking-mode="Ignore" />
+                <ui:VisualElement name="PowerBuildupFill" class="power-buildup-fill" picking-mode="Ignore" />
+            </ui:VisualElement>
+            <ui:Label name="PowerBuildupLabel" text="" class="power-buildup-label text-sm token-text" />
         </ui:VisualElement>
 
         <!-- Hotbar, bottom-center -->

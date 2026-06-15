@@ -1,0 +1,8 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7400000&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3" />
+    <ui:Style src="project://database/Assets/Flynn/UI/Screens/ResourceHP/ResourceHP.uss?fileID=7400000&amp;guid=2e60d0ffb16def1489f81c2f255f7c7e&amp;type=3" />
+
+    <ui:Template src="project://database/Assets/Flynn/UI/Screens/ResourceHP/HealthBar.uxml?fileID=7400000&amp;guid=b16911090638ed449824aa22659bde99&amp;type=3" name="HealthBar" />
+
+    <ui:VisualElement name="ResourceHPRoot" class="resource-hp-root" picking-mode="Ignore" />
+</ui:UXML>

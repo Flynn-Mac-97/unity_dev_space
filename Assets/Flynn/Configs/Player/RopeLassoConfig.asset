@@ -12,12 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b3e46f90cafaf744197dedd38611f989, type: 3}
   m_Name: RopeLassoConfig
   m_EditorClassIdentifier: 
-  chargeTime: 0.3
+  chargeTime: 0.15
   minRange: 2
-  maxRange: 6
-  pullForce: 45
-  maxPullSpeed: 12
+  maxRange: 10
+  hookTravelTime: 0.12
+  swingForce: 30
+  maxSwingSpeed: 18
+  minRopeLength: 1.5
+  maxRopeLength: 12
+  ropeAdjustSpeed: 4
+  snapForce: 5
+  launchBoostMinY: 2
+  pullForce: 55
+  maxPullSpeed: 14
   stopRadius: 0.8
-  pullTimeout: 2
-  heightTolerance: 0.5
+  pullTimeout: 5
   steeringDuringPull: 0.1

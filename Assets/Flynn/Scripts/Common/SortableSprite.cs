@@ -46,14 +46,23 @@ public class SortableSprite : MonoBehaviour
             _renderers = GetComponentsInChildren<SpriteRenderer>(includeInactive: true);
     }
 
+    /// <summary>
+    /// Computes the current base sorting order for this object's depth position.
+    /// Callers can add their own per-renderer offsets on top of this.
+    /// </summary>
+    public int ComputeBaseOrder()
+    {
+        if (_config == null) return 0;
+        Vector3 sortPos = transform.position + transform.TransformDirection(_sortOriginOffset);
+        float depth = Vector3.Dot(sortPos, _config.SortAxisNormalized);
+        return _config.baseOrder - Mathf.RoundToInt(depth * _config.stepsPerUnit);
+    }
+
     private void LateUpdate()
     {
         if (_config == null || _renderers == null) return;
 
-        Vector3 sortPos  = transform.position + transform.TransformDirection(_sortOriginOffset);
-        Vector3 axis     = _config.SortAxisNormalized;
-        float   depth    = Vector3.Dot(sortPos, axis);
-        int     baseOrder = _config.baseOrder - Mathf.RoundToInt(depth * _config.stepsPerUnit);
+        int baseOrder = ComputeBaseOrder();
 
         for (int i = 0; i < _renderers.Length; i++)
         {

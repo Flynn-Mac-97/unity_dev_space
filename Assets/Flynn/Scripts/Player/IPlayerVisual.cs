@@ -32,6 +32,15 @@ public interface IPlayerVisual
     /// <summary>Release the swing at the given playback speed (higher = faster follow-through).</summary>
     void ReleaseSwing(int animIndex, float animSpeed);
 
+    /// <summary>Enter the looping windup animation (first half of swing) while charging.</summary>
+    void BeginSwingWindup();
+
+    /// <summary>Cancel the windup animation and return to idle.</summary>
+    void CancelSwingWindup();
+
+    /// <summary>Fire the swing directly without windup (quick tap).</summary>
+    void TriggerSwing();
+
     /// <summary>Abort a windup and return to neutral.</summary>
     void CancelSwing();
 

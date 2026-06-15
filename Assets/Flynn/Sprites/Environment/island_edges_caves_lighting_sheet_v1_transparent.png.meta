@@ -1,0 +1,438 @@
+fileFormatVersion: 2
+guid: 5f431eaa64d369043b1d833f1186c457
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 150
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_0
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 730
+        width: 343
+        height: 169
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf5773e0decdfba47bfd7bc0f6fa25cd
+      internalID: 937437373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_1
+      rect:
+        serializedVersion: 2
+        x: 472
+        y: 737
+        width: 304
+        height: 183
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58289361aac0871488968c65b93f231d
+      internalID: 601835680
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_2
+      rect:
+        serializedVersion: 2
+        x: 885
+        y: 705
+        width: 148
+        height: 204
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c0998bf03e1dd1842b7eb385d0f05836
+      internalID: 579459776
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_3
+      rect:
+        serializedVersion: 2
+        x: 1174
+        y: 689
+        width: 284
+        height: 259
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4a8c348a38041240bd827dd1847e62a
+      internalID: -1650425975
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_4
+      rect:
+        serializedVersion: 2
+        x: 68
+        y: 390
+        width: 307
+        height: 246
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93c44ce6dee9bab429c17d68ce243f7a
+      internalID: 651118558
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_5
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 414
+        width: 300
+        height: 152
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f6bc672929f58df4d9831ede8366d8da
+      internalID: 1841350488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_6
+      rect:
+        serializedVersion: 2
+        x: 890
+        y: 403
+        width: 188
+        height: 205
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a7e5ffd3b26fac54890f09baa2f98344
+      internalID: 76600339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_7
+      rect:
+        serializedVersion: 2
+        x: 1163
+        y: 440
+        width: 267
+        height: 141
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c57e78a064f9414cbb63aa59fd560a9
+      internalID: -869116862
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_9
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 142
+        width: 263
+        height: 186
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 88c6b2ad15e059948b500f4663a53d89
+      internalID: 30471439
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_11
+      rect:
+        serializedVersion: 2
+        x: 1134
+        y: 194
+        width: 295
+        height: 123
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 467d4956039f5484792c03a9974e5af4
+      internalID: -70628450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_12
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 157
+        width: 208
+        height: 129
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1240c13074ac32b4a8c58e387b5520b8
+      internalID: 786608511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_13
+      rect:
+        serializedVersion: 2
+        x: 457
+        y: 134
+        width: 254
+        height: 169
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 507e17a77dabfe84b9a16f2c3a9824f7
+      internalID: -656906270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: island_edges_caves_lighting_sheet_v1_transparent_24
+      rect:
+        serializedVersion: 2
+        x: 1121
+        y: 62
+        width: 284
+        height: 83
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b85e3ed6a99758d45ab0af38df3feed3
+      internalID: -671691431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      island_edges_caves_lighting_sheet_v1_transparent_0: 937437373
+      island_edges_caves_lighting_sheet_v1_transparent_1: 601835680
+      island_edges_caves_lighting_sheet_v1_transparent_10: -1780313304
+      island_edges_caves_lighting_sheet_v1_transparent_11: -70628450
+      island_edges_caves_lighting_sheet_v1_transparent_12: 786608511
+      island_edges_caves_lighting_sheet_v1_transparent_13: -656906270
+      island_edges_caves_lighting_sheet_v1_transparent_14: -350231781
+      island_edges_caves_lighting_sheet_v1_transparent_15: -558496865
+      island_edges_caves_lighting_sheet_v1_transparent_16: -1806588808
+      island_edges_caves_lighting_sheet_v1_transparent_17: -1479557409
+      island_edges_caves_lighting_sheet_v1_transparent_18: 1993742887
+      island_edges_caves_lighting_sheet_v1_transparent_19: 1772231838
+      island_edges_caves_lighting_sheet_v1_transparent_2: 579459776
+      island_edges_caves_lighting_sheet_v1_transparent_20: -1714489105
+      island_edges_caves_lighting_sheet_v1_transparent_21: 2093181636
+      island_edges_caves_lighting_sheet_v1_transparent_22: -1660808723
+      island_edges_caves_lighting_sheet_v1_transparent_23: -1574647643
+      island_edges_caves_lighting_sheet_v1_transparent_24: -671691431
+      island_edges_caves_lighting_sheet_v1_transparent_3: -1650425975
+      island_edges_caves_lighting_sheet_v1_transparent_4: 651118558
+      island_edges_caves_lighting_sheet_v1_transparent_5: 1841350488
+      island_edges_caves_lighting_sheet_v1_transparent_6: 76600339
+      island_edges_caves_lighting_sheet_v1_transparent_7: -869116862
+      island_edges_caves_lighting_sheet_v1_transparent_8: 75734197
+      island_edges_caves_lighting_sheet_v1_transparent_9: 30471439
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

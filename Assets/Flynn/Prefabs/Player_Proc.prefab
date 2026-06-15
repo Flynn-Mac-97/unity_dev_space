@@ -485,7 +485,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &3439398409766778006
 Transform:
   m_ObjectHideFlags: 0
@@ -602,24 +602,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cca1a9c04dee13c488309f83c1536487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _aimLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _resourceLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _pickupLayers:
-    serializedVersion: 2
-    m_Bits: 512
-  _grappleLayers:
-    serializedVersion: 2
-    m_Bits: 256
-  _meleeLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  _interactLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
   _maxAimDistance: 30
   _interactionRange: 3
   _meleeRange: 2.5
@@ -664,6 +646,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config: {fileID: 11400000, guid: c3834f47adf4baf46989541e3de4e8b4, type: 2}
   _throw: {fileID: 3354061955563415565}
+  _swingArc: {fileID: 0}
   _hitDelay: 0.1
 --- !u!114 &140473381601090241
 MonoBehaviour:
@@ -708,13 +691,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _controller: {fileID: 448812660392350589}
-  _aimer: {fileID: 2657480444969837676}
   _bodyRig: {fileID: 749690500079111580}
   _legRig: {fileID: 1208107535738699598}
   _footL: {fileID: 3073867045282124931}
   _footR: {fileID: 407665588575957269}
   _armR: {fileID: 5675652706547051418}
   _handSocket: {fileID: 3302256564164581476}
+  _restForward: {x: 0, y: 0, z: -1}
+  _leanFactor: 1
   _turnSpeed: 14
   _stride: 0.12
   _stepLift: 0.06

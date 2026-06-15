@@ -1,4 +1,5 @@
 /* PlayerHUD — always-present dynamic UI. Flynn draft palette (mono, 1px white, square). */
+/* Designed for 1920×1080 reference resolution. */
 
 .hud-root {
     flex-grow: 1;
@@ -8,22 +9,22 @@
 
 .battery {
     position: absolute;
-    top: 20px;
-    left: 20px;
+    top: 30px;
+    left: 30px;
     flex-direction: column;
     align-items: flex-start;
 }
 
 .battery-cap {
-    letter-spacing: 2px;
-    margin-bottom: 4px;
+    letter-spacing: 3px;
+    margin-bottom: 6px;
 }
 
 .battery-gauge {
-    width: 140px;
-    height: 16px;
+    width: 210px;
+    height: 24px;
     background-color: rgb(0, 0, 0);
-    padding: 2px;
+    padding: 3px;
     flex-direction: row;
 }
 
@@ -34,30 +35,120 @@
 }
 
 .battery-pct {
-    margin-top: 4px;
+    margin-top: 6px;
+}
+
+/* ── Transmitter (top-center objective) ─────────────────────────────────────── */
+
+.transmitter {
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    translate: -50% 0;
+    flex-direction: column;
+    align-items: center;
+}
+
+.transmitter-cap {
+    letter-spacing: 3px;
+    margin-bottom: 6px;
+}
+
+.transmitter-gauge {
+    width: 280px;
+    height: 22px;
+    background-color: rgb(0, 0, 0);
+    padding: 3px;
+    flex-direction: row;
+}
+
+.transmitter-fill {
+    width: 0%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+}
+
+/* Power running low: fill turns danger red. */
+.transmitter-fill--low {
+    background-color: rgb(255, 59, 48);
+}
+
+.transmitter-pct {
+    margin-top: 6px;
+}
+
+/* ── Power Buildup (above hotbar, bottom-center) ─────────────────────────── */
+
+.power-buildup {
+    position: absolute;
+    bottom: 144px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    flex-direction: column;
+    align-items: center;
+}
+
+.power-buildup-bar {
+    width: 420px;
+    height: 14px;
+    background-color: rgb(0, 0, 0);
+    padding: 3px;
+    flex-direction: row;
+    position: relative;
+    overflow: hidden;
+}
+
+.power-buildup-perfect {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0, 255, 200, 0.15);
+    border-left-width: 2px;
+    border-right-width: 2px;
+    border-left-color: rgba(0, 255, 200, 0.4);
+    border-right-color: rgba(0, 255, 200, 0.4);
+}
+
+.power-buildup-fill {
+    width: 0%;
+    height: 100%;
+    background-color: rgb(255, 255, 255);
+}
+
+.power-buildup-fill--perfect {
+    background-color: rgb(0, 255, 200);
+}
+
+.power-buildup-fill--flash {
+    background-color: rgb(255, 255, 100);
+}
+
+.power-buildup-label {
+    margin-top: 6px;
+    -unity-text-align: middle-center;
 }
 
 /* ── Echo counter (top-right) ──────────────────────────────────────────────── */
 
 .echo {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 30px;
+    right: 30px;
     flex-direction: row;
     align-items: center;
     background-color: rgb(0, 0, 0);
-    padding-left: 12px;
-    padding-right: 12px;
-    padding-top: 4px;
-    padding-bottom: 4px;
+    padding-left: 18px;
+    padding-right: 18px;
+    padding-top: 6px;
+    padding-bottom: 6px;
 }
 
 .echo-icon {
-    margin-right: 8px;
+    margin-right: 12px;
 }
 
 .echo-count {
-    min-width: 28px;
+    min-width: 42px;
     -unity-text-align: middle-right;
 }
 
@@ -65,7 +156,7 @@
 
 .hotbar {
     position: absolute;
-    bottom: 24px;
+    bottom: 36px;
     left: 0;
     right: 0;
     flex-direction: row;
@@ -74,44 +165,44 @@
 }
 
 .hotbar-slot {
-    width: 64px;
-    height: 64px;
+    width: 96px;
+    height: 96px;
     background-color: rgb(0, 0, 0);
-    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
     border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
     border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 6px;
+    margin-right: 6px;
     align-items: center;
     justify-content: center;
 }
 
-/* Active slot: 2px border + faint fill. */
+/* Active slot: 3px border + faint fill. */
 .hotbar-slot--active {
-    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
+    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px;
     background-color: rgb(18, 18, 18);
 }
 
 .slot-key {
     position: absolute;
-    top: 3px;
-    left: 4px;
-    font-size: 10px;
+    top: 5px;
+    left: 6px;
+    font-size: 14px;
     color: rgba(255, 255, 255, 0.45);
 }
 
 .slot-icon {
-    width: 44px;
-    height: 44px;
+    width: 66px;
+    height: 66px;
     -unity-background-scale-mode: scale-to-fit;
     display: none;
 }
 
 .slot-count {
     position: absolute;
-    bottom: 2px;
-    right: 4px;
-    font-size: 12px;
+    bottom: 4px;
+    right: 6px;
+    font-size: 18px;
     color: rgb(255, 255, 255);
     display: none;
 }

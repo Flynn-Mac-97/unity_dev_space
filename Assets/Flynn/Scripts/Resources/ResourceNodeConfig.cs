@@ -18,6 +18,10 @@ public class ResourceNodeConfig : ScriptableObject
     [Tooltip("Display label used in hover UI and debug.")]
     public string displayName = "Resource";
 
+    [Header("Type")]
+    [Tooltip("What kind of resource this is. Used by ToolEffectivenessTable for damage multiplier lookup.")]
+    public ResourceType resourceType = ResourceType.Stone;
+
     [Header("Tool")]
     [Tooltip("ItemType that must be active (or the multitool wrench) to harvest this resource.")]
     public ItemType requiredTool = ItemType.Axe;

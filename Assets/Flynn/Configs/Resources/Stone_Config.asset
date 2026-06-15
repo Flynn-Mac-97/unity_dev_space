@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Stone_Config
   m_EditorClassIdentifier: 
   displayName: Stone Deposit
+  resourceType: 1
   requiredTool: 1
   maxHealth: 12
   drops:

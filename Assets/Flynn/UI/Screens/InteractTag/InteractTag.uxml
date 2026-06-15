@@ -1,0 +1,7 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7433441132597879392&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3#tokens" />
+    <Style src="project://database/Assets/Flynn/UI/Screens/InteractTag/InteractTag.uss?fileID=7433441132597879392&amp;guid=5bfe5ea73ca47734cb165b778da90f6b&amp;type=3#InteractTag" />
+    <ui:VisualElement name="InteractTagRoot" picking-mode="Ignore" class="interact-tag" style="display: none;">
+        <ui:Label name="InteractTagLabel" text="INTERACT" class="interact-tag__label" />
+    </ui:VisualElement>
+</ui:UXML>

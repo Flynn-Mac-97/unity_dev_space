@@ -12,6 +12,8 @@ public enum UIPanelId
     Inventory,
     Dialogue,
     Pause,
+    InteractTag,
+    ResourceHP,
 }
 
 /// <summary>

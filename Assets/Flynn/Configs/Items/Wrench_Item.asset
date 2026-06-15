@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemId: wrench
   displayName: Wrench
-  icon: {fileID: 21300000, guid: 2da5a7acc0d576a449de7f80007e744c, type: 3}
+  icon: {fileID: 21300000, guid: ecf4eb16406b1c9488cef493d21182a5, type: 3}
   itemType: 4
   attackAnimIndex: 4
   maxStack: 1

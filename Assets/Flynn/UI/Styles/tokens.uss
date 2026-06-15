@@ -1,4 +1,5 @@
 /* Flynn UI draft tokens — mono palette, 1px outlines, square corners. */
+/* Designed for 1920×1080 reference resolution. */
 
 .token-bg            { background-color: rgb(0, 0, 0); }
 .token-surface       { background-color: rgb(0, 0, 0); }
@@ -13,30 +14,30 @@
 .token-warn          { color: rgb(255, 204, 0); }
 
 .outline {
-    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
     border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
     border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
 }
 
-.text-xs   { font-size: 11px; }
-.text-sm   { font-size: 12px; }
-.text-base { font-size: 13px; }
-.text-lg   { font-size: 16px; }
-.text-xl   { font-size: 22px; -unity-font-style: bold; }
-.text-2xl  { font-size: 30px; -unity-font-style: bold; }
+.text-xs   { font-size: 16px; }
+.text-sm   { font-size: 18px; }
+.text-base { font-size: 20px; }
+.text-lg   { font-size: 24px; }
+.text-xl   { font-size: 32px; -unity-font-style: bold; }
+.text-2xl  { font-size: 44px; -unity-font-style: bold; }
 
 .panel {
     background-color: rgb(0, 0, 0);
-    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
     border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
     border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-    padding-left: 12px; padding-right: 12px; padding-top: 8px; padding-bottom: 8px;
+    padding-left: 18px; padding-right: 18px; padding-top: 12px; padding-bottom: 12px;
 }
-.panel-tight { padding-left: 6px; padding-right: 6px; padding-top: 4px; padding-bottom: 4px; }
-.panel-loose { padding-left: 20px; padding-right: 20px; padding-top: 14px; padding-bottom: 14px; }
+.panel-tight { padding-left: 10px; padding-right: 10px; padding-top: 6px; padding-bottom: 6px; }
+.panel-loose { padding-left: 30px; padding-right: 30px; padding-top: 20px; padding-bottom: 20px; }
 
-.divider     { height: 1px; background-color: rgb(255, 255, 255); margin-top: 8px; margin-bottom: 8px; }
-.divider-faint { height: 1px; background-color: rgba(255, 255, 255, 0.25); margin-top: 6px; margin-bottom: 6px; }
+.divider     { height: 2px; background-color: rgb(255, 255, 255); margin-top: 12px; margin-bottom: 12px; }
+.divider-faint { height: 2px; background-color: rgba(255, 255, 255, 0.25); margin-top: 10px; margin-bottom: 10px; }
 
 .row         { flex-direction: row; }
 .col         { flex-direction: column; }
@@ -44,12 +45,12 @@
 .btn {
     background-color: rgb(0, 0, 0);
     color: rgb(255, 255, 255);
-    border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px;
+    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
     border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
     border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-    padding-left: 12px; padding-right: 12px; padding-top: 4px; padding-bottom: 4px;
-    font-size: 12px;
-    margin-left: 0; margin-right: 4px;
+    padding-left: 18px; padding-right: 18px; padding-top: 8px; padding-bottom: 8px;
+    font-size: 18px;
+    margin-left: 0; margin-right: 6px;
 }
 .btn:hover {
     background-color: rgb(255, 255, 255);

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Flynn.Events;
 
 /// <summary>
 /// Pulls an auto-collecting <see cref="WorldItem"/> to the player after a short settle delay, then
@@ -112,6 +113,8 @@ public class DroppedItemMagnet : MonoBehaviour
         if (def.isCurrency)
         {
             if (def.currencyTarget != null) def.currencyTarget.Add(_item.Count);
+            if (GameEventBus.Instance != null)
+                GameEventBus.Instance.Publish(new CurrencyCollected(def, _item.Count));
             Destroy(gameObject);
             return;
         }
