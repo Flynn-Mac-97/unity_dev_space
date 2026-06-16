@@ -26,6 +26,7 @@ public class PlayerHudUGUI : MonoBehaviour
     [SerializeField] private WrenchThrowController  _throw;
     [SerializeField] private WrenchConfig           _config;
     [SerializeField] private PlayerDropController    _dropController;
+    [SerializeField] private PlayerScanController    _scanController;
 
     [Header("Channels / variables (asset refs — wire in Inspector)")]
     [SerializeField] private ResourceHitChannel _hitChannel;
@@ -42,6 +43,12 @@ public class PlayerHudUGUI : MonoBehaviour
     [SerializeField] private float _hpScreenOffsetY = 10f;
     [SerializeField] private float _hpHideDelay      = 1.4f;
     [SerializeField] private float _hpLerpSpeed      = 2.5f;
+
+    [Header("Scan progress bar")]
+    [Tooltip("Screen-space pixels above the scan target where the bar sits.")]
+    [SerializeField] private float _scanScreenOffsetY = 30f;
+    [SerializeField] private float _scanBarWidth = 140f;
+    [SerializeField] private Color _scanBarColor = new Color(0.3f, 0.85f, 1f, 1f);
 
     private static readonly Color White     = Color.white;
     private static readonly Color Dim        = new Color(1f, 1f, 1f, 0.35f);
@@ -77,6 +84,11 @@ public class PlayerHudUGUI : MonoBehaviour
     private float          _hpDisplayed;
     private float          _hpTarget;
     private float          _hpHideTimer;
+
+    // Scan progress bar widgets.
+    private GameObject     _scanRoot;
+    private RectTransform  _scanRect;
+    private RectTransform  _scanFill;
 
     // Echo Shard counter widgets.
     private GameObject      _echoRoot;
@@ -132,6 +144,7 @@ public class PlayerHudUGUI : MonoBehaviour
         UpdateCharge();
         UpdateInteractionPrompt();
         UpdateHpBar();
+        UpdateScanBar();
     }
 
     // ── Setup ───────────────────────────────────────────────────────────────
@@ -144,6 +157,7 @@ public class PlayerHudUGUI : MonoBehaviour
         if (_swing          == null) _swing          = FindObjectOfType<WrenchSwingController>();
         if (_throw          == null) _throw          = FindObjectOfType<WrenchThrowController>();
         if (_dropController  == null) _dropController  = FindObjectOfType<PlayerDropController>();
+        if (_scanController  == null) _scanController  = FindObjectOfType<PlayerScanController>();
     }
 
     private void BuildUI()
@@ -164,6 +178,7 @@ public class PlayerHudUGUI : MonoBehaviour
         BuildCharge(transform);
         BuildInteractionPrompt(transform);
         BuildHpBar(transform);
+        BuildScanBar(transform);
         BuildEchoCounter(transform);
 
         _built = true;
@@ -317,6 +332,59 @@ public class PlayerHudUGUI : MonoBehaviour
         _hpFill = fill;
 
         _hpRoot.SetActive(false);
+    }
+
+    private void BuildScanBar(Transform root)
+    {
+        _scanRoot = NewRect("ScanBar", root).gameObject;
+        _scanRect = (RectTransform)_scanRoot.transform;
+        _scanRect.sizeDelta = new Vector2(_scanBarWidth, 10f);
+
+        var track = NewImage("Track", _scanRoot.transform, White);
+        Stretch(track, 0f);
+        var inner = NewImage("Inner", track, Black);
+        Stretch(inner, 1f);
+
+        var fill = NewImage("Fill", inner, _scanBarColor);
+        fill.anchorMin = new Vector2(0f, 0f); fill.anchorMax = new Vector2(0f, 1f);
+        fill.pivot = new Vector2(0f, 0.5f);
+        fill.anchoredPosition = Vector2.zero;
+        fill.sizeDelta = new Vector2(0f, 0f);
+        _scanFill = fill;
+
+        _scanRoot.SetActive(false);
+    }
+
+    private void UpdateScanBar()
+    {
+        if (_scanRoot == null) return;
+
+        bool scanning = _scanController != null && _scanController.IsScanning;
+        if (!scanning)
+        {
+            if (_scanRoot.activeSelf) _scanRoot.SetActive(false);
+            return;
+        }
+
+        ScanTarget target = _scanController.CurrentTarget;
+        if (target == null)
+        {
+            if (_scanRoot.activeSelf) _scanRoot.SetActive(false);
+            return;
+        }
+
+        if (_cam == null) return;
+        Vector3 sp = _cam.WorldToScreenPoint(target.transform.position);
+        if (sp.z < 0f)
+        {
+            if (_scanRoot.activeSelf) _scanRoot.SetActive(false);
+            return;
+        }
+
+        _scanRect.position = new Vector3(sp.x, sp.y + _scanScreenOffsetY, 0f);
+        float innerW = _scanBarWidth - 2f;
+        _scanFill.sizeDelta = new Vector2(Mathf.Clamp01(target.Progress) * innerW, 0f);
+        if (!_scanRoot.activeSelf) _scanRoot.SetActive(true);
     }
 
     private void BuildEchoCounter(Transform root)

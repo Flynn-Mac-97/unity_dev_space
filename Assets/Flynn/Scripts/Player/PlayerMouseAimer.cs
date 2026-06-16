@@ -12,6 +12,7 @@ using UnityEngine;
 ///      under the cursor and the exact surface point hit. NOT range-gated here: range is
 ///      a designer concern owned by RopeLassoConfig (min/maxRange), so the controller
 ///      applies it. Anchor and pullable are mutually exclusive (one raycast).
+///   5. HoveredScanTarget — the ScanTarget under the cursor, gated by _scanRange.
 ///
 /// Other systems read the public properties; this component only ever reads — it writes nothing.
 /// </summary>
@@ -35,6 +36,12 @@ public class PlayerMouseAimer : MonoBehaviour
 
     [Tooltip("Layers checked for generic interaction-prompt providers (pickups, NPCs, inspectables...). Triggers excluded.")]
     [SerializeField] private LayerMask _interactLayers = ~0;
+
+    [Tooltip("Layers checked when raycasting for ScanTargets. Triggers are always excluded.")]
+    [SerializeField] private LayerMask _scanLayers = ~0;
+
+    [Tooltip("Max distance from the player to a scan target for it to count as interactable.")]
+    [SerializeField] private float _scanRange = 5f;
 
     [SerializeField] private float _maxAimDistance = 30f;
 
@@ -99,6 +106,12 @@ public class PlayerMouseAimer : MonoBehaviour
     /// </summary>
     public IInteractionPromptProvider HoveredInteractable { get; private set; }
 
+    /// <summary>
+    /// The <see cref="ScanTarget"/> under the cursor within scan range, or null.
+    /// Used by <see cref="PlayerScanController"/> to know what to scan.
+    /// </summary>
+    public ScanTarget HoveredScanTarget { get; private set; }
+
     // ── Unity messages ────────────────────────────────────────────────────────
 
     private void Awake()
@@ -116,6 +129,7 @@ public class PlayerMouseAimer : MonoBehaviour
         UpdateHoveredGrapple();
         UpdateMeleeTarget();
         UpdateHoveredInteractable();
+        UpdateHoveredScanTarget();
     }
 
     // ── Private ───────────────────────────────────────────────────────────────
@@ -222,6 +236,13 @@ public class PlayerMouseAimer : MonoBehaviour
         HittableSurface surface = hit.collider.GetComponentInParent<HittableSurface>();
         if (surface != null)
             SwingAnimIndex = surface.AttackAnimIndex;
+    }
+
+    private void UpdateHoveredScanTarget()
+    {
+        ScanTarget target = RaycastForComponent<ScanTarget>(_scanLayers, out _);
+        HoveredScanTarget = target != null && Vector3.Distance(transform.position, target.transform.position) <= _scanRange
+            ? target : null;
     }
 
     /// <summary>
