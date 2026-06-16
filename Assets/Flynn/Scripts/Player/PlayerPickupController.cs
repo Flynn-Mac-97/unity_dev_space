@@ -7,18 +7,15 @@ using UnityEngine;
 /// Reads the hovered item from <see cref="PlayerMouseAimer"/>; writes to <see cref="PlayerInventory"/>.
 /// </summary>
 [RequireComponent(typeof(PlayerMouseAimer))]
-[RequireComponent(typeof(PlayerInventory))]
 public class PlayerPickupController : MonoBehaviour
 {
     [SerializeField] private KeyCode _pickupKey = KeyCode.E;
 
     private PlayerMouseAimer _aimer;
-    private PlayerInventory  _inventory;
 
     private void Awake()
     {
-        _aimer     = GetComponent<PlayerMouseAimer>();
-        _inventory = GetComponent<PlayerInventory>();
+        _aimer = GetComponent<PlayerMouseAimer>();
     }
 
     private void Update()
@@ -28,7 +25,10 @@ public class PlayerPickupController : MonoBehaviour
         WorldItem item = _aimer.HoveredKeyPickup;
         if (item == null || item.Item == null) return;
 
-        int added = _inventory.TryAddItem(item.Item, item.Count);
+        PlayerInventory inv = PlayerInventory.Instance;
+        if (inv == null) return;
+
+        int added = inv.TryAddItem(item.Item, item.Count);
         if (added <= 0) return;
 
         if (added >= item.Count) Destroy(item.gameObject);

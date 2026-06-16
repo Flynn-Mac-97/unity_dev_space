@@ -6,7 +6,6 @@ using UnityEngine;
 /// that plane using the screen-space angle to the mouse — so it visually orbits
 /// the sprite's silhouette edge rather than sweeping on the world XZ ground plane.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerMouseAimer))]
 public class PlayerAimReticle : MonoBehaviour
 {
@@ -23,7 +22,6 @@ public class PlayerAimReticle : MonoBehaviour
     [Tooltip("Arrow length multiplier at full charge.")]
     [SerializeField] private float _maxLengthMul = 2.2f;
 
-    private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
     private IPlayerVisual _animDriver;
     private Camera _cam;
@@ -31,7 +29,6 @@ public class PlayerAimReticle : MonoBehaviour
 
     private void Awake()
     {
-        _inventory  = GetComponent<PlayerInventory>();
         _aimer      = GetComponent<PlayerMouseAimer>();
         _animDriver = GetComponent<IPlayerVisual>();
         _cam        = Camera.main;

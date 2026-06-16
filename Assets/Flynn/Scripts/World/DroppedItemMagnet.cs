@@ -27,7 +27,6 @@ public class DroppedItemMagnet : MonoBehaviour
 
     private WorldItem _item;
     private Rigidbody _rb;
-    private PlayerInventory _inventory;
 
     private float _age;
     private float _extraDelay;
@@ -94,8 +93,7 @@ public class DroppedItemMagnet : MonoBehaviour
     private bool HasRoom(ItemDefinition def, Transform player)
     {
         if (def.isCurrency) return true;
-        EnsureInventory(player);
-        return _inventory != null && _inventory.HasRoomFor(def);
+        return PlayerInventory.Instance != null && PlayerInventory.Instance.HasRoomFor(def);
     }
 
     private void BeginFlight()
@@ -118,8 +116,7 @@ public class DroppedItemMagnet : MonoBehaviour
             return;
         }
 
-        EnsureInventory(player);
-        int added = _inventory != null ? _inventory.TryAddItem(def, _item.Count) : 0;
+        int added = PlayerInventory.Instance != null ? PlayerInventory.Instance.TryAddItem(def, _item.Count) : 0;
         if (added >= _item.Count)
         {
             Destroy(gameObject);
@@ -131,11 +128,5 @@ public class DroppedItemMagnet : MonoBehaviour
         _flying = false;
         _speed = 0f;
         if (_rb != null) _rb.isKinematic = false;
-    }
-
-    private void EnsureInventory(Transform player)
-    {
-        if (_inventory == null && player != null)
-            _inventory = player.GetComponentInChildren<PlayerInventory>();
     }
 }

@@ -9,7 +9,6 @@ using UnityEngine;
 /// while standing on mud (reuses the controller's CanJump signal). Wrench must be the active
 /// item, like swing/throw. A LineRenderer draws the rope from the hand to the far end while reeling.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerMouseAimer))]
 public class RopeLassoController : MonoBehaviour
 {
@@ -17,7 +16,6 @@ public class RopeLassoController : MonoBehaviour
     [Tooltip("Rope visual. A child LineRenderer with 2 positions; enabled only while reeling.")]
     [SerializeField] private LineRenderer _ropeLine;
 
-    private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
     private IPlayerVisual _animDriver;
     private SolarpunkCharacterController _controller;
@@ -44,7 +42,6 @@ public class RopeLassoController : MonoBehaviour
 
     private void Awake()
     {
-        _inventory  = GetComponent<PlayerInventory>();
         _aimer      = GetComponent<PlayerMouseAimer>();
         _animDriver = GetComponent<IPlayerVisual>();
         _controller = GetComponent<SolarpunkCharacterController>();
@@ -60,7 +57,9 @@ public class RopeLassoController : MonoBehaviour
     {
         // Mud blocks the lasso: the Mud TerrainEffectZone clears CanJump while grounded on it.
         bool onMud = _controller != null && !_controller.CanJump;
-        bool usable = _inventory.ActiveItemType == ItemType.Wrench && !_pulling && !onMud;
+        bool usable = PlayerInventory.Instance != null
+                      && PlayerInventory.Instance.ActiveItemType == ItemType.Wrench
+                      && !_pulling && !onMud;
         if (!usable)
         {
             _charging = false;

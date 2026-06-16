@@ -32,6 +32,96 @@ public static class FlynnAnimationSetup
         Debug.Log("[FlynnAnimationSetup] All done.");
     }
 
+    // ── Placeholder diagonal clips (single sprite, decoupled from controller) ──
+    //
+    // 8-direction support adds FacingDir 3 = back-diagonal (NE/NW). Until real
+    // diagonal animations exist, these clips just hold one frame. This menu creates
+    // ONLY the clips and leaves Flynn_AnimatorController untouched — wire the
+    // FacingDir==3 states/transitions by hand (or extend BuildController later).
+
+    private const string NewCharDir = SpBase + "/New Character";
+
+    // FacingDir → single placeholder sprite (8-direction via flipX for the L/R pair):
+    //   0 front, 1 back, 2 side, 3 back-diagonal (NE/NW), 4 front-diagonal (SE/SW).
+    private static readonly (string suffix, string sprite)[] PlaceholderDirs =
+    {
+        ("Front",    "character_front_orth.png"),
+        ("Back",     "character_back_orth.png"),
+        ("Side",     "character_right.png"),
+        ("BackDiag", "character_45_back_orth.png"),
+        ("FrontDiag","character_45_orth.png"),
+    };
+
+    /// <summary>
+    /// Sets every locomotion clip (Idle/Run/Jump × 5 directions) to a SINGLE frame of the
+    /// matching New Character sprite. Existing clips are rewritten in place (GUID preserved,
+    /// so AnimatorController state references survive); missing ones are created. The
+    /// AnimatorController is NOT touched — wire the FacingDir==3/4 diagonal states by hand.
+    /// </summary>
+    [MenuItem("Flynn/Set Placeholder Sprites (single frame)")]
+    public static void SetPlaceholderSprites()
+    {
+        if (!AssetDatabase.IsValidFolder(AnimOut))
+            AssetDatabase.CreateFolder("Assets/Flynn", "Animations");
+
+        int ok = 0, total = 0;
+        foreach (var (suffix, spriteFile) in PlaceholderDirs)
+        {
+            string spritePath = $"{NewCharDir}/{spriteFile}";
+            foreach (var (prefix, loop) in new[] { ("Idle", true), ("Run", true), ("Jump", false) })
+            {
+                total++;
+                if (SetSingleSpriteClip($"Flynn_{prefix}_{suffix}", spritePath, loop) != null) ok++;
+            }
+        }
+
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        Debug.Log($"[FlynnAnimationSetup] Placeholder sprites set: {ok}/{total} clips. " +
+                  "Controller untouched — wire FacingDir==3 (back-diag) & ==4 (front-diag) states manually.");
+    }
+
+    /// <summary>
+    /// Forces a clip to a one-frame sprite animation. Loads the existing asset (preserving its
+    /// GUID + controller references) or creates it if absent, then overwrites the m_Sprite curve.
+    /// </summary>
+    private static AnimationClip SetSingleSpriteClip(string clipName, string spritePath, bool loop)
+    {
+        var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
+        if (sprite == null)
+        {
+            Debug.LogWarning($"[FlynnAnimationSetup] Sprite not found (imported as a Sprite?): {spritePath}");
+            return null;
+        }
+
+        string outPath = $"{AnimOut}/{clipName}.anim";
+        var clip = AssetDatabase.LoadAssetAtPath<AnimationClip>(outPath);
+        bool existed = clip != null;
+        if (!existed) clip = new AnimationClip();
+        clip.frameRate = Fps;
+
+        var binding = new EditorCurveBinding
+        {
+            type         = typeof(SpriteRenderer),
+            path         = "",
+            propertyName = "m_Sprite"
+        };
+        // Single keyframe replaces any prior multi-frame curve for this binding.
+        var keys = new[] { new ObjectReferenceKeyframe { time = 0f, value = sprite } };
+        AnimationUtility.SetObjectReferenceCurve(clip, binding, keys);
+
+        var settings = AnimationUtility.GetAnimationClipSettings(clip);
+        settings.loopTime = loop;
+        AnimationUtility.SetAnimationClipSettings(clip, settings);
+        clip.wrapMode = loop ? WrapMode.Loop : WrapMode.Once;
+
+        if (!existed) AssetDatabase.CreateAsset(clip, outPath);
+        EditorUtility.SetDirty(clip);
+
+        Debug.Log($"[FlynnAnimationSetup] {(existed ? "Rewrote" : "Created")} '{clipName}' → {sprite.name} (1 frame, loop={loop}).");
+        return clip;
+    }
+
     // ── Clip creation ────────────────────────────────────────────────────────
 
     private static Dictionary<string, AnimationClip> BuildAllClips()

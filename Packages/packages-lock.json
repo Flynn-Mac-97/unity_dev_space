@@ -1,23 +1,14 @@
 {
   "dependencies": {
-    "cn.tuanjie.codely.bridge": {
-      "version": "1.0.55",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ext.nunit": "1.0.6"
-      },
-      "url": "https://packages.unity.cn"
-    },
-    "com.coplaydev.unity-mcp": {
-      "version": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
+    "com.besty.unity-skills": {
+      "version": "https://github.com/Besty0728/Unity-Skills.git?path=/SkillsForUnity",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.test-framework": "1.1.31"
+        "com.unity.timeline": "1.7.7"
       },
-      "hash": "78ee5418415953b79c358bfe6355fcc3fde7912b"
+      "hash": "ec0f32df120cd941fb6f769c7309a7d92a8ef7ab"
     },
     "com.unity.2d.animation": {
       "version": "9.2.0",

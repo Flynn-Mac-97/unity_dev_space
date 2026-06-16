@@ -7,7 +7,6 @@ using UnityEngine;
 /// otherwise it plays the plain wrench swing. Disabled while the wrench is airborne
 /// (thrown). Exposes IsCharging / ChargeNormalized for the aim reticle.
 /// </summary>
-[RequireComponent(typeof(PlayerInventory))]
 [RequireComponent(typeof(PlayerMouseAimer))]
 public class WrenchSwingController : MonoBehaviour
 {
@@ -22,7 +21,6 @@ public class WrenchSwingController : MonoBehaviour
     [Tooltip("Delay from swing release to the hit landing (seconds). Tune for impact feel.")]
     [SerializeField] private float _hitDelay = 0.1f;
 
-    private PlayerInventory _inventory;
     private PlayerMouseAimer _aimer;
     private float _cooldown;
     private float _chargeTimer;
@@ -41,7 +39,6 @@ public class WrenchSwingController : MonoBehaviour
 
     private void Awake()
     {
-        _inventory = GetComponent<PlayerInventory>();
         _aimer     = GetComponent<PlayerMouseAimer>();
         _animDriver = GetComponent<IPlayerVisual>();
     }
@@ -57,7 +54,9 @@ public class WrenchSwingController : MonoBehaviour
             if (_hitTimer <= 0f) ApplyPendingHit();
         }
 
-        bool usable = _inventory.ActiveItemType == ItemType.Wrench && (_throw == null || !_throw.IsAirborne);
+        bool usable = PlayerInventory.Instance != null
+                      && PlayerInventory.Instance.ActiveItemType == ItemType.Wrench
+                      && (_throw == null || !_throw.IsAirborne);
         if (!usable)
         {
             // Wrench put away (or thrown) mid-charge: abort the frozen windup pose.
