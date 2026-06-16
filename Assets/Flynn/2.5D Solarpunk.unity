@@ -2848,11 +2848,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 1
+  acceleration: 40
   jumpForce: 3
+  groundDrag: 0
   groundCheckDistance: 0.12
   groundLayers:
     serializedVersion: 2
     m_Bits: 4294967295
+  lowGripGrace: 0.2
 --- !u!54 &1319617342
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -2919,6 +2922,7 @@ MonoBehaviour:
   _camera: {fileID: 734911658}
   _visualRoot: {fileID: 2084504370}
   _visualScale: 0.3
+  _spriteHalfHeight: 0.5
   _idleFrontSpeed: 1
   _idleBackSpeed: 1
   _idleSideSpeed: 1
