@@ -2214,6 +2214,48 @@ async function getStoredDataFolderHandle(){
   }
 }
 
+async function clearStoredDataFolderHandle(){
+  if(!supportsDataFolderPersistence()) return;
+  const db = await openDataFolderDb();
+  try {
+    await new Promise((resolve, reject)=>{
+      const tx = db.transaction(DATA_HANDLE_STORE, 'readwrite');
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error('Failed to clear folder handle'));
+      tx.objectStore(DATA_HANDLE_STORE).delete(DATA_HANDLE_KEY);
+    });
+  } finally {
+    db.close();
+  }
+}
+
+// 解除已失效的数据文件夹绑定：清空内存句柄与 IndexedDB 中持久化的句柄
+async function forgetDataFolder(){
+  ST.dataFolderHandle = null;
+  ST.dataFolderName = '';
+  ST.folderAutosaveWarned = false;
+  try {
+    await clearStoredDataFolderHandle();
+  } catch(_) {}
+}
+
+// File System Access API 在目标文件夹被移动/重命名/删除后会抛出 NotFoundError
+function isStaleFolderError(e){
+  return !!e && (e.name === 'NotFoundError' || e.name === 'NotReadableError');
+}
+
+// 探测文件夹句柄是否仍然有效：缺失的“文件”与被删除的“文件夹”都会抛 NotFoundError，
+// 通过尝试枚举目录项来区分二者，避免把“文件不存在”误判为“文件夹失效”
+async function isFolderHandleAlive(handle){
+  if(!handle || typeof handle.values !== 'function') return true;
+  try {
+    await handle.values().next();
+    return true;
+  } catch(e){
+    return !isStaleFolderError(e);
+  }
+}
+
 async function ensureFolderPermission(handle, mode, requestIfNeeded){
   if(!handle) return false;
   if(typeof handle.queryPermission !== 'function') return true;
@@ -2380,20 +2422,40 @@ async function saveToDataFolder(options = {}) {
   }
 
   try {
-    const mapPayload = buildMapSavePayload();
-    const palettePayload = buildPaletteSavePayload();
-    const mapsHandle = await ST.dataFolderHandle.getDirectoryHandle(DATA_MAPS_DIR, { create: true });
-    const mapFileName = sanitizeMapFileName(ST.md.mapName) + '.json';
-
-    await writeJsonFile(ST.dataFolderHandle, DATA_CURRENT_MAP_FILE, mapPayload);
-    await writeJsonFile(ST.dataFolderHandle, DATA_PALETTE_FILE, palettePayload);
-    await writeJsonFile(mapsHandle, mapFileName, mapPayload);
+    await writeMapAndPaletteFiles();
 
     ST.folderAutosaveWarned = false;
     if(!opts.autosave) dirty = false;
     if(!opts.silent) ok('Saved map and palette to data folder');
     return true;
   } catch(e) {
+    // 句柄指向的文件夹已不存在：清除失效绑定，交互场景下引导用户重新选择文件夹
+    if(isStaleFolderError(e)){
+      await forgetDataFolder();
+      if(opts.autosave){
+        warn('Linked data folder is missing. Click Link Data to re-select it.');
+        return false;
+      }
+      if(opts.requestPermission){
+        warn('Linked data folder was moved or deleted. Please re-select it.');
+        await linkDataFolder();
+        if(!ST.dataFolderHandle) return false;
+        // 重新绑定后再写一次，确保当前地图按用户的保存意图落盘
+        try {
+          await writeMapAndPaletteFiles();
+          if(!opts.autosave) dirty = false;
+          if(!opts.silent) ok('Saved map and palette to data folder');
+          return true;
+        } catch(e2){
+          err('Data folder save failed: ' + e2.message);
+          console.error('Data folder save failed: ' + e2.message);
+          return false;
+        }
+      }
+      if(!opts.silent) warn('Linked data folder is missing. Click Link Data to re-select it.');
+      return false;
+    }
+
     if(opts.autosave){
       if(!ST.folderAutosaveWarned){
         warn('Folder autosave failed: ' + e.message);
@@ -2401,9 +2463,22 @@ async function saveToDataFolder(options = {}) {
       }
     } else {
       err('Data folder save failed: ' + e.message);
+      console.error('Data folder save failed: ' + e.message);
     }
     return false;
   }
+}
+
+// 将当前地图与调色板写入数据文件夹
+async function writeMapAndPaletteFiles(){
+  const mapPayload = buildMapSavePayload();
+  const palettePayload = buildPaletteSavePayload();
+  const mapsHandle = await ST.dataFolderHandle.getDirectoryHandle(DATA_MAPS_DIR, { create: true });
+  const mapFileName = sanitizeMapFileName(ST.md.mapName) + '.json';
+
+  await writeJsonFile(ST.dataFolderHandle, DATA_CURRENT_MAP_FILE, mapPayload);
+  await writeJsonFile(ST.dataFolderHandle, DATA_PALETTE_FILE, palettePayload);
+  await writeJsonFile(mapsHandle, mapFileName, mapPayload);
 }
 
 async function loadPaletteFromDataFolder(options = {}) {
@@ -2489,6 +2564,17 @@ async function loadFromDataFolder(options = {}) {
     if(!opts.silent) ok(paletteLoaded ? 'Loaded map and palette from data folder' : 'Loaded current map from data folder');
     return true;
   } catch(e) {
+    // 句柄失效（文件夹被移动/删除）时清除绑定并引导用户重新选择
+    if(isStaleFolderError(e) && !(await isFolderHandleAlive(ST.dataFolderHandle))){
+      await forgetDataFolder();
+      if(opts.requestPermission){
+        warn('Linked data folder was moved or deleted. Please re-select it.');
+        await linkDataFolder();
+        return false;
+      }
+      if(!opts.silent) warn('Linked data folder is missing. Click Link Data to re-select it.');
+      return false;
+    }
     if(!opts.silent) err('Data folder load failed: ' + e.message);
     return false;
   }
