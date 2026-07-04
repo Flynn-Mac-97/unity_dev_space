@@ -1,0 +1,66 @@
+/* Stats panel — Flynn wireframe palette: black surfaces, 1px white outlines, square corners. */
+
+.hidden { display: none; }
+
+.stats-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+.stats-panel {
+    width: 380px;
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    border-radius: 0;
+    flex-direction: column;
+    padding: 28px;
+}
+
+.stats-title {
+    color: rgb(255, 255, 255);
+    font-size: 22px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+}
+
+.stat-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: 32px;
+}
+
+.stat-icon {
+    color: rgba(255, 255, 255, 0.47);
+    font-size: 14px;
+    -unity-text-align: middle-left;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.47);
+    font-size: 14px;
+    -unity-text-align: middle-left;
+}
+
+.stat-value {
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    -unity-font-style: bold;
+    -unity-text-align: middle-right;
+}
+
+.divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.25);
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

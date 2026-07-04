@@ -1,0 +1,14 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="PlayerHud.uss" />
+
+    <!-- picking-mode=Ignore: the HUD never eats gameplay clicks. -->
+    <ui:VisualElement name="HudRoot" class="hud-root" picking-mode="Ignore">
+
+        <!-- Progress bar, top-left -->
+        <ui:VisualElement name="ProgressBar" class="progress-bar" picking-mode="Ignore">
+            <ui:VisualElement name="ProgressFill" class="progress-fill" picking-mode="Ignore" />
+            <ui:Label name="ProgressLabel" text="100%" class="progress-label" picking-mode="Ignore" />
+        </ui:VisualElement>
+
+    </ui:VisualElement>
+</ui:UXML>

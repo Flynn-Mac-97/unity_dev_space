@@ -1,6 +1,6 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="project://database/Assets/Flynn/UI/Screens/LlmDebugWindow/LlmDebugWindow.uss" />
-    <ui:VisualElement name="llm-debug-root" class="llm-debug-root hidden">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Screens/LlmDebugWindow/LlmDebugWindow.uss?fileID=7433441132597879392&amp;guid=1b596b1880bcaac4fb32449407d6ec23&amp;type=3#LlmDebugWindow" />
+    <ui:VisualElement name="llm-debug-root" class="llm-debug-root hidden" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=f0b919600cb453f4896005b10703ba35&amp;type=3#big_box_01&quot;);">
         <ui:VisualElement name="header" class="llm-debug-header">
             <ui:Label text="LLM DEBUG" class="llm-debug-title" />
             <ui:Label name="turn-count" text="0 turns" class="llm-debug-count" />
@@ -8,15 +8,11 @@
             <ui:Button name="clear-button" text="Clear" class="llm-debug-btn" />
             <ui:Button name="close-button" text="X" class="llm-debug-btn" />
         </ui:VisualElement>
-
-        <ui:VisualElement class="llm-debug-divider" />
-
+        <ui:VisualElement name="VisualElement" class="llm-debug-divider" />
         <ui:ScrollView name="turn-scroll" class="llm-debug-scroll">
             <ui:VisualElement name="turn-list" class="llm-debug-turn-list" />
         </ui:ScrollView>
-
         <ui:VisualElement class="llm-debug-divider" />
-
         <ui:Label name="hint" text="F9 to toggle  |  Stage rows expand on click" class="llm-debug-hint" />
     </ui:VisualElement>
 </ui:UXML>

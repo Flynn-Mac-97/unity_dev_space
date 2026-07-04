@@ -1,19 +1,15 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="DialogueBox.uss" />
-
-    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
-        <ui:Label name="npc-name" class="npc-name-badge" text="Stranger" />
-
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/DialogueBox.uss?fileID=7433441132597879392&amp;guid=cd4063a7a8cbcf646ad0fa62bdd615e7&amp;type=3#DialogueBox" />
+    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=f0b919600cb453f4896005b10703ba35&amp;type=3#big_box_01&quot;); background-color: rgba(0, 0, 0, 0.19);">
+        <ui:Label name="npc-name" text="Stranger" class="npc-name-badge" />
         <ui:VisualElement class="dialogue-content-row">
             <ui:VisualElement name="npc-portrait" class="npc-portrait hidden" />
-            <ui:Label name="dialogue-text" class="dialogue-text" text="Hello, traveller. What brings you here?" />
+            <ui:Label name="dialogue-text" text="Hello, traveller. What brings you here?" class="dialogue-text" />
         </ui:VisualElement>
-
         <ui:VisualElement class="input-row">
-            <ui:TextField name="player-input" class="player-input" />
-            <ui:Button name="send-button" class="send-button" text="Send" />
+            <ui:TextField name="player-input" class="player-input" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/input_box_03.png?fileID=2800000&amp;guid=7e91459f07361d04983a3392a76348dc&amp;type=3#input_box_03&quot;);" />
+            <ui:Button name="send-button" class="send-button" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/send_button.png?fileID=2800000&amp;guid=de48fb3aa11f8eb49938f952eeff1686&amp;type=3#send_button&quot;); background-color: rgba(255, 255, 255, 0.12);" />
         </ui:VisualElement>
-
-        <ui:Button name="close-button" class="close-button" text="X" />
+        <ui:Button name="close-button" text="X" class="close-button" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/close_button_enable.png?fileID=2800000&amp;guid=6a6ca1d914d08da4786d7529c56c89eb&amp;type=3#close_button_enable&quot;); background-color: rgba(0, 0, 0, 0.14); border-left-color: rgba(255, 255, 255, 0.05); border-right-color: rgba(255, 255, 255, 0.05); border-top-color: rgba(255, 255, 255, 0.05); border-bottom-color: rgba(255, 255, 255, 0.05);" />
     </ui:VisualElement>
 </ui:UXML>
