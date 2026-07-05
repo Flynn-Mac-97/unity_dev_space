@@ -1,0 +1,12 @@
+{
+    "name": "Flynn.Npc.Editor",
+    "rootNamespace": "",
+    "references": ["Flynn.Runtime"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "optionalUnityReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "precompiledReferences": []
+}

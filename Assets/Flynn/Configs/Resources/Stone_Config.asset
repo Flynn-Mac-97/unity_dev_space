@@ -15,12 +15,24 @@ MonoBehaviour:
   displayName: Stone Deposit
   resourceType: 1
   requiredTool: 1
-  maxHealth: 12
+  maxHealth: 20
+  sprite: {fileID: -1762403944, guid: c82707ce0987d0d4b9d6c81735bca41b, type: 3}
+  healthStages:
+  - healthThreshold: 0.7
+    sprite: {fileID: -1762403944, guid: c82707ce0987d0d4b9d6c81735bca41b, type: 3}
+  - healthThreshold: 0.5
+    sprite: {fileID: 18924805, guid: c82707ce0987d0d4b9d6c81735bca41b, type: 3}
+  - healthThreshold: 0.3
+    sprite: {fileID: 1047676998, guid: c82707ce0987d0d4b9d6c81735bca41b, type: 3}
   drops:
   - item: {fileID: 11400000, guid: fda1bf0fabfc174459f00bb6c63d1b9d, type: 2}
     dropChance: 1
     minCount: 2
     maxCount: 4
-  dropScatterRadius: 0.3
+  dropScatterRadius: 0.6
+  weight: 100
+  swaysInWind: 0
+  hitKnockback: 0.1
+  cameraShakeAmount: 0.025
   echoShardChancePerHit: 0.15
   echoShardItem: {fileID: 11400000, guid: 662cb3580e43c804caddea5f6ba63083, type: 2}

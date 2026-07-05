@@ -81,7 +81,7 @@ SpriteRenderer:
   m_Size: {x: 0.32, y: 0.32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &594384322025603222
@@ -95,7 +95,6 @@ GameObject:
   - component: {fileID: 5927190131867943530}
   - component: {fileID: 221051613355721921}
   - component: {fileID: 3848145644488669959}
-  - component: {fileID: 6081544871010520822}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -191,18 +190,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &6081544871010520822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 594384322025603222}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 920bd2e9e36f3c9478c979ab4efc350d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1644082012638983576
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,18 +376,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3439398409766778006}
-  - component: {fileID: 448812660392350589}
   - component: {fileID: 7671719148130866443}
   - component: {fileID: 3696360007487348600}
-  - component: {fileID: 4419505385201361398}
-  - component: {fileID: 2657480444969837676}
-  - component: {fileID: 709690748382448810}
   - component: {fileID: 3354061955563415565}
   - component: {fileID: 5868385324890666621}
   - component: {fileID: 140473381601090241}
   - component: {fileID: 3345510925618114194}
   - component: {fileID: 6107269480674943995}
-  - component: {fileID: 5226407808794299545}
+  - component: {fileID: 1213018062241551394}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -428,27 +411,6 @@ Transform:
   - {fileID: 6235338240350086302}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &448812660392350589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84762d75d5acf03479fe8297389edb95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 3
-  acceleration: 40
-  jumpForce: 3
-  groundDrag: 0
-  groundCheckDistance: 0.12
-  groundLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  lowGripGrace: 0.2
 --- !u!136 &7671719148130866443
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -499,53 +461,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &4419505385201361398
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8165083bc15110449cf5a4a19f1d3ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _controller: {fileID: 448812660392350589}
-  _camera: {fileID: 0}
-  _visualRoot: {fileID: 5927190131867943530}
-  _visualScale: 0.5
-  _sprite: {fileID: 0}
-  _faceDeadzone: 0.05
-  _spriteHalfHeight: 0.5
---- !u!114 &2657480444969837676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cca1a9c04dee13c488309f83c1536487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxAimDistance: 30
-  _interactionRange: 3
-  _meleeRange: 2.5
---- !u!114 &709690748382448810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfa8f6bc53af4644783bc3cdaeb3c23b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _pickupKey: 101
 --- !u!114 &3354061955563415565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -572,10 +487,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60da153d6fee887499d2b5a8aaa4bf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: c3834f47adf4baf46989541e3de4e8b4, type: 2}
-  _throw: {fileID: 3354061955563415565}
-  _swingArc: {fileID: 3926320783102138550}
-  _hitDelay: 0.1
+  _wrenchVisual: {fileID: 0}
+  _swingRange: 1.4
+  _cooldownTime: 0.15
 --- !u!114 &140473381601090241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -606,6 +520,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config: {fileID: 11400000, guid: 8376fbc6f429a3248bc3ee8c8ef49173, type: 2}
   _ropeLine: {fileID: 7262477345049162321}
+  _grappleMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &6107269480674943995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -619,7 +536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _debugHitKey: 104
---- !u!114 &5226407808794299545
+--- !u!114 &1213018062241551394
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -628,10 +545,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5546673744264795266}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f5a931d2ed09684992ae0f5e784f21a, type: 3}
+  m_Script: {fileID: 11500000, guid: 5acd19745d19ec046b039484f04e59e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _aimer: {fileID: 2657480444969837676}
+  _anchor: {fileID: 11400000, guid: 847fc176129714a4aa77cfea0509dd4e, type: 2}
 --- !u!1 &5657418486244196057
 GameObject:
   m_ObjectHideFlags: 0
@@ -788,13 +705,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e9028c6dc2f9d11458b01fc0d3091180, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _radius: 1
-  _sweepAngle: 45
-  _duration: 0.1
-  _fadeOut: 0.12
+  _slashDrawTime: 0.1
+  _slashFadeTime: 0.15
+  _slashWidth: 0.1
+  _ringMaxRadius: 0.5
+  _ringExpandTime: 0.1
+  _ringFadeTime: 0.2
+  _ringSegments: 24
   _arcHeight: 0.8
-  _maxRange: 4
-  _minRange: 0.6
+  _slashColor: {r: 1, g: 0.9, b: 0.6, a: 1}
+  _ringColor: {r: 1, g: 0.7, b: 0.3, a: 1}
 --- !u!1 &5657776539762368148
 GameObject:
   m_ObjectHideFlags: 0

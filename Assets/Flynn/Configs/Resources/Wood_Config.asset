@@ -17,6 +17,6 @@ MonoBehaviour:
   requiredTool: 2
   maxHealth: 3
   drops: []
-  dropScatterRadius: 0.8
+  dropScatterRadius: 1.6
   echoShardChancePerHit: 0.15
   echoShardItem: {fileID: 0}

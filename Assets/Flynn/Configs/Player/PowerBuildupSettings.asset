@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c21787d9163b2bb4386fca35a6684b9c, type: 3}
+  m_Script: {fileID: 11500000, guid: d49cf011a556d33428d16c96378625bf, type: 3}
   m_Name: PowerBuildupSettings
   m_EditorClassIdentifier: 
   maxChargeTime: 2
@@ -20,9 +20,21 @@ MonoBehaviour:
   heavySwingBatteryCost: 8
   lightThrowBatteryCost: 5
   heavyThrowBatteryCost: 12
-  lightSwingDamage: 1
-  heavySwingDamage: 3
+  lightSwingDamage: 3
+  heavySwingDamage: 6
   lightThrowDamage: 1
   heavyThrowDamage: 3
   lightSwingAnimSpeed: 1
   heavySwingAnimSpeed: 2.5
+  perfectMultiplier: 1.5
+  holdToChargeDelay: 0.3
+  quickClickWindow: 0.25
+  swingChargeSlow: 0.5
+  throwAimSlow: 0.3
+  throwSpeed: 6
+  throwAnimSpeed: 1.3
+  throwRangeLight: 3
+  throwRangeHeavy: 10
+  reboundDamping: 0.3
+  restDuration: 0.5
+  returnAccel: 40

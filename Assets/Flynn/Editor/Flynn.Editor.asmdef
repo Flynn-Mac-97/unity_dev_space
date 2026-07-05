@@ -1,0 +1,16 @@
+{
+    "name": "Flynn.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Flynn.Runtime",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime"
+    ],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "optionalUnityReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "precompiledReferences": []
+}

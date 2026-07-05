@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Embedding_Global
   m_EditorClassIdentifier: 
   endpointUrl: http://127.0.0.1:11434/api/embeddings
-  modelName: all-minilm:l6-v2
+  modelName: all-minilm:latest
   dimensions: 384
   timeoutSeconds: 20
   recallTopK: 6

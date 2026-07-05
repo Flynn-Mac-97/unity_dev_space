@@ -17,7 +17,7 @@ TagManager:
   - Grappleable
   - Pickup
   - WaterInteraction
-  - 
+  - POST
   - 
   - 
   - 
@@ -41,4 +41,16 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Level0
+    uniqueID: 1355154012
+    locked: 0
+  - name: Level1
+    uniqueID: 1936553719
+    locked: 0
+  - name: Level2
+    uniqueID: 192354598
+    locked: 0
+  - name: Level3
+    uniqueID: 773754305
     locked: 0

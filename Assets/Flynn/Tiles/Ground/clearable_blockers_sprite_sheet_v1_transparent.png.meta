@@ -1,0 +1,461 @@
+fileFormatVersion: 2
+guid: 2cf21ca3229ad724db3f24163683f8d2
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 350
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_0
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 757
+        width: 126
+        height: 200
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4cf32b3cbb8ca934c884f3b162d3aa16
+      internalID: -597498267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_1
+      rect:
+        serializedVersion: 2
+        x: 453
+        y: 754
+        width: 183
+        height: 241
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 51be8ab9010629742a2c014d57a52aa8
+      internalID: 388398614
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_2
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 756
+        width: 165
+        height: 139
+      alignment: 9
+      pivot: {x: 0.4999989, y: 0.2792433}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 413f7beed787fb443b741a77743314a1
+      internalID: -1437707431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_3
+      rect:
+        serializedVersion: 2
+        x: 1157
+        y: 753
+        width: 230
+        height: 189
+      alignment: 9
+      pivot: {x: 0.49999946, y: 0.32218295}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 152891d05c9c23f408760ac7270b9a90
+      internalID: 1334650346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_4
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 526
+        width: 165
+        height: 139
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e7a2ed8a6f32a32419eba9d82354f7e0
+      internalID: -618616961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_5
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 516
+        width: 347
+        height: 199
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 27778de5e905abf43a92fa59ae85e26e
+      internalID: 16090833
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_6
+      rect:
+        serializedVersion: 2
+        x: 809
+        y: 523
+        width: 215
+        height: 148
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 5ebb9e37795ddf149a1ceca9395daa74
+      internalID: 1921346488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_7
+      rect:
+        serializedVersion: 2
+        x: 1163
+        y: 518
+        width: 220
+        height: 155
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad72604222faf914f9cea7e65bd27efa
+      internalID: -1454057706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_8
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 321
+        width: 168
+        height: 89
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e131dd7c4cf2fc047b4b6c6d4f8bcaa7
+      internalID: 555950973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_9
+      rect:
+        serializedVersion: 2
+        x: 425
+        y: 316
+        width: 227
+        height: 130
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a4f768fcc63400c449d6741b18e58d44
+      internalID: -2138940709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_10
+      rect:
+        serializedVersion: 2
+        x: 817
+        y: 281
+        width: 265
+        height: 196
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 32c7538bca80fe84882391c38c1ccc4a
+      internalID: -540486669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_11
+      rect:
+        serializedVersion: 2
+        x: 1197
+        y: 299
+        width: 160
+        height: 137
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58d5b9fadf107c8478f8bd05b0d9b626
+      internalID: -1814795772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_12
+      rect:
+        serializedVersion: 2
+        x: 458
+        y: 42
+        width: 192
+        height: 228
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a1949981a2e16ec48ab5a8b809afec41
+      internalID: -1644152736
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: clearable_blockers_sprite_sheet_v1_transparent_13
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 41
+        width: 244
+        height: 212
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c106ac56484382142acc7dd3ef4e1729
+      internalID: -5740900
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      clearable_blockers_sprite_sheet_v1_transparent_0: -597498267
+      clearable_blockers_sprite_sheet_v1_transparent_1: 388398614
+      clearable_blockers_sprite_sheet_v1_transparent_10: -540486669
+      clearable_blockers_sprite_sheet_v1_transparent_11: -1814795772
+      clearable_blockers_sprite_sheet_v1_transparent_12: -1644152736
+      clearable_blockers_sprite_sheet_v1_transparent_13: -5740900
+      clearable_blockers_sprite_sheet_v1_transparent_2: -1437707431
+      clearable_blockers_sprite_sheet_v1_transparent_3: 1334650346
+      clearable_blockers_sprite_sheet_v1_transparent_4: -618616961
+      clearable_blockers_sprite_sheet_v1_transparent_5: 16090833
+      clearable_blockers_sprite_sheet_v1_transparent_6: 1921346488
+      clearable_blockers_sprite_sheet_v1_transparent_7: -1454057706
+      clearable_blockers_sprite_sheet_v1_transparent_8: 555950973
+      clearable_blockers_sprite_sheet_v1_transparent_9: -2138940709
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

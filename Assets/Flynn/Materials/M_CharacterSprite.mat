@@ -48,6 +48,7 @@ Material:
     - _OutlineSoftness: 2
     - _OutlineWidth: 2.19
     - _PosterizeSteps: 27.9
+    - _PixelateFactor: 2
     - _Saturation: 1.1
     - _Stencil: 0
     - _StencilComp: 8

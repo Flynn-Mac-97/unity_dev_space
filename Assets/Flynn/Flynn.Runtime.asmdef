@@ -1,0 +1,21 @@
+{
+    "name": "Flynn.Runtime",
+    "rootNamespace": "",
+    "references": [
+        "David.Runtime",
+        "Cinemachine",
+        "Unity.RenderPipelines.Universal.Runtime",
+        "Unity.RenderPipelines.Core.Runtime",
+        "Unity.TextMeshPro",
+        "Unity.2D.SpriteShape.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "optionalUnityReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "precompiledReferences": [
+        "LiteDB.dll"
+    ]
+}

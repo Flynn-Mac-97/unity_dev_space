@@ -227,11 +227,95 @@ guards null/length/zero-norm.
 ## Extension points (designed-for, not yet built)
 
 - `RelationshipDoc` / `PlayerStateDoc` via `NpcMemoryDatabase.GetCollection<T>` —
-  persist + apply the envelope's `relationship_deltas` (currently parsed and
-  dropped) and inject live player state (inventory/flags/location) into prompts.
+  persist full relationship state (not just trust via PlayerPrefs) and inject
+  live player state (inventory/flags/location) into prompts.
 - Cross-NPC gossip / shared world memory; fact consolidation/summarization.
 - Surface `things`/`npcs` docs themselves in `Recall` (one filter addition) so
   world-things are semantically recalled, not just authored knowledge about them.
+
+---
+
+## Built systems (previously extension points, now implemented)
+
+### Trust persistence
+
+Trust persists via `PlayerPrefs` (`Flynn.NPC.Trust.{npcId}`). `NpcRelationshipState`
+loads on `Awake`/`Start` (falls back to `startingTrust` if no saved value).
+`AdjustTrust()` saves on every change. The system prompt shows the real current
+trust: `"current trust 22/100 (started at 20)"` via `IslandPromptBuilder.BuildPersonaBlock`.
+
+### Relationship deltas
+
+`DialogueManager.ApplyRelationshipDeltas` applies `relationship_deltas` from
+the LLM envelope to `NpcRelationshipState` (trust/affection/suspicion). Shows
+floating "+N"/"-N" text, plays audio, checks trust milestones (secret unlocks).
+
+### World state awareness
+
+`DialogueManager.GatherWorldState()` queries gameplay objects each turn:
+- Transmitter power level (`TransmitterStation.Power`)
+- Solar collectors cleaned count (`SolarCollector.IsCleaned`)
+- Signal relay status (`SignalRelay.IsActivated`)
+
+Injected into the system prompt via `IslandPromptBuilder.BuildResolvedBlock`
+as a "World state right now:" block. The LLM can now react to player progress.
+
+### Gameplay-driven objective completion
+
+Gameplay scripts call `ObjectiveTracker.CompleteFromGameplay(signalId)` when
+milestones are reached:
+- `SolarCollector.Clean()` → checks if all collectors cleaned → completes
+  `objective.restore_steady_power`
+- `SignalRelay.Activate()` → completes `objective.activate_relay` +
+  `complete.relay_activated`
+
+Completion persists via PlayerPrefs (`Flynn.Objective.Completed.{signalId}`)
+and marks the signal as fired in the DB so the LLM doesn't re-fire it.
+`LoadFiredObjectivesFromDb` restores the correct state (Active vs Completed)
+on startup.
+
+### Player-facing objective titles
+
+`SignalContent` has a `title` field (island JSON). `ObjectiveTracker.ResolveTitle()`
+prefers `title`, falls back to `description`, then `signalId`. Used by
+`UnlockObjective`, `LoadFiredObjectivesFromDb`, and `CompleteFromGameplay`.
+
+### Objective tracker persistence
+
+`ObjectiveTracker` loads already-fired objective signals from the DB on `Start()`
+via `LoadFiredObjectivesFromDb`. `NpcMemoryDatabase.GetAllFiredSignals()` returns
+all `FiredSignalDoc` records. Gameplay-completed objectives are restored as
+`Completed` (not `Active`) via `WasGameplayCompleted(signalId)` PlayerPrefs check.
+
+### Live codex refresh
+
+`ObjectiveTracker.OnObjectivesChanged` event fires on unlock/complete.
+`CodexPanelController` subscribes to auto-refresh the Tasks tab when objectives
+change while the codex panel is open.
+
+---
+
+## Deferred features (not yet built)
+
+- **Encrypted scan → NPC translation loop**: `AddScanFragment`/`TranslateScanFragment`
+  exist on `PlayerCodex` but no world-placed encrypted scan targets beyond the
+  weather station.
+- **Multi-NPC codex support**: currently single-NPC focused; codex needs to handle
+  multiple NPCs with separate secret pools.
+- **Deflection UI**: visual feedback when NPC avoids a topic due to low trust
+  (player doesn't know it's trust-gated).
+- **NPC acknowledges prior knowledge**: codex entries not currently injected into
+  the LLM prompt (NPCs don't know what the player already knows from the codex).
+- **Trust from gameplay actions**: trust currently only rises via LLM deltas, not
+  from gameplay milestones (feeding transmitter, cleaning collectors, etc.).
+- **"Return to NPC" loop**: no "player has completed X since last visit" context
+  injection on dialogue re-open.
+- **Ambient NPC dialogue**: no idle barks, no calling out when player walks by.
+- **Codex as dialogue tool**: no way to reference codex entries in dialogue to
+  confront/challenge NPCs.
+- **In-process SentisEmbeddingProvider (ONNX)**: would remove the Ollama server
+  dependency for player builds.
+- **IL2CPP `link.xml`**: needed for LiteDB reflection in player builds.
 
 ---
 

@@ -25,12 +25,12 @@ Requires only the **Unity editor running** (the bridge server is the editor itse
 | `manage_asset` | `search`, `get_info`, `get_components`, `import`, `import_asset`, `create`, `modify`, `delete`, `duplicate`, `move`, `rename`, `create_folder`, `create_batch`, `edit_batch`, `ensure_has_meta`, `ensure_meta_integrity` |
 | `manage_script` | `read`, `create`, `update`, `edit`, `apply_text_edits`, `delete`, `validate`, `get_sha` |
 | `manage_shader` | `detect_render_pipeline`, `ensure_material_shader_for_srp`, `create`, `read`, `update`, `delete` |
-| `manage_screenshot` | `capture_game_view`, `capture_scene_view`, `capture_main_camera`, `capture_scene_camera`, `capture_specific_camera`, `capture_asset`, `capture_ui_toolkit`, `capture` |
+| `manage_screenshot` | `capture_game_view`, `capture_scene_view`, `capture_main_camera`, `capture_scene_camera`, `capture_specific_camera`, `capture_asset`, `capture_ui_toolkit`, `capture`. **Verified 2026-07-03:** bare call works — saves `screenshots/<View>_<timestamp>.png` 1920×1080; payload at `resp["data"]` DIRECTLY (`path`/`width`/`height`/`warning`), not `data.data`. Optional `path` param = output DIR. `filename` param breaks it (null data). Read the PNG file for vision. |
 | `manage_ui` | `create_uxml`, `create_uss`, `link_uss_to_uxml`, `ensure_panel_settings_asset` |
 | `manage_bake` | `bake_navmesh`, `bake_lighting`, `wait_for_bake`, `clear_navmesh`, `clear_baked_data` |
 | `manage_package` | `install_package`, `remove_package`, `list_packages`, `wait_for_upm` |
 | `manage_workflow` | `init_session`, `compile_and_validate`, `checkpoint`, `install_package_and_validate` (also `init`/`setup`/`build`/`validate`/`screenshot`) |
-| `read_console` | filter by level: `console`/`log`/`debug`/`error` (pass as params) |
+| `read_console` | actions are `get` / `clear` ONLY (verified 2026-07-03 — a level name as action → "Unknown action"). Filter via params: `b.call("read_console", "get", types=["error","warning"], count=10)`. |
 | `execute_menu_item` | run an editor menu path (params: menu path) |
 | `execute_csharp_script` | run arbitrary C# in the editor — escape hatch for anything above. **param key is `script` (NOT `code`); command name is `execute_csharp_script` (NOT `execute_csharp`).** A bare `return <expr>;` works; returns `data.data.result` (stringified) + `data.data.logs`. Use `b.csharp("<C#>")`. |
 | `ping` | keepalive → `{"success":true,"message":"pong"}` (use `b.ping()`) |

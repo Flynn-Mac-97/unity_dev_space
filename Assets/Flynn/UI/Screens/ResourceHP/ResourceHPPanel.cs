@@ -3,257 +3,293 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Flynn.Events;
 
-/// <summary>
-/// Screen-space UI Toolkit panel that projects floating HP bars above ResourceNodes.
-/// Driven by <see cref="UIManager"/> as <see cref="UIPanelId.ResourceHP"/>. Subscribes
-/// to <see cref="ResourceDamaged"/> / <see cref="ResourceDepleted"/> on GameEventBus
-/// and pools VisualElement bars. Bars are positioned by projecting world-space node
-/// positions to panel coordinates via RuntimePanelUtils.
-///
-/// Bar style: white fill depleting left→right on a black background (Flynn mono).
-/// Lives as a UIDocument under MANAGERS/UI.
-/// </summary>
-[RequireComponent(typeof(UIDocument))]
-public class ResourceHPPanel : UIToolkitPanel
+
+using Flynn.Core;
+using Flynn.Resources;
+using Flynn.UI.Core;
+
+using Flynn.Player.Interaction;
+namespace Flynn.UI.Screens.ResourceHP
 {
-    [Header("Appearance")]
-    [Tooltip("World-space height offset above the node origin.")]
-    [SerializeField] private float _heightOffset = 1.6f;
-
-    [Header("Timing")]
-    [Tooltip("Seconds to keep the bar visible after the last hit.")]
-    [SerializeField] private float _displayDuration = 3f;
-
-    [Tooltip("Seconds for the fade-out animation.")]
-    [SerializeField] private float _fadeDuration = 0.5f;
-
-    [Tooltip("UXML template for a single health bar instance.")]
-    [SerializeField] private VisualTreeAsset _healthBarTemplate;
-
-    // ── Event bus subscription state ────────────────────────────────────────
-
-    private bool _subscribed;
-
-    // ── Pool & active tracking ─────────────────────────────────────────────
-
-    private readonly Stack<VisualElement> _pool = new();
-    private readonly Dictionary<ResourceNode, BarEntry> _active = new();
-
-    private VisualElement _root;
-
-    private struct BarEntry
+    /// <summary>
+    /// Screen-space UI Toolkit panel that projects floating HP bars above ResourceNodes.
+    /// Driven by <see cref="UIManager"/> as <see cref="UIPanelId.ResourceHP"/>. Subscribes
+    /// to <see cref="ResourceDamaged"/> / <see cref="ResourceDepleted"/> on GameEventBus
+    /// and pools VisualElement bars. Bars are positioned by projecting world-space node
+    /// positions to panel coordinates via RuntimePanelUtils.
+    ///
+    /// Bar style: white fill depleting left→right on a black background (Flynn mono).
+    /// Lives as a UIDocument under MANAGERS/UI.
+    /// </summary>
+    [RequireComponent(typeof(UIDocument))]
+    public class ResourceHPPanel : UIToolkitPanel
     {
-        public VisualElement Bar;
-        public VisualElement Fill;
-        public float HideTime;
-        public bool Fading;
-    }
+        [Header("Appearance")]
+        [Tooltip("World-space height offset above the node origin.")]
+        [SerializeField] private float _heightOffset = 1.6f;
 
-    // ── Unity messages ──────────────────────────────────────────────────────
+        [Header("Timing")]
+        [Tooltip("Seconds to keep the bar visible after the last hit.")]
+        [SerializeField] private float _displayDuration = 3f;
 
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-        if (GameEventBus.Instance != null)
+        [Tooltip("Seconds for the fade-out animation.")]
+        [SerializeField] private float _fadeDuration = 0.5f;
+
+        [Tooltip("UXML template for a single health bar instance.")]
+        [SerializeField] private VisualTreeAsset _healthBarTemplate;
+
+        // ── Event bus subscription state ────────────────────────────────────────
+
+        private bool _subscribed;
+
+        // ── Pool & active tracking ─────────────────────────────────────────────
+
+        private readonly Stack<VisualElement> _pool = new();
+        private readonly Dictionary<ResourceNode, BarEntry> _active = new();
+
+        private VisualElement _root;
+
+        private struct BarEntry
         {
+            public VisualElement Bar;
+            public VisualElement Fill;
+            public float HideTime;
+            public bool Fading;
+        }
+
+        // ── Unity messages ──────────────────────────────────────────────────────
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (GameEventBus.Instance != null)
+            {
+                GameEventBus.Instance.Subscribe<ResourceDamaged>(OnResourceDamaged);
+                GameEventBus.Instance.Subscribe<ResourceDepleted>(OnResourceDepleted);
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (GameEventBus.Instance != null && _subscribed)
+            {
+                GameEventBus.Instance.Unsubscribe<ResourceDamaged>(OnResourceDamaged);
+                GameEventBus.Instance.Unsubscribe<ResourceDepleted>(OnResourceDepleted);
+                _subscribed = false;
+            }
+        }
+
+        private void TrySubscribe()
+        {
+            if (_subscribed || GameEventBus.Instance == null) return;
             GameEventBus.Instance.Subscribe<ResourceDamaged>(OnResourceDamaged);
             GameEventBus.Instance.Subscribe<ResourceDepleted>(OnResourceDepleted);
+            _subscribed = true;
         }
-    }
 
-    private void OnDisable()
-    {
-        if (GameEventBus.Instance != null && _subscribed)
+        private void LateUpdate()
         {
-            GameEventBus.Instance.Unsubscribe<ResourceDamaged>(OnResourceDamaged);
-            GameEventBus.Instance.Unsubscribe<ResourceDepleted>(OnResourceDepleted);
-            _subscribed = false;
-        }
-    }
+            TrySubscribe();
 
-    private void TrySubscribe()
-    {
-        if (_subscribed || GameEventBus.Instance == null) return;
-        GameEventBus.Instance.Subscribe<ResourceDamaged>(OnResourceDamaged);
-        GameEventBus.Instance.Subscribe<ResourceDepleted>(OnResourceDepleted);
-        _subscribed = true;
-    }
+            if (_root == null || Camera.main == null) return;
 
-    private void LateUpdate()
-    {
-        TrySubscribe();
+            float now = Time.time;
+            List<ResourceNode> toRelease = null;
 
-        if (_root == null || Camera.main == null) return;
-
-        float now = Time.time;
-        List<ResourceNode> toRelease = null;
-
-        foreach (var kvp in _active)
-        {
-            var node = kvp.Key;
-            var entry = kvp.Value;
-
-            // Node destroyed — release immediately
-            if (node == null)
+            foreach (var kvp in _active)
             {
-                if (toRelease == null) toRelease = new List<ResourceNode>();
-                toRelease.Add(node);
-                continue;
+                var node = kvp.Key;
+                var entry = kvp.Value;
+
+                // Node destroyed — release immediately
+                if (node == null)
+                {
+                    if (toRelease == null) toRelease = new List<ResourceNode>();
+                    toRelease.Add(node);
+                    continue;
+                }
+
+                // Anchor above the collider's TOP, centred on its X — not the transform pivot, which
+                // for sprite nodes sits at the base/feet and threw the bar off-target.
+                Vector3 worldPos = AnchorPoint(node) + Vector3.up * _heightOffset;
+
+                // Skip nodes behind the camera — the projection mirrors them to bogus on-screen coords.
+                if (Camera.main.WorldToViewportPoint(worldPos).z <= 0f)
+                {
+                    entry.Bar.style.display = DisplayStyle.None;
+                    continue;
+                }
+                entry.Bar.style.display = DisplayStyle.Flex;
+
+                Vector2 panelPos = RuntimePanelUtils.CameraTransformWorldToPanel(
+                    _root.panel, worldPos, Camera.main);
+
+                // resolvedStyle is NaN until the first layout pass — fall back to the USS width so the
+                // bar isn't positioned at NaN (which renders it nowhere) on the frame it appears.
+                float barWidth = entry.Bar.resolvedStyle.width;
+                if (float.IsNaN(barWidth) || barWidth <= 0f) barWidth = 90f;
+
+                entry.Bar.style.left = panelPos.x - barWidth * 0.5f;
+                entry.Bar.style.top = panelPos.y;
+
+                // Start fading when timer expires
+                if (!entry.Fading && now >= entry.HideTime)
+                {
+                    entry.Fading = true;
+                    entry.Bar.AddToClassList("health-bar--fading");
+                    entry.Bar.style.transitionDuration =
+                        new List<TimeValue> { new TimeValue(_fadeDuration) };
+                }
+
+                // Check if fade finished
+                if (entry.Fading && now >= entry.HideTime + _fadeDuration)
+                {
+                    if (toRelease == null) toRelease = new List<ResourceNode>();
+                    toRelease.Add(node);
+                }
             }
 
-            // Project world position to panel coordinates
-            Vector3 worldPos = node.transform.position + Vector3.up * _heightOffset;
-            Vector2 panelPos = RuntimePanelUtils.CameraTransformWorldToPanel(
-                _root.panel, worldPos, Camera.main);
-
-            // Offset so bar centers above the node
-            float barWidth = entry.Bar.resolvedStyle.width;
-            entry.Bar.style.left = panelPos.x - barWidth * 0.5f;
-            entry.Bar.style.top = panelPos.y;
-
-            // Start fading when timer expires
-            if (!entry.Fading && now >= entry.HideTime)
+            if (toRelease != null)
             {
-                entry.Fading = true;
-                entry.Bar.AddToClassList("health-bar--fading");
-                entry.Bar.style.transitionDuration =
-                    new List<TimeValue> { new TimeValue(_fadeDuration) };
-            }
-
-            // Check if fade finished
-            if (entry.Fading && now >= entry.HideTime + _fadeDuration)
-            {
-                if (toRelease == null) toRelease = new List<ResourceNode>();
-                toRelease.Add(node);
+                foreach (var node in toRelease)
+                    ReleaseBar(node);
             }
         }
 
-        if (toRelease != null)
+        /// <summary>
+        /// World point the bar floats above: top-centre of the node's collider bounds (the visible
+        /// sprite), not the transform pivot which usually sits at the base. Falls back to the pivot.
+        /// </summary>
+        private static Vector3 AnchorPoint(ResourceNode node)
         {
-            foreach (var node in toRelease)
-                ReleaseBar(node);
+            var col = node.GetComponentInChildren<Collider2D>();
+            if (col == null) return node.transform.position;
+            Bounds b = col.bounds;
+            return new Vector3(b.center.x, b.max.y, b.center.z);
+        }
+
+        // ── Binding ─────────────────────────────────────────────────────────────
+
+        protected override bool Bind(VisualElement root)
+        {
+            _root = root.Q<VisualElement>("ResourceHPRoot");
+            return _root != null;
+        }
+
+        // ── Event handlers ──────────────────────────────────────────────────────
+
+        private void OnResourceDamaged(ResourceDamaged evt)
+        {
+            if (evt.Node == null || _root == null) return;
+
+            if (!_active.TryGetValue(evt.Node, out var entry))
+            {
+                entry = AcquireBar(evt.Node);
+                if (entry.Bar == null) return;
+            }
+
+            // Update fill width — white shrinks as HP depletes, revealing black bg
+            float fraction = evt.Node.MaxHealth > 0
+                ? (float)evt.RemainingHp / evt.Node.MaxHealth
+                : 0f;
+            entry.Fill.style.width = new StyleLength(Length.Percent(fraction * 100f));
+
+            // Show and reset timer
+            entry.Bar.AddToClassList("health-bar--visible");
+            entry.Bar.RemoveFromClassList("health-bar--fading");
+            entry.Bar.style.opacity = 1f;
+            entry.Bar.style.transitionDuration = StyleKeyword.Null;
+            entry.Fading = false;
+            entry.HideTime = Time.time + _displayDuration;
+
+            _active[evt.Node] = entry;
+        }
+
+        private void OnResourceDepleted(ResourceDepleted evt)
+        {
+            if (evt.Node == null) return;
+            if (!_active.TryGetValue(evt.Node, out var entry)) return;
+
+            entry.Fill.style.width = 0f;
+            entry.Fading = true;
+            entry.HideTime = Time.time;
+            entry.Bar.AddToClassList("health-bar--fading");
+            entry.Bar.style.transitionDuration =
+                new List<TimeValue> { new TimeValue(_fadeDuration) };
+
+            _active[evt.Node] = entry;
+        }
+
+        // ── Pool acquire / release ──────────────────────────────────────────────
+
+        private BarEntry AcquireBar(ResourceNode node)
+        {
+            VisualElement bar;
+            if (_pool.Count > 0)
+            {
+                bar = _pool.Pop();
+            }
+            else
+            {
+                bar = CreateBarElement();
+            }
+
+            bar.name = $"HPBar_{node.name}";
+            _root.Add(bar);
+
+            var fill = bar.Q<VisualElement>("BarFill");
+            var entry = new BarEntry
+            {
+                Bar = bar,
+                Fill = fill,
+                HideTime = Time.time + _displayDuration,
+                Fading = false,
+            };
+
+            _active[node] = entry;
+            return entry;
+        }
+
+        private void ReleaseBar(ResourceNode node)
+        {
+            if (!_active.TryGetValue(node, out var entry)) return;
+
+            entry.Bar.RemoveFromClassList("health-bar--visible");
+            entry.Bar.RemoveFromClassList("health-bar--fading");
+            entry.Bar.style.opacity = StyleKeyword.Null;
+            entry.Bar.style.transitionDuration = StyleKeyword.Null;
+            entry.Fill.style.width = new StyleLength(Length.Percent(100f));
+            entry.Bar.name = "HealthBar_Pooled";
+
+            _root.Remove(entry.Bar);
+            _active.Remove(node);
+            _pool.Push(entry.Bar);
+        }
+
+        // ── Bar element factory ─────────────────────────────────────────────────
+
+        private VisualElement CreateBarElement()
+        {
+            if (_healthBarTemplate != null)
+            {
+                var container = _healthBarTemplate.CloneTree();
+                return container.ElementAt(0) ?? container;
+            }
+
+            // Fallback: build in code (should not happen when template is assigned)
+            var bar = new VisualElement { name = "HealthBar" };
+            bar.AddToClassList("health-bar");
+
+            var bg = new VisualElement { name = "BarBackground" };
+            bg.AddToClassList("health-bar__bg");
+
+            var fill = new VisualElement { name = "BarFill" };
+            fill.AddToClassList("health-bar__fill");
+
+            bg.Add(fill);
+            bar.Add(bg);
+            return bar;
         }
     }
 
-    // ── Binding ─────────────────────────────────────────────────────────────
-
-    protected override bool Bind(VisualElement root)
-    {
-        _root = root.Q<VisualElement>("ResourceHPRoot");
-        return _root != null;
-    }
-
-    // ── Event handlers ──────────────────────────────────────────────────────
-
-    private void OnResourceDamaged(ResourceDamaged evt)
-    {
-        if (evt.Node == null || _root == null) return;
-
-        if (!_active.TryGetValue(evt.Node, out var entry))
-        {
-            entry = AcquireBar(evt.Node);
-            if (entry.Bar == null) return;
-        }
-
-        // Update fill width — white shrinks as HP depletes, revealing black bg
-        float ratio = evt.Node.MaxHealth > 0
-            ? (float)evt.RemainingHp / evt.Node.MaxHealth : 0f;
-        entry.Fill.style.width = new StyleLength(Length.Percent(ratio * 100f));
-
-        // Show and reset timer
-        entry.Bar.AddToClassList("health-bar--visible");
-        entry.Bar.RemoveFromClassList("health-bar--fading");
-        entry.Bar.style.opacity = 1f;
-        entry.Bar.style.transitionDuration = StyleKeyword.Null;
-        entry.Fading = false;
-        entry.HideTime = Time.time + _displayDuration;
-
-        _active[evt.Node] = entry;
-    }
-
-    private void OnResourceDepleted(ResourceDepleted evt)
-    {
-        if (evt.Node == null) return;
-        if (!_active.TryGetValue(evt.Node, out var entry)) return;
-
-        entry.Fill.style.width = 0f;
-        entry.Fading = true;
-        entry.HideTime = Time.time;
-        entry.Bar.AddToClassList("health-bar--fading");
-        entry.Bar.style.transitionDuration =
-            new List<TimeValue> { new TimeValue(_fadeDuration) };
-
-        _active[evt.Node] = entry;
-    }
-
-    // ── Pool acquire / release ──────────────────────────────────────────────
-
-    private BarEntry AcquireBar(ResourceNode node)
-    {
-        VisualElement bar;
-        if (_pool.Count > 0)
-        {
-            bar = _pool.Pop();
-        }
-        else
-        {
-            bar = CreateBarElement();
-        }
-
-        bar.name = $"HPBar_{node.name}";
-        _root.Add(bar);
-
-        var fill = bar.Q<VisualElement>("BarFill");
-        var entry = new BarEntry
-        {
-            Bar = bar,
-            Fill = fill,
-            HideTime = Time.time + _displayDuration,
-            Fading = false,
-        };
-
-        _active[node] = entry;
-        return entry;
-    }
-
-    private void ReleaseBar(ResourceNode node)
-    {
-        if (!_active.TryGetValue(node, out var entry)) return;
-
-        entry.Bar.RemoveFromClassList("health-bar--visible");
-        entry.Bar.RemoveFromClassList("health-bar--fading");
-        entry.Bar.style.opacity = StyleKeyword.Null;
-        entry.Bar.style.transitionDuration = StyleKeyword.Null;
-        entry.Fill.style.width = new StyleLength(Length.Percent(100f));
-        entry.Bar.name = "HealthBar_Pooled";
-
-        _root.Remove(entry.Bar);
-        _active.Remove(node);
-        _pool.Push(entry.Bar);
-    }
-
-    // ── Bar element factory ─────────────────────────────────────────────────
-
-    private VisualElement CreateBarElement()
-    {
-        if (_healthBarTemplate != null)
-        {
-            var container = _healthBarTemplate.CloneTree();
-            return container.ElementAt(0) ?? container;
-        }
-
-        // Fallback: build in code (should not happen when template is assigned)
-        var bar = new VisualElement { name = "HealthBar" };
-        bar.AddToClassList("health-bar");
-
-        var bg = new VisualElement { name = "BarBackground" };
-        bg.AddToClassList("health-bar__bg");
-
-        var fill = new VisualElement { name = "BarFill" };
-        fill.AddToClassList("health-bar__fill");
-
-        bg.Add(fill);
-        bar.Add(bg);
-        return bar;
-    }
 }

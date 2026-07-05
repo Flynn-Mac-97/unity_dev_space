@@ -4,12 +4,14 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
+using Flynn.Npc;
+
 namespace Flynn.Npc.Memory
 {
-    // IEmbeddingProvider backed by Ollama's /api/embeddings endpoint. Mirrors the
+    // Embedding provider backed by Ollama's /api/embeddings endpoint. Mirrors the
     // UnityWebRequest pattern in LocalLlmClient. Request:  {model, prompt}.
     // Response: {"embedding":[...]}.
-    public class OllamaEmbeddingProvider : IEmbeddingProvider
+    public class OllamaEmbeddingProvider
     {
         private readonly string _endpoint;
         private readonly string _model;

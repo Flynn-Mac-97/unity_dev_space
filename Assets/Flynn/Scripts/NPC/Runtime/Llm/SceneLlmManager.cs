@@ -4,6 +4,12 @@ using System.Text;
 using UnityEngine;
 using Flynn.Npc.Memory;
 
+using Flynn.Core;
+using Flynn.UI.Core;
+
+using Flynn.Player.Interaction;
+namespace Flynn.Npc
+{
 public enum LlmProvider { Local, OpenRouter }
 
 public class SceneLlmManager : MonoBehaviour
@@ -35,10 +41,7 @@ public class SceneLlmManager : MonoBehaviour
     public DialogueTriggerChannel triggerChannel;
 
     [Header("Save Context")]
-    [Tooltip("Inspectable per-slot store of every NPC's chat history, long-term facts, and fired signals.")]
-    public NpcMemoryStore memoryStore;
-
-    [Tooltip("Informational label for the active slot. The memoryStore asset above IS the slot; swap that asset to load a different slot.")]
+    [Tooltip("Informational label for the active slot. Determines the DB file path under persistentDataPath/npc_memory/.")]
     public string saveSlotId = "slot_0";
 
     [Header("Semantic Memory")]
@@ -77,13 +80,12 @@ public class SceneLlmManager : MonoBehaviour
 
     // ── Semantic memory ───────────────────────────────────────────────────────
     public NpcMemoryDatabase MemoryDb { get; private set; }
-    public IEmbeddingProvider Embedder { get; private set; }
+    public OllamaEmbeddingProvider Embedder { get; private set; }
 
     // True only when both the embedding provider and the DB are usable. Dialogue
     // checks this before attempting semantic recall/writes; when false it degrades
     // gracefully to the chat-history-only path.
-    public bool SemanticMemoryReady =>
-        MemoryDb != null && MemoryDb.IsOpen && Embedder != null && embeddingSettings != null;
+    public bool SemanticMemoryReady => MemoryDb != null && MemoryDb.IsOpen;
 
     private void Awake()
     {
@@ -110,18 +112,16 @@ public class SceneLlmManager : MonoBehaviour
         if (islandContent == null || islandContent.Content == null) yield break;
         string islandId = islandContent.Content.islandId;
 
-        yield return StartCoroutine(IslandDbImporter.Import(islandContent.Content, MemoryDb, Embedder));
+        if (Embedder != null)
+            yield return StartCoroutine(IslandDbImporter.Import(islandContent.Content, MemoryDb, Embedder));
+        else
+            IslandContentDb.SeedAuthored(MemoryDb, islandContent.Content);
 
-        // Import yields on embedding round-trips. If the DB was torn down in the
-        // meantime (Play stopped, or scripts recompiled mid-seed), don't hydrate
-        // from a disposed engine.
         if (MemoryDb == null || !MemoryDb.IsOpen) yield break;
 
         if (!islandContent.LoadFromDatabase(MemoryDb, islandId))
             Debug.LogWarning("[SceneLlmManager] DB hydrate failed; hub keeps its JSON-parsed content.");
 
-        // Resolver caches a hub reference; force it to rebuild against the
-        // re-hydrated content next access.
         _resolver = null;
     }
 
@@ -158,21 +158,27 @@ public class SceneLlmManager : MonoBehaviour
 
     private void InitSemanticMemory()
     {
-        if (embeddingSettings == null)
-        {
-            Debug.Log("[SceneLlmManager] No EmbeddingSettings assigned — semantic memory disabled (chat-history-only fallback).");
-            return;
-        }
         try
         {
-            Embedder = new OllamaEmbeddingProvider(embeddingSettings);
             MemoryDb = new NpcMemoryDatabase();
-            MemoryDb.Open(saveSlotId, Embedder.ModelId, Embedder.Dimensions);
-            Debug.Log("[SceneLlmManager] Semantic memory DB open at " + MemoryDb.Path);
+            string embeddingModel = embeddingSettings != null ? embeddingSettings.modelName : "none";
+            int dim = embeddingSettings != null ? embeddingSettings.dimensions : 0;
+            MemoryDb.Open(saveSlotId, embeddingModel, dim);
+            Debug.Log("[SceneLlmManager] Memory DB open at " + MemoryDb.Path);
+
+            if (embeddingSettings != null)
+            {
+                Embedder = new OllamaEmbeddingProvider(embeddingSettings);
+                Debug.Log("[SceneLlmManager] Embedding provider ready: " + embeddingModel + " (" + dim + "-dim)");
+            }
+            else
+            {
+                Debug.Log("[SceneLlmManager] No EmbeddingSettings — semantic recall disabled, keyword fallback will be used.");
+            }
         }
         catch (System.Exception e)
         {
-            Debug.LogError("[SceneLlmManager] Failed to open semantic memory DB: " + e.Message + " — semantic memory disabled.");
+            Debug.LogError("[SceneLlmManager] Failed to open memory DB: " + e.Message + " — memory disabled.");
             MemoryDb = null;
             Embedder = null;
         }
@@ -181,58 +187,60 @@ public class SceneLlmManager : MonoBehaviour
     public static string ContentHash(params string[] parts)
     {
         using (var md5 = MD5.Create())
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(string.Join("|", parts));
-            byte[] hash = md5.ComputeHash(bytes);
-            var sb = new StringBuilder(hash.Length * 2);
-            foreach (var b in hash) sb.Append(b.ToString("x2"));
-            return sb.ToString();
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(string.Join("|", parts));
+                byte[] hash = md5.ComputeHash(bytes);
+                var sb = new StringBuilder(hash.Length * 2);
+                foreach (var b in hash) sb.Append(b.ToString("x2"));
+                return sb.ToString();
+            }
         }
-    }
 
-    public bool HasValidSettings()
-    {
-        if (!llmEnabled) return false;
-        return provider == LlmProvider.Local
-            ? sharedLocalModelSettings != null
-            : sharedRemoteModelSettings != null;
-    }
-
-    /// Build the request config for the dialogue model (per the active provider).
-    /// Returns an invalid config if the manager isn't set up; callers should check IsValid.
-    public LlmRequestConfig GetActiveDialogueConfig()
-    {
-        if (provider == LlmProvider.Local)
+        public bool HasValidSettings()
         {
-            var s = sharedLocalModelSettings;
-            if (s == null) return default;
+            if (!llmEnabled) return false;
+            return provider == LlmProvider.Local
+                ? sharedLocalModelSettings != null
+                : sharedRemoteModelSettings != null;
+        }
+
+        /// Build the request config for the dialogue model (per the active provider).
+        /// Returns an invalid config if the manager isn't set up; callers should check IsValid.
+        public LlmRequestConfig GetActiveDialogueConfig()
+        {
+            if (provider == LlmProvider.Local)
+            {
+                var s = sharedLocalModelSettings;
+                if (s == null) return default;
+                return new LlmRequestConfig
+                {
+                    endpointUrl = s.endpointUrl,
+                    modelName = s.modelName,
+                    temperature = s.temperature,
+                    maxTokens = s.maxTokens,
+                    timeoutSeconds = s.timeoutSeconds
+                };
+            }
+
+            var r = sharedRemoteModelSettings;
+            if (r == null) return default;
+            string key = OpenRouterApiKey.Resolve(r.apiKeyEnvVar);
+            if (string.IsNullOrEmpty(key))
+                Debug.LogWarning("[SceneLlmManager] OpenRouter API key not found. Set it via Flynn → NPC → OpenRouter Settings, or set env var " + r.apiKeyEnvVar + ".");
             return new LlmRequestConfig
             {
-                endpointUrl = s.endpointUrl,
-                modelName = s.modelName,
-                temperature = s.temperature,
-                maxTokens = s.maxTokens,
-                timeoutSeconds = s.timeoutSeconds
+                endpointUrl = r.endpointUrl,
+                modelName = r.modelName,
+                temperature = r.temperature,
+                maxTokens = r.maxTokens,
+                timeoutSeconds = r.timeoutSeconds,
+                authorizationHeader = string.IsNullOrEmpty(key) ? null : "Bearer " + key,
+                httpReferer = r.httpReferer,
+                xTitle = r.xTitle,
+                forceJsonMode = r.forceJsonMode,
+                requireJsonProvider = r.requireJsonProvider,
+                proxyUrl = r.proxyUrl
             };
         }
-
-        var r = sharedRemoteModelSettings;
-        if (r == null) return default;
-        string key = OpenRouterApiKey.Resolve(r.apiKeyEnvVar);
-        if (string.IsNullOrEmpty(key))
-            Debug.LogWarning("[SceneLlmManager] OpenRouter API key not found. Set it via Flynn → NPC → OpenRouter Settings, or set env var " + r.apiKeyEnvVar + ".");
-        return new LlmRequestConfig
-        {
-            endpointUrl = r.endpointUrl,
-            modelName = r.modelName,
-            temperature = r.temperature,
-            maxTokens = r.maxTokens,
-            timeoutSeconds = r.timeoutSeconds,
-            authorizationHeader = string.IsNullOrEmpty(key) ? null : "Bearer " + key,
-            httpReferer = r.httpReferer,
-            xTitle = r.xTitle,
-            forceJsonMode = r.forceJsonMode,
-            requireJsonProvider = r.requireJsonProvider
-        };
     }
 }

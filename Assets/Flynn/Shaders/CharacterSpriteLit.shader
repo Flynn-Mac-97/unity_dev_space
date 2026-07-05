@@ -25,6 +25,15 @@ Shader "Flynn/CharacterSpriteLit"
         _Brightness ("Brightness", Range(-0.5, 0.5)) = 0.05
         _Contrast ("Contrast", Range(0, 3)) = 1.2
         _PosterizeSteps ("Posterize Steps", Range(2, 32)) = 12
+
+        [Header(Pixel Art)]
+        _PixelateFactor ("Pixelate Factor", Range(1, 12)) = 1
+
+        [Header(Color Grading)]
+        _ColorRamp ("Color Ramp", 2D) = "white" {}
+        _RampStrength ("Ramp Blend", Range(0, 1)) = 0
+        _ShadowTint ("Shadow Tint", Color) = (0.2,0.3,0.5,1)
+        _ShadowAmount ("Shadow Amount", Range(0, 1)) = 0
     }
 
     SubShader
@@ -80,6 +89,8 @@ Shader "Flynn/CharacterSpriteLit"
             SAMPLER(sampler_MainTex);
             TEXTURE2D(_MaskTex);
             SAMPLER(sampler_MaskTex);
+            TEXTURE2D(_ColorRamp);
+            SAMPLER(sampler_ColorRamp);
             half4 _MainTex_ST;
             float4 _Color;
             half4 _RendererColor;
@@ -95,6 +106,14 @@ Shader "Flynn/CharacterSpriteLit"
             float _Brightness;
             float _Contrast;
             float _PosterizeSteps;
+
+            // Pixel art
+            float _PixelateFactor;
+
+            // Color grading
+            float _RampStrength;
+            half4 _ShadowTint;
+            float _ShadowAmount;
 
             #if USE_SHAPE_LIGHT_TYPE_0
             SHAPE_LIGHT(0)
@@ -133,6 +152,12 @@ Shader "Flynn/CharacterSpriteLit"
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/CombinedShapeLightShared.hlsl"
 
+            float2 PixelateUV(float2 uv, float4 texelSize, float pixelate)
+            {
+                float2 grid = texelSize.zw / max(pixelate, 1.0);
+                return (floor(uv * grid) + 0.5) / grid;
+            }
+
             float SampleAlpha(float2 uv, float2 offset)
             {
                 float2 sampleUv = uv + offset * _MainTex_TexelSize.xy;
@@ -141,25 +166,46 @@ Shader "Flynn/CharacterSpriteLit"
 
             half4 ApplyColorPop(half4 c)
             {
+                // Brightness & contrast
                 c.rgb += _Brightness;
                 c.rgb = (c.rgb - 0.5) * _Contrast + 0.5;
 
+                // Saturation
                 float lum = dot(c.rgb, float3(0.2126, 0.7152, 0.0722));
                 c.rgb = lerp(lum.xxx, c.rgb, _Saturation);
 
+                // Shadow tint — applied before posterize so tint gets quantized too
+                float shadowMask = 1.0 - saturate(lum * 2.0);
+                c.rgb = lerp(c.rgb, _ShadowTint.rgb, shadowMask * _ShadowAmount);
+
+                // Luminance posterize — preserves hue/saturation ratios, avoids per-channel yellow banding
+                lum = dot(c.rgb, float3(0.2126, 0.7152, 0.0722));
                 float steps = max(2.0, _PosterizeSteps);
-                c.rgb = floor(c.rgb * steps + 0.5) / steps;
+                float posterizedLum = floor(lum * steps + 0.5) / steps;
+                if (lum > 0.001)
+                    c.rgb *= posterizedLum / lum;
+
+                // Color ramp — blend toward a 1D gradient mapped by posterized luminance
+                if (_RampStrength > 0.001)
+                {
+                    float3 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(posterizedLum, 0.5)).rgb;
+                    c.rgb = lerp(c.rgb, rampColor, _RampStrength);
+                }
+
                 return c;
             }
 
             half4 CombinedShapeLightFragment(Varyings i) : SV_Target
             {
-                const half4 main = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
-                const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, i.uv);
+                float2 pixUV = PixelateUV(i.uv, _MainTex_TexelSize, _PixelateFactor);
+
+                const half4 main = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, pixUV);
+                const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, pixUV);
 
                 // ── Outline ──
                 float maxNeighborAlpha = 0;
                 float w = _OutlineWidth;
+                float pixScale = max(_PixelateFactor, 1.0);
                 float2 dirs[8] = {
                     float2(1,0), float2(-1,0), float2(0,1), float2(0,-1),
                     float2(0.707,0.707), float2(-0.707,0.707), float2(0.707,-0.707), float2(-0.707,-0.707)
@@ -168,7 +214,7 @@ Shader "Flynn/CharacterSpriteLit"
                 {
                     for (int j = 0; j < 8; j++)
                     {
-                        float a = SampleAlpha(i.uv, dirs[j] * d);
+                        float a = SampleAlpha(pixUV, dirs[j] * d * pixScale);
                         maxNeighborAlpha = max(maxNeighborAlpha, a);
                     }
                 }
@@ -182,23 +228,21 @@ Shader "Flynn/CharacterSpriteLit"
                 result.rgb = lerp(main.rgb * main.a, _OutlineColor.rgb, saturate(outlineMask));
                 result.rgb = lerp(result.rgb, main.rgb * main.a, main.a);
 
-                // Apply color pop to the sprite portion
-                if (main.a > 0.01)
-                {
-                    half4 popped = main;
-                    popped = ApplyColorPop(popped);
-                    result.rgb = lerp(result.rgb, popped.rgb * popped.a, main.a);
-                }
-
-                // Run through 2D lighting
+                // Run through 2D lighting (no color pop yet — applied after so lights don't break the quantized palette)
                 SurfaceData2D surfaceData;
                 InputData2D inputData;
                 InitializeSurfaceData(result.rgb, result.a, mask, surfaceData);
-                InitializeInputData(i.uv, i.lightingUV, inputData);
+                InitializeInputData(pixUV, i.lightingUV, inputData);
 
                 half4 lit = CombinedShapeLightShared(surfaceData, inputData);
 
-                // Re-apply outline on top of lit result (outline should not be affected by 2D lights)
+                // Apply color pop AFTER lighting so the quantized palette holds under 2D lights
+                if (lit.a > 0.01)
+                {
+                    lit = ApplyColorPop(lit);
+                }
+
+                // Re-apply outline on top (outline should not be posterized or affected by lights)
                 lit.rgb = lerp(lit.rgb, _OutlineColor.rgb * _OutlineColor.a, saturate(outlineMask) * 0.8);
 
                 return lit;
@@ -245,6 +289,8 @@ Shader "Flynn/CharacterSpriteLit"
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
             half4 _NormalMap_ST;
+            float4 _MainTex_TexelSize;
+            float _PixelateFactor;
 
             Varyings NormalsRenderingVertex(Attributes attributes)
             {
@@ -269,10 +315,18 @@ Shader "Flynn/CharacterSpriteLit"
 
             #include "Packages/com.unity.render-pipelines.universal/Shaders/2D/Include/NormalsRenderingShared.hlsl"
 
+            float2 PixelateUV(float2 uv, float4 texelSize, float pixelate)
+            {
+                float2 grid = texelSize.zw / max(pixelate, 1.0);
+                return (floor(uv * grid) + 0.5) / grid;
+            }
+
             half4 NormalsRenderingFragment(Varyings i) : SV_Target
             {
-                const half4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
-                const half3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, i.uv));
+                float2 pixUV = PixelateUV(i.uv, _MainTex_TexelSize, _PixelateFactor);
+
+                const half4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, pixUV);
+                const half3 normalTS = UnpackNormal(SAMPLE_TEXTURE2D(_NormalMap, sampler_NormalMap, pixUV));
 
                 return NormalsRenderingShared(mainTex, normalTS, i.tangentWS.xyz, i.bitangentWS.xyz, i.normalWS.xyz);
             }
@@ -314,6 +368,8 @@ Shader "Flynn/CharacterSpriteLit"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
+            TEXTURE2D(_ColorRamp);
+            SAMPLER(sampler_ColorRamp);
             float4 _MainTex_ST;
             float4 _Color;
             half4 _RendererColor;
@@ -326,6 +382,10 @@ Shader "Flynn/CharacterSpriteLit"
             float _Brightness;
             float _Contrast;
             float _PosterizeSteps;
+            float _PixelateFactor;
+            float _RampStrength;
+            half4 _ShadowTint;
+            float _ShadowAmount;
 
             Varyings UnlitVertex(Attributes attributes)
             {
@@ -345,6 +405,12 @@ Shader "Flynn/CharacterSpriteLit"
                 return o;
             }
 
+            float2 PixelateUV(float2 uv, float4 texelSize, float pixelate)
+            {
+                float2 grid = texelSize.zw / max(pixelate, 1.0);
+                return (floor(uv * grid) + 0.5) / grid;
+            }
+
             float SampleAlpha(float2 uv, float2 offset)
             {
                 float2 sampleUv = uv + offset * _MainTex_TexelSize.xy;
@@ -353,11 +419,14 @@ Shader "Flynn/CharacterSpriteLit"
 
             float4 UnlitFragment(Varyings i) : SV_Target
             {
-                float4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, i.uv);
+                float2 pixUV = PixelateUV(i.uv, _MainTex_TexelSize, _PixelateFactor);
+
+                float4 mainTex = i.color * SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, pixUV);
 
                 // Outline
                 float maxNeighborAlpha = 0;
                 float w = _OutlineWidth;
+                float pixScale = max(_PixelateFactor, 1.0);
                 float2 dirs[8] = {
                     float2(1,0), float2(-1,0), float2(0,1), float2(0,-1),
                     float2(0.707,0.707), float2(-0.707,0.707), float2(0.707,-0.707), float2(-0.707,-0.707)
@@ -366,7 +435,7 @@ Shader "Flynn/CharacterSpriteLit"
                 {
                     for (int j = 0; j < 8; j++)
                     {
-                        float a = SampleAlpha(i.uv, dirs[j] * d);
+                        float a = SampleAlpha(pixUV, dirs[j] * d * pixScale);
                         maxNeighborAlpha = max(maxNeighborAlpha, a);
                     }
                 }
@@ -377,13 +446,29 @@ Shader "Flynn/CharacterSpriteLit"
                 mainTex.rgb = lerp(mainTex.rgb, _OutlineColor.rgb, saturate(outlineMask));
                 mainTex.a = max(mainTex.a, outlineMask * _OutlineColor.a);
 
-                // Color pop
+                // Color pop — brightness, contrast, saturation
                 mainTex.rgb += _Brightness;
                 mainTex.rgb = (mainTex.rgb - 0.5) * _Contrast + 0.5;
                 float lum = dot(mainTex.rgb, float3(0.2126, 0.7152, 0.0722));
                 mainTex.rgb = lerp(lum.xxx, mainTex.rgb, _Saturation);
+
+                // Shadow tint
+                float shadowMask = 1.0 - saturate(lum * 2.0);
+                mainTex.rgb = lerp(mainTex.rgb, _ShadowTint.rgb, shadowMask * _ShadowAmount);
+
+                // Luminance posterize — preserves hue, avoids per-channel yellow banding
+                lum = dot(mainTex.rgb, float3(0.2126, 0.7152, 0.0722));
                 float steps = max(2.0, _PosterizeSteps);
-                mainTex.rgb = floor(mainTex.rgb * steps + 0.5) / steps;
+                float posterizedLum = floor(lum * steps + 0.5) / steps;
+                if (lum > 0.001)
+                    mainTex.rgb *= posterizedLum / lum;
+
+                // Color ramp
+                if (_RampStrength > 0.001)
+                {
+                    float3 rampColor = SAMPLE_TEXTURE2D(_ColorRamp, sampler_ColorRamp, float2(posterizedLum, 0.5)).rgb;
+                    mainTex.rgb = lerp(mainTex.rgb, rampColor, _RampStrength);
+                }
 
                 return mainTex;
             }

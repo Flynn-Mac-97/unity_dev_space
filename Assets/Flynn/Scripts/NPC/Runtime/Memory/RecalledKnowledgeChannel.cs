@@ -2,6 +2,10 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+using Flynn.Core;
+using Flynn.Npc;
+using Flynn.UI.Core;
+
 namespace Flynn.Npc.Memory
 {
     // SO event channel carrying the semantic-recall result of the most recent

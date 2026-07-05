@@ -81,7 +81,7 @@ SpriteRenderer:
   m_Size: {x: 0.32, y: 0.32}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1644082012638983576
@@ -467,17 +467,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3439398409766778006}
-  - component: {fileID: 448812660392350589}
   - component: {fileID: 7671719148130866443}
   - component: {fileID: 3696360007487348600}
   - component: {fileID: 4499462056580926224}
-  - component: {fileID: 2657480444969837676}
-  - component: {fileID: 709690748382448810}
   - component: {fileID: 3354061955563415565}
   - component: {fileID: 5868385324890666621}
   - component: {fileID: 140473381601090241}
   - component: {fileID: 3345510925618114194}
-  - component: {fileID: 2166158692376279663}
   - component: {fileID: 2830825641149277794}
   m_Layer: 0
   m_Name: Player_Proc
@@ -506,27 +502,6 @@ Transform:
   - {fileID: 1208107535738699598}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &448812660392350589
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 84762d75d5acf03479fe8297389edb95, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 3
-  acceleration: 40
-  jumpForce: 8
-  groundDrag: 0
-  groundCheckDistance: 0.12
-  groundLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  lowGripGrace: 0.2
 --- !u!136 &7671719148130866443
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -590,34 +565,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _inventoryConfig: {fileID: 11400000, guid: 915f3079294b9c94292c2c7ea64f532f, type: 2}
---- !u!114 &2657480444969837676
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cca1a9c04dee13c488309f83c1536487, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxAimDistance: 30
-  _interactionRange: 3
-  _meleeRange: 2.5
---- !u!114 &709690748382448810
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfa8f6bc53af4644783bc3cdaeb3c23b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _pickupKey: 101
 --- !u!114 &3354061955563415565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -644,10 +591,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60da153d6fee887499d2b5a8aaa4bf9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _config: {fileID: 11400000, guid: c3834f47adf4baf46989541e3de4e8b4, type: 2}
-  _throw: {fileID: 3354061955563415565}
-  _swingArc: {fileID: 0}
-  _hitDelay: 0.1
+  _wrenchVisual: {fileID: 0}
+  _swingRange: 1.4
+  _cooldownTime: 0.15
 --- !u!114 &140473381601090241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -678,35 +624,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _config: {fileID: 11400000, guid: 8376fbc6f429a3248bc3ee8c8ef49173, type: 2}
   _ropeLine: {fileID: 7262477345049162321}
---- !u!114 &2166158692376279663
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5546673744264795266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 65888fcad39e256458a6d60e1d60e7fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _controller: {fileID: 448812660392350589}
-  _bodyRig: {fileID: 749690500079111580}
-  _legRig: {fileID: 1208107535738699598}
-  _footL: {fileID: 3073867045282124931}
-  _footR: {fileID: 407665588575957269}
-  _armR: {fileID: 5675652706547051418}
-  _handSocket: {fileID: 3302256564164581476}
-  _restForward: {x: 0, y: 0, z: -1}
-  _leanFactor: 1
-  _turnSpeed: 14
-  _stride: 0.12
-  _stepLift: 0.06
-  _stepFrequency: 2.2
-  _visualHalfHeight: 0.4
-  _windupAngle: -70
-  _swingThroughAngle: 60
-  _swingDuration: 0.25
+  _grappleMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &2830825641149277794
 MonoBehaviour:
   m_ObjectHideFlags: 0

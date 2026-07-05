@@ -65,6 +65,12 @@ namespace Flynn.UI.Screens.InteractTag
         private void Refresh()
         {
             if (_panel == null) return;
+            if (_current != null && _current.Equals(null))
+            {
+                _current = null;
+                _panel.HideTag();
+                return;
+            }
             if (_current != null && _current.TryGetPrompt(out InteractionPrompt prompt) && prompt.IsValid)
                 _panel.Show(prompt.Display);
             else

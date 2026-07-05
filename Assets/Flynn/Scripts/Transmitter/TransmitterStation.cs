@@ -1,6 +1,13 @@
 using UnityEngine;
 using Flynn.Events;
 
+using Flynn.Core;
+using Flynn.Common;
+using Flynn.Npc;
+using Flynn.Player;
+using Flynn.UI.Core;
+
+using Flynn.Player.Interaction;
 namespace Flynn.Transmitter
 {
     /// <summary>
@@ -14,7 +21,7 @@ namespace Flynn.Transmitter
     /// (TransmitterPowerChanged / TransmitterFed / TransmitterVentureStateChanged /
     /// TransmitterDepleted). HUD, gate and NPCs just subscribe — nothing references back here.
     /// </summary>
-    public class TransmitterStation : MonoBehaviour
+    public class TransmitterStation : MonoBehaviour, IInteractionPromptProvider
     {
         [Header("Power")]
         [SerializeField] private float _maxPower = 100f;
@@ -34,6 +41,10 @@ namespace Flynn.Transmitter
         [Tooltip("Units of fuel consumed per feed press.")]
         [SerializeField] private int _unitsPerFeed = 1;
 
+        [Header("Player")]
+        [Tooltip("SO handle to the player's transform. Assign the project's PlayerAnchor asset.")]
+        [SerializeField] private PlayerAnchor _playerAnchor;
+
         // ── State other systems read ──────────────────────────────────────────
         public float Power { get; private set; }
         public float Percent => _maxPower > 0f ? Power / _maxPower : 0f;
@@ -42,7 +53,6 @@ namespace Flynn.Transmitter
 
         private bool _wasPowered;
         private bool _wasDepleted;
-        private Transform _player;
 
         private void Start()
         {
@@ -93,6 +103,29 @@ namespace Flynn.Transmitter
             }
         }
 
+        /// <summary>
+        /// Surfaces the feed prompt to the hover system (<see cref="WorldInteractTagPresenter"/>):
+        /// "[R]  Feed Transmitter" whenever the player is within feed range. Pressing the feed key
+        /// is still handled in <see cref="Update"/> — this only makes the interaction discoverable.
+        /// </summary>
+        public bool TryGetPrompt(out InteractionPrompt prompt)
+        {
+            // When set up as an NPC, show the talk prompt instead of feed.
+            if (GetComponent<NpcAuthoringLink>() != null)
+            {
+                prompt = new InteractionPrompt("Click", "Talk", transform);
+                return true;
+            }
+
+            if (PlayerInRange())
+            {
+                prompt = new InteractionPrompt(_feedKey.ToString(), "Feed", transform, "Transmitter");
+                return true;
+            }
+            prompt = default;
+            return false;
+        }
+
         public void AddPower(float amount)
         {
             if (amount == 0f) return;
@@ -105,13 +138,8 @@ namespace Flynn.Transmitter
 
         private bool PlayerInRange()
         {
-            if (_player == null)
-            {
-                var pc = FindObjectOfType<Flynn.Platforming.PlatformerController2D>();
-                if (pc != null) _player = pc.transform;
-            }
-            return _player != null &&
-                   Vector2.Distance(_player.position, transform.position) <= _feedRadius;
+            if (_playerAnchor == null || !_playerAnchor.HasPlayer) return false;
+            return Vector2.Distance(_playerAnchor.Current.position, transform.position) <= _feedRadius;
         }
 
         private void CheckThresholds()

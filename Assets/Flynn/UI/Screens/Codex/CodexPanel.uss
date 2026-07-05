@@ -1,0 +1,199 @@
+/* Flynn codex panel — MVP blockout. Flat black, 1px white, square. */
+
+.codex-root {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    width: 380px;
+}
+.codex-root.hidden { display: none; }
+
+.codex-panel {
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 2px;
+    padding: 16px;
+    flex-direction: column;
+}
+
+.codex-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 4px;
+}
+.codex-title {
+    flex-grow: 1;
+    color: rgb(255, 255, 255);
+    font-size: 20px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+}
+.codex-close {
+    width: 28px;
+    height: 28px;
+    background-color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    -unity-font-style: bold;
+    padding: 0;
+    margin: 0;
+}
+.codex-close:hover {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+}
+
+.codex-tabs {
+    flex-direction: row;
+    margin-bottom: 4px;
+}
+.codex-tab {
+    background-color: rgb(0, 0, 0);
+    color: rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.5);
+    border-width: 1px;
+    padding: 6px 12px;
+    font-size: 14px;
+    margin-right: 4px;
+}
+.codex-tab.active {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    border-color: rgb(255, 255, 255);
+}
+.codex-tab:hover {
+    color: rgb(255, 255, 255);
+}
+
+.codex-content {
+    max-height: 400px;
+    min-height: 180px;
+}
+.codex-section {
+    flex-direction: column;
+}
+
+.codex-progress-row {
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    margin-top: 6px;
+    padding-bottom: 8px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+.codex-progress-text {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.codex-entry-list {
+    flex-direction: column;
+}
+.codex-entry {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 8px 4px;
+    margin-bottom: 2px;
+    border-left-width: 2px;
+    border-left-color: rgba(0, 0, 0, 0);
+}
+.codex-entry.clickable:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-left-color: rgb(255, 204, 0);
+}
+.codex-entry-symbol {
+    color: rgb(52, 199, 89);
+    font-size: 16px;
+    margin-right: 10px;
+    min-width: 16px;
+}
+.codex-entry-symbol.locked {
+    color: rgba(155, 127, 191, 0.6);
+}
+.codex-entry-symbol.encrypted {
+    color: rgba(255, 59, 48, 0.7);
+}
+.codex-entry-body {
+    flex-direction: column;
+    flex-grow: 1;
+}
+.codex-entry-title {
+    color: rgb(255, 255, 255);
+    font-size: 16px;
+    -unity-font-style: bold;
+    margin-bottom: 3px;
+}
+.codex-entry-title.locked {
+    color: rgba(255, 255, 255, 0.3);
+    -unity-font-style: italic;
+}
+.codex-entry-title.encrypted {
+    color: rgba(255, 100, 100, 0.7);
+}
+.codex-entry-fact {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    white-space: normal;
+    overflow: visible;
+    margin-bottom: 2px;
+}
+.codex-entry-fact.encrypted {
+    color: rgba(255, 100, 100, 0.4);
+    -unity-font-style: italic;
+}
+.codex-entry-hint {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 13px;
+    -unity-font-style: italic;
+    margin-top: 2px;
+}
+.codex-entry-hint-proximity {
+    color: rgb(255, 204, 0) !important;
+    -unity-font-style: bold;
+}
+
+.codex-new-badge {
+    background-color: rgb(255, 204, 0);
+    color: rgb(0, 0, 0);
+    font-size: 11px;
+    -unity-font-style: bold;
+    padding: 2px 6px;
+    margin-left: 6px;
+    margin-right: 4px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.codex-empty-text {
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 15px;
+    -unity-font-style: italic;
+    padding: 12px 4px;
+}
+
+.codex-toast {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    background-color: rgba(0, 0, 0, 0.95);
+    border-color: rgba(255, 204, 0, 0.6);
+    border-width: 1px;
+    border-left-width: 3px;
+    border-left-color: rgb(255, 204, 0);
+    padding: 10px 16px;
+    color: rgb(255, 204, 0);
+    font-size: 16px;
+    -unity-font-style: bold;
+    opacity: 1;
+    transition-duration: 0.3s;
+    transition-property: opacity;
+}
+.codex-toast.hidden {
+    opacity: 0;
+    display: none;
+}

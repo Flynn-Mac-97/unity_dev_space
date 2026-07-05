@@ -1,5 +1,10 @@
 using UnityEngine;
 
+using Flynn.Core;
+using Flynn.Interactables;
+using Flynn.Player;
+using Flynn.Resources;
+
 namespace Flynn.Events
 {
     // ── Player movement events ───────────────────────────────────────────────
@@ -58,8 +63,24 @@ namespace Flynn.Events
     public readonly struct ResourceHit
     {
         public readonly ResourceNode Node;
-        public readonly ToolHitContext Hit;
-        public ResourceHit(ResourceNode node, ToolHitContext hit) { Node = node; Hit = hit; }
+        public readonly Vector2 HitDirection;
+        public readonly int Damage;
+        public ResourceHit(ResourceNode node, Vector2 hitDirection, int damage = 1)
+        {
+            Node = node; HitDirection = hitDirection; Damage = damage;
+        }
+    }
+
+    public readonly struct ResourceHovered
+    {
+        public readonly ResourceNode Node;
+        public ResourceHovered(ResourceNode node) { Node = node; }
+    }
+
+    public readonly struct ResourceUnhovered
+    {
+        public readonly ResourceNode Node;
+        public ResourceUnhovered(ResourceNode node) { Node = node; }
     }
 
     public readonly struct ResourceDamaged
@@ -145,53 +166,6 @@ namespace Flynn.Events
         public readonly int Current;
         public readonly float Percent;
         public BatteryLow(int current, float percent) { Current = current; Percent = percent; }
-    }
-
-    // ── Terrain events ──────────────────────────────────────────────────────
-
-    public readonly struct TerrainEntered
-    {
-        public readonly TerrainEffectType Type;
-        public readonly Vector3 Position;
-        public TerrainEntered(TerrainEffectType type, Vector3 position) { Type = type; Position = position; }
-    }
-
-    public readonly struct TerrainExited
-    {
-        public readonly TerrainEffectType Type;
-        public TerrainExited(TerrainEffectType type) { Type = type; }
-    }
-
-    public readonly struct TerrainStateChanged
-    {
-        public readonly TerrainState Current;
-        public TerrainStateChanged(TerrainState current) { Current = current; }
-    }
-
-    // ── Rope events ─────────────────────────────────────────────────────────
-
-    public readonly struct RopeGrappleStarted
-    {
-        public readonly RopeAnchor Anchor;
-        public RopeGrappleStarted(RopeAnchor anchor) { Anchor = anchor; }
-    }
-
-    public readonly struct RopeGrappleEnded
-    {
-        public readonly RopeAnchor Anchor;
-        public RopeGrappleEnded(RopeAnchor anchor) { Anchor = anchor; }
-    }
-
-    public readonly struct RopePullStarted
-    {
-        public readonly RopePullable Target;
-        public RopePullStarted(RopePullable target) { Target = target; }
-    }
-
-    public readonly struct RopePullEnded
-    {
-        public readonly RopePullable Target;
-        public RopePullEnded(RopePullable target) { Target = target; }
     }
 
     // ── Power buildup events ─────────────────────────────────────────────────

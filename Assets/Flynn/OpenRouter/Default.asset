@@ -19,6 +19,7 @@ MonoBehaviour:
   timeoutSeconds: 60
   forceJsonMode: 1
   requireJsonProvider: 1
-  httpReferer: https://github.com/Flynn-Mac-97/unity_dev_space
-  xTitle: Flynn NPC Sandbox
+  httpReferer: 
+  xTitle: 
   apiKeyEnvVar: OPENROUTER_API_KEY
+  proxyUrl: http://127.0.0.1:10808

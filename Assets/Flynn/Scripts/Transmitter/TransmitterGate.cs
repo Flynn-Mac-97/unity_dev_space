@@ -1,6 +1,9 @@
 using UnityEngine;
 using Flynn.Events;
 
+using Flynn.Core;
+using Flynn.UI.Core;
+
 namespace Flynn.Transmitter
 {
     /// <summary>
@@ -13,8 +16,16 @@ namespace Flynn.Transmitter
         [Tooltip("Barrier object (collider + visual) shown when the exit is LOCKED.")]
         [SerializeField] private GameObject _barrier;
 
+        private Collider2D _barrierCollider;
+        private Renderer _barrierRenderer;
+
         private void OnEnable()
         {
+            if (_barrier != null)
+            {
+                _barrierCollider = _barrier.GetComponent<Collider2D>();
+                _barrierRenderer = _barrier.GetComponent<Renderer>();
+            }
             if (GameEventBus.Instance != null)
                 GameEventBus.Instance.Subscribe<TransmitterVentureStateChanged>(OnVentureState);
         }
@@ -29,7 +40,11 @@ namespace Flynn.Transmitter
 
         private void SetOpen(bool open)
         {
-            if (_barrier != null) _barrier.SetActive(!open);
+            if (_barrier != null)
+            {
+                if (_barrierCollider != null) _barrierCollider.enabled = !open;
+                if (_barrierRenderer != null) _barrierRenderer.enabled = !open;
+            }
         }
     }
 }

@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f744f4a4767d554c94bf1e2f3ec4b4b, type: 3}
+  m_Name: SFX_Break
+  m_EditorClassIdentifier: 
+  clips: []
+  volume: 1
+  pitchMin: 0.9
+  pitchMax: 1.1
+  maxDistance: 20
+  spatialBlend: 1

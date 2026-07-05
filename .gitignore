@@ -104,3 +104,26 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# ── Codely / Tuanjie assistant (local tooling — not needed to open the project) ──
+.codely/
+.codely-cli/
+.codelyignore
+.com-unity-codely.json
+_codely_*
+
+# ── Local agent/dev artifacts ──
+screenshots/
+telemetry/
+__pycache__/
+*.pyc
+.vscode/
+.claude/
+
+# ── Local-only workflow files (kept on disk, not pushed) ──
+.caveman.json
+CODELY.md
+RUNTIME_FLOWS.md
+Packages/manifest.json.bak
+Assets/Editor/CodelyScreenshotCapture.cs
+Assets/Editor/CodelyScreenshotCapture.cs.meta

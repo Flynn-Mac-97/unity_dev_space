@@ -4,6 +4,10 @@ using System.IO;
 using LiteDB;
 using UnityEngine;
 
+using Flynn.Core;
+using Flynn.UI.Core;
+
+using Flynn.Player.Interaction;
 namespace Flynn.Npc.Memory
 {
     // Thin wrapper over a single LiteDB file holding one save slot's NPC memory.
@@ -90,6 +94,9 @@ namespace Flynn.Npc.Memory
             Npcs.EnsureIndex(x => x.NpcId);
             Signals.EnsureIndex(x => x.SignalId);
             Community.EnsureIndex(x => x.CommunityId);
+            FiredSignals.EnsureIndex(x => x.NpcId);
+            PlayerCodex.EnsureIndex(x => x.SourceNpcId);
+            PlayerCodex.EnsureIndex(x => x.ContentHash);
         }
 
         private void EnsureMeta(string embeddingModel, int dim)
@@ -125,6 +132,10 @@ namespace Flynn.Npc.Memory
         public ILiteCollection<ThingDoc> Things        => _db.GetCollection<ThingDoc>(MemoryCollections.Things);
         public ILiteCollection<NpcDoc> Npcs            => _db.GetCollection<NpcDoc>(MemoryCollections.Npcs);
         public ILiteCollection<SignalDoc> Signals      => _db.GetCollection<SignalDoc>(MemoryCollections.Signals);
+        public ILiteCollection<FiredSignalDoc> FiredSignals => _db.GetCollection<FiredSignalDoc>(MemoryCollections.FiredSignals);
+
+        // Player-facing codex entries.
+        public ILiteCollection<PlayerCodexEntry> PlayerCodex => _db.GetCollection<PlayerCodexEntry>(MemoryCollections.PlayerCodex);
 
         // Generic escape hatch for doc types added later (RelationshipDoc, PlayerStateDoc).
         public ILiteCollection<T> GetCollection<T>(string name) => _db.GetCollection<T>(name);
@@ -261,12 +272,147 @@ namespace Flynn.Npc.Memory
             if (string.IsNullOrEmpty(npcId)) return;
             Memories.DeleteMany(x => x.NpcId == npcId);
             ChatTurns.DeleteMany(x => x.NpcId == npcId);
+            FiredSignals.DeleteMany(x => x.NpcId == npcId);
         }
 
         public void ClearAllMemory()
         {
             Memories.DeleteAll();
             ChatTurns.DeleteAll();
+            FiredSignals.DeleteAll();
+        }
+
+        // ── Fired-signal tracking ─────────────────────────────────────────────
+
+        public bool WasTriggerFired(string npcId, string signalId)
+        {
+            if (string.IsNullOrEmpty(npcId) || string.IsNullOrEmpty(signalId)) return false;
+            return FiredSignals.Exists(x => x.NpcId == npcId && x.SignalId == signalId);
+        }
+
+        public List<FiredSignalDoc> GetAllFiredSignals()
+        {
+            return new List<FiredSignalDoc>(FiredSignals.FindAll());
+        }
+
+        public void MarkTriggerFired(string npcId, string signalId)
+        {
+            if (string.IsNullOrEmpty(npcId) || string.IsNullOrEmpty(signalId)) return;
+            if (WasTriggerFired(npcId, signalId)) return;
+            FiredSignals.Insert(new FiredSignalDoc
+            {
+                NpcId = npcId,
+                SignalId = signalId,
+                FiredUtc = DateTime.UtcNow,
+            });
+        }
+
+        // All knowledge rows visible to this NPC (owner or community), WITHOUT trust
+        // filtering — callers read RevealTrust themselves to render locked-topic
+        // teases ("secret — trust 60") without leaking the text.
+        public List<KnowledgeDoc> GetKnowledgeMeta(string npcId)
+        {
+            var list = new List<KnowledgeDoc>();
+            if (_db == null || string.IsNullOrEmpty(npcId)) return list;
+            foreach (var k in Knowledge.Find(x => x.OwnerScope == npcId || x.OwnerScope == "community"))
+                list.Add(k);
+            return list;
+        }
+
+        // ── Player codex ──────────────────────────────────────────────────────
+
+        // Inserts a codex entry unless a duplicate (same ContentHash) exists.
+        // Returns the entry Id, or 0 if skipped.
+        public int InsertCodexEntry(PlayerCodexEntry entry)
+        {
+            if (entry == null || string.IsNullOrWhiteSpace(entry.FactText)) return 0;
+
+            if (entry.LearnedUtc == default) entry.LearnedUtc = DateTime.UtcNow;
+            if (string.IsNullOrEmpty(entry.ContentHash))
+                entry.ContentHash = StableHash(entry.FactText);
+
+            // Dedup by content hash — same fact from the same NPC shouldn't duplicate.
+            if (PlayerCodex.Exists(x => x.ContentHash == entry.ContentHash && x.SourceNpcId == entry.SourceNpcId))
+                return 0;
+
+            return PlayerCodex.Insert(entry);
+        }
+
+        public List<PlayerCodexEntry> GetAllCodexEntries()
+        {
+            var list = new List<PlayerCodexEntry>();
+            if (_db == null) return list;
+            foreach (var e in PlayerCodex.FindAll()) list.Add(e);
+            return list;
+        }
+
+        public List<PlayerCodexEntry> GetCodexEntriesByNpc(string npcId)
+        {
+            var list = new List<PlayerCodexEntry>();
+            if (_db == null || string.IsNullOrEmpty(npcId)) return list;
+            foreach (var e in PlayerCodex.Find(x => x.SourceNpcId == npcId)) list.Add(e);
+            return list;
+        }
+
+        public bool IsCodexEntryKnown(string factText)
+        {
+            if (string.IsNullOrWhiteSpace(factText)) return false;
+            string hash = StableHash(factText);
+            return PlayerCodex.Exists(x => x.ContentHash == hash);
+        }
+
+        // Flips an encrypted entry to revealed by setting IsEncrypted=false.
+        public void MarkCodexEntryTranslated(int entryId, string translatedText)
+        {
+            var entry = PlayerCodex.FindById(entryId);
+            if (entry == null) return;
+            entry.IsEncrypted = false;
+            if (!string.IsNullOrWhiteSpace(translatedText))
+                entry.FactText = translatedText;
+            PlayerCodex.Update(entry);
+        }
+
+        public int CountCodexEntries(string npcId)
+        {
+            if (_db == null || string.IsNullOrEmpty(npcId)) return 0;
+            return PlayerCodex.Count(x => x.SourceNpcId == npcId);
+        }
+
+        public int CountUnviewedCodexEntries()
+        {
+            if (_db == null) return 0;
+            return PlayerCodex.Count(x => x.HasBeenViewed == false);
+        }
+
+        public void MarkAllCodexEntriesViewed()
+        {
+            if (_db == null || !IsOpen) return;
+            try
+            {
+                foreach (var entry in PlayerCodex.FindAll())
+                {
+                    if (!entry.HasBeenViewed)
+                    {
+                        entry.HasBeenViewed = true;
+                        PlayerCodex.Update(entry);
+                    }
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning("[NpcMemoryDatabase] MarkAllCodexEntriesViewed failed (DB disposed?): " + e.Message);
+            }
+        }
+
+        private static string StableHash(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return "";
+            // Simple deterministic hash — not crypto, just for dedup.
+            using var sha = System.Security.Cryptography.SHA256.Create();
+            var bytes = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes(text.Trim()));
+            var sb = new System.Text.StringBuilder(bytes.Length * 2);
+            for (int i = 0; i < bytes.Length; i++) sb.Append(bytes[i].ToString("x2"));
+            return sb.ToString();
         }
     }
 }

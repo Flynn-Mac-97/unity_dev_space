@@ -13,13 +13,26 @@ MonoBehaviour:
   m_Name: MetalScrap_Config
   m_EditorClassIdentifier: 
   displayName: Scrap Pile
+  resourceType: 3
   requiredTool: 3
-  maxHealth: 16
+  maxHealth: 10
+  sprite: {fileID: 2070633112, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  healthStages:
+  - healthThreshold: 0.5
+    sprite: {fileID: 2070633112, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  - healthThreshold: 0.3
+    sprite: {fileID: -1272402687, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  - healthThreshold: 0
+    sprite: {fileID: 820522613, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
   drops:
   - item: {fileID: 11400000, guid: b5a56e57334176447b498384cf4a11d9, type: 2}
     dropChance: 1
     minCount: 1
     maxCount: 3
-  dropScatterRadius: 0.3
+  dropScatterRadius: 0.6
+  weight: 100
+  swaysInWind: 0
+  hitKnockback: 0.1
+  cameraShakeAmount: 0.025
   echoShardChancePerHit: 0.12
   echoShardItem: {fileID: 11400000, guid: 662cb3580e43c804caddea5f6ba63083, type: 2}

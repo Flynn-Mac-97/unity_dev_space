@@ -1,0 +1,468 @@
+fileFormatVersion: 2
+guid: c82707ce0987d0d4b9d6c81735bca41b
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_1
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 268
+        width: 97
+        height: 80
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d8b713d0fbefda742b1d33c542f75ef4
+      internalID: -1762403944
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_2
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 265
+        width: 105
+        height: 60
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c393affbba317a14e80980397303ed63
+      internalID: 1047676998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 263
+        width: 104
+        height: 85
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8cdbf04ccdcfb2044a367ccf5c63fcc4
+      internalID: 18924805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_5
+      rect:
+        serializedVersion: 2
+        x: 333
+        y: 184
+        width: 99
+        height: 50
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 417eee29a9ff6d446aabba31a11df1f1
+      internalID: 1518511418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_6
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 186
+        width: 101
+        height: 69
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f3bd9cc0eacebb740a233ea51c1162f8
+      internalID: -559821372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_7
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 184
+        width: 116
+        height: 67
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b97251f732b64df4494cbfb0254e75d0
+      internalID: -733256022
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_14
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 105
+        width: 59
+        height: 37
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 18882cb0d66316048905e70c862893a1
+      internalID: -1371421072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_15
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 102
+        width: 52
+        height: 55
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 521ea32b298dd85408cc095e82a6041f
+      internalID: -627860797
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_17
+      rect:
+        serializedVersion: 2
+        x: 41
+        y: 97
+        width: 100
+        height: 83
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ccf40e578b0ddca4193d7d2c6e838af1
+      internalID: -1436890585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_18
+      rect:
+        serializedVersion: 2
+        x: 190
+        y: 97
+        width: 83
+        height: 80
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 68c22851b9e0a9f489a1b7b7a7f203ba
+      internalID: -1486088113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_36
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 16
+        width: 70
+        height: 41
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1b15b5c378ed7e0449196972be05b976
+      internalID: 855279365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_37
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 15
+        width: 66
+        height: 73
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6736ae020711f61499b778be5d7798df
+      internalID: -40836682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 006-resource-node-break-stages-result-1_38
+      rect:
+        serializedVersion: 2
+        x: 194
+        y: 15
+        width: 78
+        height: 58
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e1203c04cd1ac6146831467cfdf86ca8
+      internalID: -529958437
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      006-resource-node-break-stages-result-1_0: -2098945940
+      006-resource-node-break-stages-result-1_1: 1607255098
+      006-resource-node-break-stages-result-1_10: 1762141233
+      006-resource-node-break-stages-result-1_11: -1503602347
+      006-resource-node-break-stages-result-1_12: 675456405
+      006-resource-node-break-stages-result-1_13: 258555221
+      006-resource-node-break-stages-result-1_14: -801880032
+      006-resource-node-break-stages-result-1_15: -1715160680
+      006-resource-node-break-stages-result-1_16: 713337778
+      006-resource-node-break-stages-result-1_17: -1570095950
+      006-resource-node-break-stages-result-1_18: -1290451623
+      006-resource-node-break-stages-result-1_19: 378072218
+      006-resource-node-break-stages-result-1_2: 2052750599
+      006-resource-node-break-stages-result-1_20: 1645850651
+      006-resource-node-break-stages-result-1_21: 1885709728
+      006-resource-node-break-stages-result-1_22: 1879917741
+      006-resource-node-break-stages-result-1_23: 527473116
+      006-resource-node-break-stages-result-1_24: -1276578177
+      006-resource-node-break-stages-result-1_25: 1922686365
+      006-resource-node-break-stages-result-1_26: -188734440
+      006-resource-node-break-stages-result-1_27: -1119554455
+      006-resource-node-break-stages-result-1_28: 911831462
+      006-resource-node-break-stages-result-1_29: -1934462255
+      006-resource-node-break-stages-result-1_3: -2010148388
+      006-resource-node-break-stages-result-1_30: 1880719198
+      006-resource-node-break-stages-result-1_31: -414884990
+      006-resource-node-break-stages-result-1_32: -1703181432
+      006-resource-node-break-stages-result-1_33: -52165223
+      006-resource-node-break-stages-result-1_34: -1854836194
+      006-resource-node-break-stages-result-1_35: -1241300359
+      006-resource-node-break-stages-result-1_36: -1147564643
+      006-resource-node-break-stages-result-1_37: 1399305843
+      006-resource-node-break-stages-result-1_38: -2026572741
+      006-resource-node-break-stages-result-1_39: 215415262
+      006-resource-node-break-stages-result-1_4: -1470528114
+      006-resource-node-break-stages-result-1_40: -2072318584
+      006-resource-node-break-stages-result-1_41: 1723223351
+      006-resource-node-break-stages-result-1_5: -1133445977
+      006-resource-node-break-stages-result-1_6: 2040342016
+      006-resource-node-break-stages-result-1_7: 296695040
+      006-resource-node-break-stages-result-1_8: -203754799
+      006-resource-node-break-stages-result-1_9: -1409944695
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

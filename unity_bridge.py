@@ -53,16 +53,26 @@ class UnityBridge:
         body, self.buf = self.buf[:n], self.buf[n:]
         return json.loads(body.decode("utf-8"))
 
+    def _read_response(self):
+        """Next non-notification frame. The server pushes async notification frames
+        (e.g. {'notification_type': 'unity_observation_invalidated', ...}) between
+        responses — skip those, they are not RPC replies."""
+        while True:
+            frame = self._read_frame()
+            if isinstance(frame, dict) and "notification_type" in frame:
+                continue
+            return frame
+
     # --- API ---
     def ping(self):
         self._send_text("ping")
-        return self._read_frame()
+        return self._read_response()
     def call(self, command, action=None, **params):
         self._rid += 1
         if action is not None: params = {"action": action, **params}
         req = {"type": command, "params": params, "request_id": f"py-{self._rid}"}
         self._send_frame(json.dumps(req).encode("utf-8"))
-        return self._read_frame()
+        return self._read_response()
     def csharp(self, script):
         """Run arbitrary editor C# (escape hatch). `return <expr>;` allowed.
         Returns the inner data dict ({result, logs, ...}) or raises on failure."""

@@ -31,9 +31,9 @@ Material:
     m_Floats:
     - _AlphaCutoff: 0.1
     - _ContactBoost: 0.35
-    - _Opacity: 0.298
+    - _Opacity: 0.5
     - _PenumbraScale: 0.012
     - _TipFade: 0.35
     m_Colors:
-    - _ShadowColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 0.5372549}
+    - _ShadowColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 0.43137255}
   m_BuildTextureStacks: []

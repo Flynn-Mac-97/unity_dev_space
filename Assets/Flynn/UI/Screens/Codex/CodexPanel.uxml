@@ -1,0 +1,43 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss" />
+    <ui:Style src="CodexPanel.uss" />
+
+    <ui:VisualElement name="codex-root" class="codex-root hidden">
+        <ui:VisualElement class="codex-panel">
+            <ui:VisualElement class="codex-header">
+                <ui:Label class="codex-title" text="CODEX" />
+                <ui:Button name="codex-close" class="codex-close" text="X" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="divider-faint" />
+
+            <ui:VisualElement class="codex-tabs">
+                <ui:Button name="tab-npc" class="codex-tab active" text="The Station" />
+                <ui:Button name="tab-world" class="codex-tab" text="World" />
+                <ui:Button name="tab-tasks" class="codex-tab" text="Tasks" />
+            </ui:VisualElement>
+
+            <ui:VisualElement class="divider-faint" />
+
+            <ui:ScrollView name="codex-content" class="codex-content">
+                <ui:VisualElement name="npc-section" class="codex-section">
+                    <ui:VisualElement class="codex-progress-row">
+                        <ui:Label name="secrets-display" class="codex-progress-text" text="Secrets 0/0" />
+                        <ui:Label name="trust-display" class="codex-progress-text" text="Trust 0" />
+                    </ui:VisualElement>
+                    <ui:VisualElement name="npc-entries" class="codex-entry-list" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="world-section" class="codex-section" style="display: none;">
+                    <ui:VisualElement name="world-entries" class="codex-entry-list" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="tasks-section" class="codex-section" style="display: none;">
+                    <ui:VisualElement name="tasks-entries" class="codex-entry-list" />
+                </ui:VisualElement>
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+
+    <ui:VisualElement name="codex-toast" class="codex-toast hidden" />
+</ui:UXML>

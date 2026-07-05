@@ -1,5 +1,9 @@
 using System;
 
+using Flynn.Core;
+using Flynn.Npc;
+using Flynn.UI.Core;
+
 // LiteDB document POCOs for the NPC memory database. Plain classes with public
 // auto-properties so LiteDB's BsonMapper serializes them without attributes.
 // `Id` is the auto-increment primary key for each collection.
@@ -23,6 +27,10 @@ namespace Flynn.Npc.Memory
         public const string Npcs      = "npcs";
         public const string Signals   = "signals";
         public const string Knowledge = "knowledge";
+        public const string FiredSignals = "fired_signals";
+
+        // Player-facing codex (facts the player has learned from NPCs or scans)
+        public const string PlayerCodex = "player_codex";
     }
 
     public static class MemorySource
@@ -155,5 +163,15 @@ namespace Flynn.Npc.Memory
         public string Handler { get; set; }
         public string PayloadJson { get; set; }
         public string ContentHash { get; set; }
+    }
+
+    // Tracks which non-repeatable signals an NPC has already fired, so the
+    // model can't replay them. Keyed by NpcId + SignalId.
+    public class FiredSignalDoc
+    {
+        public int Id { get; set; }
+        public string NpcId { get; set; }
+        public string SignalId { get; set; }
+        public DateTime FiredUtc { get; set; }
     }
 }

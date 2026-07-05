@@ -1,6 +1,10 @@
 using UnityEngine;
 using Flynn.Events;
 
+using Flynn.Core;
+using Flynn.Npc;
+using Flynn.UI.Core;
+
 namespace Flynn.Tutorial
 {
     /// <summary>

@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using Flynn.Events;
 
+using Flynn.Core;
+using Flynn.Interactables;
+
 namespace Flynn.Tutorial
 {
     /// <summary>What gameplay event completes a tutorial beat.</summary>

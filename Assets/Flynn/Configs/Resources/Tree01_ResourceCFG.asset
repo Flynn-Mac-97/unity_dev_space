@@ -13,13 +13,26 @@ MonoBehaviour:
   m_Name: Tree01_ResourceCFG
   m_EditorClassIdentifier: 
   displayName: Tree
+  resourceType: 2
   requiredTool: 2
   maxHealth: 15
+  sprite: {fileID: -1745152347, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  healthStages:
+  - healthThreshold: 0.7
+    sprite: {fileID: -1745152347, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  - healthThreshold: 0.3
+    sprite: {fileID: -1918046082, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
+  - healthThreshold: 0
+    sprite: {fileID: 1581582419, guid: 554f10ce033585f4c85dbc7e9aef861e, type: 3}
   drops:
   - item: {fileID: 11400000, guid: 8f57a92745f4c1947a58172032f705e2, type: 2}
     dropChance: 1
     minCount: 2
     maxCount: 3
-  dropScatterRadius: 0.3
+  dropScatterRadius: 0
+  weight: 60
+  swaysInWind: 1
+  hitKnockback: 0.5
+  cameraShakeAmount: 0.025
   echoShardChancePerHit: 0.15
   echoShardItem: {fileID: 11400000, guid: 662cb3580e43c804caddea5f6ba63083, type: 2}

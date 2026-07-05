@@ -1,61 +1,71 @@
 using UnityEngine;
 using Flynn.Events;
 
-/// <summary>
-/// Drops items from the inventory back into the world. <b>G</b> drops one unit of the active slot;
-/// the HUD calls <see cref="DropSlot"/> to drop a whole stack via drag-off-the-bar. Dropped items
-/// spawn through <see cref="WorldItemSpawner"/> and get a short re-collect delay so an auto-collecting
-/// resource doesn't instantly fly back into the inventory.
-/// </summary>
-public class PlayerDropController : MonoBehaviour
+
+using Flynn.Core;
+using Flynn.Player;
+using Flynn.World;
+using Flynn.UI.Core;
+
+namespace Flynn.Player.Interaction
 {
-    [SerializeField] private KeyCode _dropKey = KeyCode.G;
-    [SerializeField] private float _dropForward = 0.8f;
-    [SerializeField] private float _dropHeight = 0.6f;
-    [SerializeField] private float _popImpulse = 2f;
-    [Tooltip("Seconds before a dropped auto-collect item may fly back to the player.")]
-    [SerializeField] private float _reCollectDelay = 1.5f;
-
-    private static PlayerInventory Inv => PlayerInventory.Instance;
-
-    private void Update()
+    /// <summary>
+    /// Drops items from the inventory back into the world. <b>G</b> drops one unit of the active slot;
+    /// the HUD calls <see cref="DropSlot"/> to drop a whole stack via drag-off-the-bar. Dropped items
+    /// spawn through <see cref="WorldItemSpawner"/> and get a short re-collect delay so an auto-collecting
+    /// resource doesn't instantly fly back into the inventory.
+    /// </summary>
+    public class PlayerDropController : MonoBehaviour
     {
-        if (Input.GetKeyDown(_dropKey) && Inv != null)
-            DropFromSlot(Inv.ActiveSlotIndex, wholeStack: false);
-    }
+        [SerializeField] private KeyCode _dropKey = KeyCode.G;
+        [SerializeField] private float _dropForward = 0.8f;
+        [SerializeField] private float _dropHeight = 0.6f;
+        [SerializeField] private float _popImpulse = 2f;
+        [Tooltip("Seconds before a dropped auto-collect item may fly back to the player.")]
+        [SerializeField] private float _reCollectDelay = 1.5f;
 
-    /// <summary>Drop the entire stack in a slot (used by the hotbar drag-to-drop).</summary>
-    public void DropSlot(int index) => DropFromSlot(index, wholeStack: true);
+        private static PlayerInventory Inv => PlayerInventory.Instance;
 
-    private void DropFromSlot(int index, bool wholeStack)
-    {
-        if (Inv == null) return;
-        InventorySlot slot = Inv.GetSlot(index);
-        if (slot.IsEmpty) return;
-
-        ItemDefinition item = slot.item;
-        // No world prefab → can't represent it on the ground; abort rather than vanish the item.
-        if (item == null || item.worldPrefab == null)
+        private void Update()
         {
-            Debug.LogWarning($"[PlayerDropController] '{(item != null ? item.displayName : "null")}' has no worldPrefab; drop ignored.", this);
-            return;
+            if (Input.GetKeyDown(_dropKey) && Inv != null)
+                DropFromSlot(Inv.ActiveSlotIndex, wholeStack: false);
         }
 
-        int count;
-        if (wholeStack) Inv.RemoveStack(index, out count);
-        else          { Inv.RemoveOne(index); count = 1; }
+        /// <summary>Drop the entire stack in a slot (used by the hotbar drag-to-drop).</summary>
+        public void DropSlot(int index) => DropFromSlot(index, wholeStack: true);
 
-        if (item == null || count <= 0) return;
-
-        Vector3 pos = transform.position + Vector3.up * _dropHeight + transform.forward * _dropForward;
-        WorldItem dropped = WorldItemSpawner.Spawn(item, count, pos, _popImpulse);
-        if (dropped != null)
+        private void DropFromSlot(int index, bool wholeStack)
         {
-            DroppedItemMagnet magnet = dropped.GetComponent<DroppedItemMagnet>();
-            if (magnet != null) magnet.Suppress(_reCollectDelay);
-        }
+            if (Inv == null) return;
+            InventorySlot slot = Inv.GetSlot(index);
+            if (slot.IsEmpty) return;
 
-        if (GameEventBus.Instance != null)
-            GameEventBus.Instance.Publish(new ItemDropped(item, count, pos));
+            ItemDefinition item = slot.item;
+            // No world prefab → can't represent it on the ground; abort rather than vanish the item.
+            if (item == null || item.worldPrefab == null)
+            {
+                Debug.LogWarning($"[PlayerDropController] '{(item != null ? item.displayName : "null")}' has no worldPrefab; drop ignored.", this);
+                return;
+            }
+
+            int count;
+            if (wholeStack) Inv.RemoveStack(index, out count);
+            else          { Inv.RemoveOne(index); count = 1; }
+
+            if (item == null || count <= 0) return;
+
+            Vector3 pos = transform.position + Vector3.up * _dropHeight + transform.forward * _dropForward;
+            WorldItem dropped = WorldItemSpawner.Spawn(item, count, pos, _popImpulse);
+            if (dropped != null)
+            {
+                DroppedItemMagnet magnet = dropped.GetComponent<DroppedItemMagnet>();
+                if (magnet != null) magnet.Suppress(_reCollectDelay);
+            }
+
+            if (GameEventBus.Instance != null)
+                GameEventBus.Instance.Publish(new ItemDropped(item, count, pos));
+        }
     }
+
 }

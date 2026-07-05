@@ -1,0 +1,12 @@
+{
+    "name": "Flynn.Tests",
+    "rootNamespace": "Flynn.Tests",
+    "references": ["Flynn.Runtime"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "optionalUnityReferences": ["UnityEngine.TestRunner", "UnityEditor.TestRunner"],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "precompiledReferences": ["nunit.framework.dll"]
+}

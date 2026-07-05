@@ -5,66 +5,75 @@
     <!-- picking-mode=Ignore everywhere: the HUD never eats gameplay clicks. -->
     <ui:VisualElement name="HudRoot" class="hud-root" picking-mode="Ignore">
 
-        <!-- Robot battery, top-left -->
-        <ui:VisualElement name="Battery" class="battery" picking-mode="Ignore">
-            <ui:Label text="BATTERY" class="battery-cap text-xs token-text-muted" />
-            <ui:VisualElement name="BatteryGauge" class="battery-gauge outline" picking-mode="Ignore">
+        <!-- Robot battery plate, top-left -->
+        <ui:VisualElement name="Battery" class="battery hud-plate" picking-mode="Ignore">
+            <ui:VisualElement class="plate-head" picking-mode="Ignore">
+                <ui:Label text="BATTERY" class="plate-cap" />
+                <ui:Label name="BatteryLabel" text="100%" class="plate-value" />
+            </ui:VisualElement>
+            <ui:VisualElement name="BatteryGauge" class="battery-gauge" picking-mode="Ignore">
                 <ui:VisualElement name="BatteryFill" class="battery-fill" picking-mode="Ignore" />
             </ui:VisualElement>
-            <ui:Label name="BatteryLabel" text="100%" class="battery-pct text-sm token-text" />
         </ui:VisualElement>
 
-        <!-- Transmitter power (start-zone objective), top-center -->
-        <ui:VisualElement name="Transmitter" class="transmitter" picking-mode="Ignore">
-            <ui:Label text="TRANSMITTER" class="transmitter-cap text-xs token-text-muted" />
-            <ui:VisualElement name="TransmitterGauge" class="transmitter-gauge outline" picking-mode="Ignore">
-                <ui:VisualElement name="TransmitterFill" class="transmitter-fill" picking-mode="Ignore" />
+        <!-- Transmitter power (the world goal), top-center -->
+        <ui:VisualElement name="Transmitter" class="transmitter hud-plate" picking-mode="Ignore">
+            <ui:VisualElement class="plate-head" picking-mode="Ignore">
+                <ui:Label text="SIGNAL" class="plate-cap" />
+                <ui:Label name="TransmitterLabel" text="0%" class="plate-value" />
             </ui:VisualElement>
-            <ui:Label name="TransmitterLabel" text="0%" class="transmitter-pct text-sm token-text" />
+            <ui:VisualElement name="TransmitterGauge" class="transmitter-gauge" picking-mode="Ignore">
+                <ui:VisualElement name="TransmitterFill" class="transmitter-fill" picking-mode="Ignore" />
+                <ui:VisualElement class="gauge-tick gauge-tick--25" picking-mode="Ignore" />
+                <ui:VisualElement class="gauge-tick gauge-tick--50" picking-mode="Ignore" />
+                <ui:VisualElement class="gauge-tick gauge-tick--75" picking-mode="Ignore" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- Echo shard counter, top-right -->
-        <ui:VisualElement name="Echo" class="echo outline" picking-mode="Ignore">
-            <ui:Label text="◇" class="echo-icon text-lg token-text" />
-            <ui:Label name="EchoCount" text="0" class="echo-count text-lg token-text" />
+        <ui:VisualElement name="Echo" class="echo hud-plate" picking-mode="Ignore">
+            <ui:Label text="◇" class="echo-icon" />
+            <ui:Label name="EchoCount" text="0" class="echo-count" />
         </ui:VisualElement>
 
-        <!-- Power buildup bar, above hotbar -->
+        <!-- Power buildup bar — docks flush onto the hotbar plate -->
         <ui:VisualElement name="PowerBuildup" class="power-buildup" picking-mode="Ignore" style="display: none;">
-            <ui:VisualElement name="PowerBuildupBar" class="power-buildup-bar outline" picking-mode="Ignore">
+            <ui:VisualElement name="PowerBuildupBar" class="power-buildup-bar" picking-mode="Ignore">
                 <ui:VisualElement name="PowerBuildupPerfect" class="power-buildup-perfect" picking-mode="Ignore" />
                 <ui:VisualElement name="PowerBuildupFill" class="power-buildup-fill" picking-mode="Ignore" />
             </ui:VisualElement>
-            <ui:Label name="PowerBuildupLabel" text="" class="power-buildup-label text-sm token-text" />
+            <ui:Label name="PowerBuildupLabel" text="" class="power-buildup-label" />
         </ui:VisualElement>
 
-        <!-- Hotbar, bottom-center -->
+        <!-- Hotbar action block, bottom-center -->
         <ui:VisualElement name="Hotbar" class="hotbar" picking-mode="Ignore">
+            <ui:VisualElement name="HotbarPlate" class="hotbar-plate" picking-mode="Ignore">
 
-            <ui:VisualElement name="Slot_0" class="hotbar-slot" picking-mode="Ignore">
-                <ui:Label name="SlotKey_0" text="1" class="slot-key" />
-                <ui:VisualElement name="Icon_0" class="slot-icon" />
-                <ui:Label name="Count_0" text="" class="slot-count" />
+                <ui:VisualElement name="Slot_0" class="hotbar-slot" picking-mode="Ignore">
+                    <ui:Label name="SlotKey_0" text="1" class="slot-key" />
+                    <ui:VisualElement name="Icon_0" class="slot-icon" />
+                    <ui:Label name="Count_0" text="" class="slot-count" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="Slot_1" class="hotbar-slot" picking-mode="Ignore">
+                    <ui:Label name="SlotKey_1" text="2" class="slot-key" />
+                    <ui:VisualElement name="Icon_1" class="slot-icon" />
+                    <ui:Label name="Count_1" text="" class="slot-count" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="Slot_2" class="hotbar-slot" picking-mode="Ignore">
+                    <ui:Label name="SlotKey_2" text="3" class="slot-key" />
+                    <ui:VisualElement name="Icon_2" class="slot-icon" />
+                    <ui:Label name="Count_2" text="" class="slot-count" />
+                </ui:VisualElement>
+
+                <ui:VisualElement name="Slot_3" class="hotbar-slot" picking-mode="Ignore">
+                    <ui:Label name="SlotKey_3" text="4" class="slot-key" />
+                    <ui:VisualElement name="Icon_3" class="slot-icon" />
+                    <ui:Label name="Count_3" text="" class="slot-count" />
+                </ui:VisualElement>
+
             </ui:VisualElement>
-
-            <ui:VisualElement name="Slot_1" class="hotbar-slot" picking-mode="Ignore">
-                <ui:Label name="SlotKey_1" text="2" class="slot-key" />
-                <ui:VisualElement name="Icon_1" class="slot-icon" />
-                <ui:Label name="Count_1" text="" class="slot-count" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="Slot_2" class="hotbar-slot" picking-mode="Ignore">
-                <ui:Label name="SlotKey_2" text="3" class="slot-key" />
-                <ui:VisualElement name="Icon_2" class="slot-icon" />
-                <ui:Label name="Count_2" text="" class="slot-count" />
-            </ui:VisualElement>
-
-            <ui:VisualElement name="Slot_3" class="hotbar-slot" picking-mode="Ignore">
-                <ui:Label name="SlotKey_3" text="4" class="slot-key" />
-                <ui:VisualElement name="Icon_3" class="slot-icon" />
-                <ui:Label name="Count_3" text="" class="slot-count" />
-            </ui:VisualElement>
-
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

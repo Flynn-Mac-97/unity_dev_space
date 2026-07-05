@@ -1,30 +1,57 @@
-/* PlayerHUD — always-present dynamic UI. Flynn draft palette (mono, 1px white, square). */
-/* Designed for 1920×1080 reference resolution. */
+/* PlayerHUD — flat black plates, 1px white, square corners.
+   Layout: STATUS top-left · SIGNAL top-center · RESOURCES+OBJECTIVES right rail ·
+   ACTION BLOCK (buildup bar docked on hotbar) bottom-center. */
 
 .hud-root {
     flex-grow: 1;
 }
 
-/* ── Battery (top-left) ─────────────────────────────────────────────────────── */
+/* ── Shared plate treatment ─────────────────────────────────────── */
+
+.hud-plate {
+    background-color: rgba(0, 0, 0, 0.82);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    padding: 8px 12px;
+}
+
+.plate-head {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.plate-cap {
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+    -unity-font-style: bold;
+}
+
+.plate-value {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+/* ── Battery (top-left) ─────────────────────────────────────────── */
 
 .battery {
     position: absolute;
-    top: 30px;
-    left: 30px;
+    top: 20px;
+    left: 20px;
+    width: 220px;
     flex-direction: column;
-    align-items: flex-start;
-}
-
-.battery-cap {
-    letter-spacing: 3px;
-    margin-bottom: 6px;
 }
 
 .battery-gauge {
-    width: 210px;
-    height: 24px;
+    height: 12px;
     background-color: rgb(0, 0, 0);
-    padding: 3px;
+    border-color: rgba(255, 255, 255, 0.7);
+    border-width: 1px;
+    padding: 2px;
     flex-direction: row;
 }
 
@@ -34,32 +61,30 @@
     background-color: rgb(255, 255, 255);
 }
 
-.battery-pct {
-    margin-top: 6px;
+.battery-fill--low {
+    background-color: rgb(255, 59, 48);
 }
 
-/* ── Transmitter (top-center objective) ─────────────────────────────────────── */
+/* ── Signal / transmitter (top-center) ──────────────────────────── */
 
 .transmitter {
     position: absolute;
-    top: 30px;
+    top: 20px;
     left: 50%;
     translate: -50% 0;
+    width: 300px;
     flex-direction: column;
-    align-items: center;
-}
-
-.transmitter-cap {
-    letter-spacing: 3px;
-    margin-bottom: 6px;
 }
 
 .transmitter-gauge {
-    width: 280px;
-    height: 22px;
+    height: 12px;
     background-color: rgb(0, 0, 0);
-    padding: 3px;
+    border-color: rgba(255, 255, 255, 0.7);
+    border-width: 1px;
+    padding: 2px;
     flex-direction: row;
+    position: relative;
+    overflow: hidden;
 }
 
 .transmitter-fill {
@@ -68,31 +93,178 @@
     background-color: rgb(255, 255, 255);
 }
 
-/* Power running low: fill turns danger red. */
 .transmitter-fill--low {
     background-color: rgb(255, 59, 48);
 }
 
-.transmitter-pct {
-    margin-top: 6px;
+.gauge-tick {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background-color: rgba(255, 255, 255, 0.35);
+}
+.gauge-tick--25 { left: 25%; }
+.gauge-tick--50 { left: 50%; }
+.gauge-tick--75 { left: 75%; }
+
+/* ── Echo counter (top-right) ───────────────────────────────────── */
+
+.echo {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 14px;
 }
 
-/* ── Power Buildup (above hotbar, bottom-center) ─────────────────────────── */
+.echo-icon {
+    margin-right: 10px;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+}
+
+.echo-count {
+    min-width: 34px;
+    -unity-text-align: middle-right;
+    color: rgb(255, 255, 255);
+    font-size: 18px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+/* ── Objective chips — right rail under the echo counter ────────── */
+
+.objective-chips {
+    position: absolute;
+    top: 70px;
+    right: 20px;
+    flex-direction: column;
+    align-items: flex-end;
+    max-width: 320px;
+}
+
+.objective-chip {
+    background-color: rgba(0, 0, 0, 0.82);
+    border-color: rgba(255, 255, 255, 0.5);
+    border-width: 1px;
+    padding: 6px 12px;
+    margin-bottom: 4px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.objective-chip.completed {
+    color: rgb(52, 199, 89);
+    border-color: rgb(52, 199, 89);
+}
+
+.objective-chip-symbol {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    margin-right: 8px;
+    min-width: 14px;
+}
+
+.objective-chip.completed .objective-chip-symbol {
+    color: rgb(52, 199, 89);
+}
+
+.objective-chip-title {
+    color: rgb(255, 255, 255);
+    font-size: 14px;
+    white-space: normal;
+}
+
+.objective-chip.completed .objective-chip-title {
+    color: rgb(52, 199, 89);
+    -unity-font-style: italic;
+}
+
+/* ── Action block: buildup bar docked flush on the hotbar plate ─── */
+
+.hotbar {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.hotbar-plate {
+    flex-direction: row;
+    background-color: rgba(0, 0, 0, 0.82);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    padding: 6px;
+}
+
+.hotbar-slot {
+    width: 58px;
+    height: 58px;
+    background-color: rgb(0, 0, 0);
+    border-color: rgba(255, 255, 255, 0.45);
+    border-width: 1px;
+    margin-left: 3px;
+    margin-right: 3px;
+    align-items: center;
+    justify-content: center;
+}
+
+.hotbar-slot--active {
+    border-color: rgb(255, 255, 255);
+    border-width: 2px;
+    background-color: rgba(255, 255, 255, 0.10);
+}
+
+.slot-key {
+    position: absolute;
+    top: 2px;
+    left: 5px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    -unity-font-style: bold;
+}
+
+.slot-icon {
+    width: 40px;
+    height: 40px;
+    -unity-background-scale-mode: scale-to-fit;
+    display: none;
+}
+
+.slot-count {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 13px;
+    color: rgb(255, 255, 255);
+    -unity-font-style: bold;
+    display: none;
+}
+
+/* Buildup bar: same width as the hotbar plate (4×58 + margins + padding ≈ 276),
+   sitting flush on top of it — one action block. Sweetspot = gold. */
 
 .power-buildup {
     position: absolute;
-    bottom: 144px;
+    bottom: 95px;   /* hotbar bottom 24 + plate height ~71 → flush dock */
     left: 50%;
-    transform: translate(-50%, 0);
+    translate: -50% 0;
     flex-direction: column;
     align-items: center;
 }
 
 .power-buildup-bar {
-    width: 420px;
-    height: 14px;
-    background-color: rgb(0, 0, 0);
-    padding: 3px;
+    width: 276px;
+    height: 12px;
+    background-color: rgba(0, 0, 0, 0.9);
+    border-color: rgb(255, 255, 255);
+    border-width: 1px;
+    padding: 2px;
     flex-direction: row;
     position: relative;
     overflow: hidden;
@@ -102,11 +274,11 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    background-color: rgba(0, 255, 200, 0.15);
-    border-left-width: 2px;
-    border-right-width: 2px;
-    border-left-color: rgba(0, 255, 200, 0.4);
-    border-right-color: rgba(0, 255, 200, 0.4);
+    background-color: rgba(255, 204, 0, 0.15);
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-left-color: rgba(255, 204, 0, 0.7);
+    border-right-color: rgba(255, 204, 0, 0.7);
 }
 
 .power-buildup-fill {
@@ -115,94 +287,14 @@
     background-color: rgb(255, 255, 255);
 }
 
-.power-buildup-fill--perfect {
-    background-color: rgb(0, 255, 200);
-}
-
-.power-buildup-fill--flash {
-    background-color: rgb(255, 255, 100);
-}
+.power-buildup-fill--perfect { background-color: rgb(255, 204, 0); }
+.power-buildup-fill--flash   { background-color: rgb(255, 255, 255); }
 
 .power-buildup-label {
-    margin-top: 6px;
+    margin-top: 3px;
     -unity-text-align: middle-center;
-}
-
-/* ── Echo counter (top-right) ──────────────────────────────────────────────── */
-
-.echo {
-    position: absolute;
-    top: 30px;
-    right: 30px;
-    flex-direction: row;
-    align-items: center;
-    background-color: rgb(0, 0, 0);
-    padding-left: 18px;
-    padding-right: 18px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-}
-
-.echo-icon {
-    margin-right: 12px;
-}
-
-.echo-count {
-    min-width: 42px;
-    -unity-text-align: middle-right;
-}
-
-/* ── Hotbar (bottom-center) ────────────────────────────────────────────────── */
-
-.hotbar {
-    position: absolute;
-    bottom: 36px;
-    left: 0;
-    right: 0;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-}
-
-.hotbar-slot {
-    width: 96px;
-    height: 96px;
-    background-color: rgb(0, 0, 0);
-    border-left-width: 2px; border-right-width: 2px; border-top-width: 2px; border-bottom-width: 2px;
-    border-left-color: rgb(255, 255, 255); border-right-color: rgb(255, 255, 255); border-top-color: rgb(255, 255, 255); border-bottom-color: rgb(255, 255, 255);
-    border-top-left-radius: 0; border-top-right-radius: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-    margin-left: 6px;
-    margin-right: 6px;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Active slot: 3px border + faint fill. */
-.hotbar-slot--active {
-    border-left-width: 3px; border-right-width: 3px; border-top-width: 3px; border-bottom-width: 3px;
-    background-color: rgb(18, 18, 18);
-}
-
-.slot-key {
-    position: absolute;
-    top: 5px;
-    left: 6px;
-    font-size: 14px;
     color: rgba(255, 255, 255, 0.45);
-}
-
-.slot-icon {
-    width: 66px;
-    height: 66px;
-    -unity-background-scale-mode: scale-to-fit;
-    display: none;
-}
-
-.slot-count {
-    position: absolute;
-    bottom: 4px;
-    right: 6px;
-    font-size: 18px;
-    color: rgb(255, 255, 255);
-    display: none;
+    font-size: 11px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
 }

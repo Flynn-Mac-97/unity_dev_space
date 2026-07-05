@@ -4,6 +4,11 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
+using Flynn.Npc;
+using Flynn.Resources;
+using Flynn.UI.Core;
+
+using Flynn.Player.Interaction;
 /// <summary>
 /// Editor utility that builds Flynn's AnimatorController for an 8-direction animation system
 /// (Down, DownLeft, Left, UpLeft, Up, UpRight, Right, DownRight).

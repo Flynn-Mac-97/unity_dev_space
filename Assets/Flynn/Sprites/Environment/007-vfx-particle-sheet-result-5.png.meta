@@ -1,0 +1,758 @@
+fileFormatVersion: 2
+guid: f5d89011e5ea68644b7e81cd5687ea05
+TextureImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 256
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_0
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 285
+        width: 82
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d2107fe7290e574d884f40710e4c9d9
+      internalID: -441938450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_1
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 280
+        width: 72
+        height: 44
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d1e42d3447c925e4185aa1cfbe4bf80a
+      internalID: 1591765910
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_3
+      rect:
+        serializedVersion: 2
+        x: 50
+        y: 238
+        width: 34
+        height: 71
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e3af9828b07d89d46af9bf9a334cfb1e
+      internalID: -1170616214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_8
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 228
+        width: 82
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7bd3842d91c005742a73948a7b02e747
+      internalID: 38580257
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_9
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 221
+        width: 171
+        height: 48
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 117d8717f3214964d97a5bd1f57b167e
+      internalID: 1455372709
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_10
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 182
+        width: 58
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc4a809509452e64eaa6d43097c33d7d
+      internalID: -1884917376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_11
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 180
+        width: 57
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: d5d5e499c917ba34f8b11f898a4deca8
+      internalID: 575074423
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_12
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 174
+        width: 105
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6c29680e678bc624db541e7f7becac28
+      internalID: -7116428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_13
+      rect:
+        serializedVersion: 2
+        x: 390
+        y: 171
+        width: 61
+        height: 36
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c2eae371f4bdcbc478418403d67a1b44
+      internalID: 139607642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_16
+      rect:
+        serializedVersion: 2
+        x: 39
+        y: 123
+        width: 38
+        height: 26
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 43ff8901dad5948409c22dd9082c639a
+      internalID: 1217407139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_18
+      rect:
+        serializedVersion: 2
+        x: 106
+        y: 120
+        width: 55
+        height: 34
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a6b2ed217ac967746bba181f547ce75f
+      internalID: 1647594128
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_20
+      rect:
+        serializedVersion: 2
+        x: 193
+        y: 121
+        width: 56
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 11c45260178c5dd46a5b38163f242f3c
+      internalID: 1063527465
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_22
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 120
+        width: 65
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 81d7ec401fbad8d4780da648713151a4
+      internalID: -146949348
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_23
+      rect:
+        serializedVersion: 2
+        x: 379
+        y: 125
+        width: 23
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 97ca866d1b681bc4cbbfc1152513312a
+      internalID: 1889384683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_24
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 120
+        width: 43
+        height: 33
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6a9f97c03e34339438fecc3bae8d7092
+      internalID: -1005000730
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_25
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 72
+        width: 84
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39805f9bc6c344a4bb922bfaccef6531
+      internalID: 698958966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_26
+      rect:
+        serializedVersion: 2
+        x: 207
+        y: 72
+        width: 74
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c055c7b8095d56445adec6006786f11b
+      internalID: -1718930653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_27
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 71
+        width: 87
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a99a5bd1fc91aae4596066b402293fcb
+      internalID: 624306034
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_28
+      rect:
+        serializedVersion: 2
+        x: 35
+        y: 27
+        width: 27
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 727ed3aaa16535c4fa97c90c00fe0532
+      internalID: -1340284231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_29
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 23
+        width: 31
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1593e95541f6e8d4ebc4f45fcb1da10d
+      internalID: 1465997568
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_30
+      rect:
+        serializedVersion: 2
+        x: 158
+        y: 23
+        width: 43
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 025128ddcd31c814790e1694f5984236
+      internalID: -529988747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_31
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 33
+        width: 18
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 40c77cd576034bd41a02814450526fcb
+      internalID: -705615756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_32
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 35
+        width: 27
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 93ae50c90afd1d1488336cbf6addce71
+      internalID: 1191149825
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_33
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 19
+        width: 74
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ccabc175f4d47f64b812e1c5653061d4
+      internalID: -1330697802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_34
+      rect:
+        serializedVersion: 2
+        x: 402
+        y: 18
+        width: 78
+        height: 41
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6e5eab1ffcf868642a62b393ec3e33e2
+      internalID: 1449682679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_35
+      rect:
+        serializedVersion: 2
+        x: 229
+        y: 22
+        width: 15
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 30afffc11b36b604baff4e3b591aa69b
+      internalID: -1461489590
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 007-vfx-particle-sheet-result-5_36
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 21
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: b43a0b8e468525e4db8a802349bd6180
+      internalID: -633244326
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    nameFileIdTable:
+      007-vfx-particle-sheet-result-5_0: -441938450
+      007-vfx-particle-sheet-result-5_1: 1591765910
+      007-vfx-particle-sheet-result-5_10: -1884917376
+      007-vfx-particle-sheet-result-5_11: 575074423
+      007-vfx-particle-sheet-result-5_12: -7116428
+      007-vfx-particle-sheet-result-5_13: 139607642
+      007-vfx-particle-sheet-result-5_14: 1246406826
+      007-vfx-particle-sheet-result-5_15: -1907024892
+      007-vfx-particle-sheet-result-5_16: 1217407139
+      007-vfx-particle-sheet-result-5_17: 1309699617
+      007-vfx-particle-sheet-result-5_18: 1647594128
+      007-vfx-particle-sheet-result-5_19: 1606123522
+      007-vfx-particle-sheet-result-5_2: -1262661914
+      007-vfx-particle-sheet-result-5_20: 1063527465
+      007-vfx-particle-sheet-result-5_21: -1214773719
+      007-vfx-particle-sheet-result-5_22: -146949348
+      007-vfx-particle-sheet-result-5_23: 1889384683
+      007-vfx-particle-sheet-result-5_24: -1005000730
+      007-vfx-particle-sheet-result-5_25: 698958966
+      007-vfx-particle-sheet-result-5_26: -1718930653
+      007-vfx-particle-sheet-result-5_27: 624306034
+      007-vfx-particle-sheet-result-5_28: -1340284231
+      007-vfx-particle-sheet-result-5_29: 1465997568
+      007-vfx-particle-sheet-result-5_3: -1170616214
+      007-vfx-particle-sheet-result-5_30: -529988747
+      007-vfx-particle-sheet-result-5_31: -705615756
+      007-vfx-particle-sheet-result-5_32: 1191149825
+      007-vfx-particle-sheet-result-5_33: -1330697802
+      007-vfx-particle-sheet-result-5_34: 1449682679
+      007-vfx-particle-sheet-result-5_35: -1461489590
+      007-vfx-particle-sheet-result-5_36: -633244326
+      007-vfx-particle-sheet-result-5_37: -371710333
+      007-vfx-particle-sheet-result-5_4: -680356806
+      007-vfx-particle-sheet-result-5_5: 1417936804
+      007-vfx-particle-sheet-result-5_6: 1949265823
+      007-vfx-particle-sheet-result-5_7: -1905953679
+      007-vfx-particle-sheet-result-5_8: 38580257
+      007-vfx-particle-sheet-result-5_9: 1455372709
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

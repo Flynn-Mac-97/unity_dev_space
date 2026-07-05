@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7aae68aaecd775543bb4f4d96a9c5eaa, type: 3}
   m_Name: SpriteSortingConfig
   m_EditorClassIdentifier: 
-  _sortAxis: {x: 0, y: 0, z: 0}
-  stepsPerUnit: 100
+  _sortAxis: {x: 0, y: 1, z: 0}
+  stepsPerUnit: 50
   baseOrder: 5000

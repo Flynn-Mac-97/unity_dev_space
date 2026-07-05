@@ -1,5 +1,8 @@
 using System;
 
+using Flynn.Core;
+using Flynn.UI.Core;
+
 namespace Flynn.Npc.Memory
 {
     // Vector helpers for brute-force semantic recall. Embeddings from all-MiniLM

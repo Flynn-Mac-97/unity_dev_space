@@ -65,7 +65,6 @@ Shader "Flynn/ProjectedShadow2D"
 
             TEXTURE2D(_MainTex);
             SAMPLER(sampler_MainTex);
-            half4 _MainTex_ST;
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _ShadowColor;
@@ -77,9 +76,13 @@ Shader "Flynn/ProjectedShadow2D"
             CBUFFER_END
 
             // Per-renderer values from Shadow2DManager via MaterialPropertyBlock.
-            float _ShadowDirX;
-            float _ShadowDirY;
-            float _ShadowStretch;
+            // Sun shadow = silhouette flipped across the sprite base, squashed
+            // and sheared: a feature at height H above the base lands at
+            // (ShearX*H, BaseY - SquashY*H) — the shadow lies on the ground
+            // pointing away from the sun instead of standing up as a dark clone.
+            float _ShearX;
+            float _SquashY;
+            float _BaseY;
             float _SpriteVMin;
             float _SpriteVInvH;
 
@@ -89,17 +92,14 @@ Shader "Flynn/ProjectedShadow2D"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
-            #ifdef UNITY_INSTANCING_ENABLED
-                v.vertex.xy = UnityFlipSprite(v.vertex.xy, unity_SpriteFlip);
-            #endif
-
                 float h01 = saturate((v.uv.y - _SpriteVMin) * _SpriteVInvH);
-                float2 dir = float2(_ShadowDirX, _ShadowDirY);
-                float2 pos = v.vertex.xy;
-                pos += dir * h01 * _ShadowStretch;
+                float yb = v.vertex.y - _BaseY;      // height above sprite base
+                float2 pos;
+                pos.x = v.vertex.x + _ShearX * yb;
+                pos.y = _BaseY - yb * _SquashY;
 
                 o.vertex = TransformObjectToHClip(float3(pos, v.vertex.z));
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;  // SpriteRenderer provides atlas-correct UVs; no TRANSFORM_TEX needed
                 o.color = v.color;
                 return o;
             }
@@ -120,7 +120,7 @@ Shader "Flynn/ProjectedShadow2D"
 
                 float h01 = saturate((i.uv.y - _SpriteVMin) * _SpriteVInvH);
 
-                float radius = _PenumbraScale * h01 * max(_ShadowStretch, 1.0);
+                float radius = _PenumbraScale * h01 * (1.0 + _SquashY);
                 half texA = SampleSilhouette(i.uv, radius);
                 texA *= i.color.a;
                 clip(texA - _AlphaCutoff);
@@ -178,9 +178,9 @@ Shader "Flynn/ProjectedShadow2D"
                 float _ContactBoost;
             CBUFFER_END
 
-            float _ShadowDirX;
-            float _ShadowDirY;
-            float _ShadowStretch;
+            float _ShearX;
+            float _SquashY;
+            float _BaseY;
             float _SpriteVMin;
             float _SpriteVInvH;
 
@@ -190,10 +190,10 @@ Shader "Flynn/ProjectedShadow2D"
                 UNITY_SETUP_INSTANCE_ID(v);
                 UNITY_TRANSFER_INSTANCE_ID(v, o);
 
-                float h01 = saturate((v.uv.y - _SpriteVMin) * _SpriteVInvH);
-                float2 dir = float2(_ShadowDirX, _ShadowDirY);
-                float2 pos = v.vertex.xy;
-                pos += dir * h01 * _ShadowStretch;
+                float yb = v.vertex.y - _BaseY;
+                float2 pos;
+                pos.x = v.vertex.x + _ShearX * yb;
+                pos.y = _BaseY - yb * _SquashY;
 
                 v.vertex.xy = pos;
                 o.vertex = TransformObjectToHClip(v.vertex.xyz);
@@ -218,7 +218,7 @@ Shader "Flynn/ProjectedShadow2D"
 
                 float h01 = saturate((i.uv.y - _SpriteVMin) * _SpriteVInvH);
 
-                float radius = _PenumbraScale * h01 * max(_ShadowStretch, 1.0);
+                float radius = _PenumbraScale * h01 * (1.0 + _SquashY);
                 half texA = SampleSilhouette(i.uv, radius);
                 texA *= i.color.a;
                 clip(texA - _AlphaCutoff);

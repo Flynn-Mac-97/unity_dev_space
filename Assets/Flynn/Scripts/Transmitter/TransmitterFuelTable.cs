@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Flynn.Core;
+using Flynn.Player;
+using Flynn.UI.Core;
+
 namespace Flynn.Transmitter
 {
     /// <summary>

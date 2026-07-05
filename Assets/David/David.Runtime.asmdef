@@ -1,0 +1,12 @@
+{
+    "name": "David.Runtime",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "optionalUnityReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "precompiledReferences": []
+}

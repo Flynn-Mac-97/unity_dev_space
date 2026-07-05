@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2683343e51a70c54fa6b130ca3c533fe, type: 3}
+  m_Name: AnimationSpeedConfig
+  m_EditorClassIdentifier: 
+  idleSpeed: 1
+  runSpeed: 1
+  swimSpeed: 1
+  grappleSpeed: 1
+  carrySpeed: 1
+  throwSpeed: 1
+  jumpSpeed: 1
