@@ -1,75 +1,61 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss" />
-    <ui:Style src="DialogueBox.uss" />
-
-    <!-- Bottom sheet, ~62% width. Three columns: player portrait | conversation | npc portrait. -->
-    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7433441132597879392&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3#tokens" />
+    <Style src="project://database/Assets/UI%20Toolkit/DialogueBox.uss?fileID=7433441132597879392&amp;guid=cd4063a7a8cbcf646ad0fa62bdd615e7&amp;type=3#DialogueBox" />
+    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;);">
         <ui:VisualElement class="dialogue-sheet">
-
-            <!-- Header: name, trust (with threshold ticks), secrets, buttons -->
             <ui:VisualElement class="dialogue-header">
-                <ui:Label name="npc-name" class="nameplate-text" text="Stranger" />
+                <ui:Label name="npc-name" text="Stranger" class="nameplate-text" />
                 <ui:VisualElement class="trust-section">
-                    <ui:Label class="trust-label" text="TRUST" />
+                    <ui:Label text="TRUST" class="trust-label" />
                     <ui:VisualElement class="trust-bar-track">
                         <ui:VisualElement name="trust-bar-fill" class="trust-bar-fill" />
                         <ui:VisualElement class="gauge-tick-d gauge-tick-d--25" />
                         <ui:VisualElement class="gauge-tick-d gauge-tick-d--50" />
                         <ui:VisualElement class="gauge-tick-d gauge-tick-d--75" />
                     </ui:VisualElement>
-                    <ui:Label name="trust-value" class="trust-value" text="20" />
+                    <ui:Label name="trust-value" text="20" class="trust-value" />
                     <ui:Label name="trust-floating-text" class="trust-floating-text" style="display: none;" />
                 </ui:VisualElement>
                 <ui:VisualElement class="header-right">
-                    <ui:Label name="secrets-counter" class="secrets-counter" text="0/0" />
-                    <ui:Button name="codex-button" class="codex-button" text="&#x25A4;" />
-                    <ui:Button name="close-button" class="close-button" text="X" />
+                    <ui:Label name="secrets-counter" text="0/0" class="secrets-counter" />
+                    <ui:Button name="codex-button" text="▤" class="codex-button" />
+                    <ui:Button name="close-button" text="X" class="close-button" />
                 </ui:VisualElement>
             </ui:VisualElement>
-
-            <!-- Body: three columns -->
             <ui:VisualElement class="dialogue-body">
-
                 <ui:VisualElement class="portrait-col">
                     <ui:VisualElement class="portrait-frame">
                         <ui:VisualElement name="player-portrait" class="portrait-image" />
                     </ui:VisualElement>
-                    <ui:Label class="portrait-cap" text="YOU" />
+                    <ui:Label text="YOU" class="portrait-cap" />
                 </ui:VisualElement>
-
-                <ui:VisualElement class="dialogue-center">
+                <ui:VisualElement name="VisualElement" class="dialogue-center">
                     <ui:ScrollView name="conversation-scroll" class="conversation-scroll">
-                        <ui:Label name="dialogue-text" class="dialogue-text" text="..." />
+                        <ui:Label name="dialogue-text" text="..." class="dialogue-text" />
                     </ui:ScrollView>
-
                     <ui:VisualElement name="suggestions-row" class="suggestions-row" style="display: none;" />
-
-                    <!-- Context strip: topics + items share one labeled band -->
                     <ui:VisualElement name="context-strip" class="context-strip">
                         <ui:VisualElement class="context-group">
-                            <ui:Label class="context-cap" text="TOPICS" />
+                            <ui:Label text="TOPICS" class="context-cap" />
                             <ui:VisualElement name="topics-row" class="topics-row" style="display: none;" />
                         </ui:VisualElement>
                         <ui:VisualElement class="context-group">
-                            <ui:Label class="context-cap" text="ITEMS" />
+                            <ui:Label text="ITEMS" class="context-cap" />
                             <ui:VisualElement name="items-row" class="items-row" style="display: none;" />
                         </ui:VisualElement>
                     </ui:VisualElement>
-
                     <ui:VisualElement class="input-row">
-                        <ui:Label class="input-caret" text="&gt;" />
+                        <ui:Label text="&gt;" class="input-caret" />
                         <ui:TextField name="player-input" class="player-input" />
-                        <ui:Button name="send-button" class="send-button" text="&#x25B6;" />
+                        <ui:Button name="send-button" text="▶" class="send-button" />
                     </ui:VisualElement>
                 </ui:VisualElement>
-
                 <ui:VisualElement class="portrait-col">
                     <ui:VisualElement class="portrait-frame">
                         <ui:VisualElement name="npc-portrait" class="portrait-image hidden" />
                     </ui:VisualElement>
-                    <ui:Label name="npc-portrait-cap" class="portrait-cap" text="THEM" />
+                    <ui:Label name="npc-portrait-cap" text="THEM" class="portrait-cap" />
                 </ui:VisualElement>
-
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

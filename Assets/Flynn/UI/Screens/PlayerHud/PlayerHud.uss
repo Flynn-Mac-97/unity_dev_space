@@ -205,7 +205,7 @@
 .hotbar-slot {
     width: 58px;
     height: 58px;
-    background-color: rgb(0, 0, 0);
+    background-image: url("../../../../David/UI/UI-Sprites/item_slot.png");
     border-color: rgba(255, 255, 255, 0.45);
     border-width: 1px;
     margin-left: 3px;

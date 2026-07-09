@@ -127,3 +127,5 @@ RUNTIME_FLOWS.md
 Packages/manifest.json.bak
 Assets/Editor/CodelyScreenshotCapture.cs
 Assets/Editor/CodelyScreenshotCapture.cs.meta
+*.meta
+*.meta

@@ -1,0 +1,38 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/David/UI/StatsPanel/StatsPanel.uss?fileID=7433441132597879392&amp;guid=1ad78ac4c633ee44eb40e3e9bc385d34&amp;type=3#StatsPanel" />
+    <ui:VisualElement name="stats-overlay" class="stats-overlay hidden">
+        <ui:VisualElement name="stats-panel" class="stats-panel" style="border-left-color: rgba(255, 255, 255, 0.02); border-right-color: rgba(255, 255, 255, 0.02); border-top-color: rgba(255, 255, 255, 0.02); border-bottom-color: rgba(255, 255, 255, 0.02); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=f0b919600cb453f4896005b10703ba35&amp;type=3#big_box_01&quot;); background-color: rgba(0, 0, 0, 0.08);">
+            <ui:Label text="STATS" class="stats-title" />
+            <ui:VisualElement name="VisualElement" class="stat-row" style="background-color: rgba(0, 0, 0, 0);">
+                <ui:Label text="TRANSMITTER Level" class="stat-label" />
+                <ui:Label name="transmitter-level" text="1" class="stat-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="divider" />
+            <ui:VisualElement name="VisualElement" class="stat-row" style="background-color: rgba(0, 0, 0, 0); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0);">
+                <ui:VisualElement name="WoodIcon" class="stat-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/log_small.png?fileID=2800000&amp;guid=d09622a0ed73d514b9f648dc207a1909&amp;type=3#log_small&quot;); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); position: relative; flex-direction: row; align-items: stretch; align-self: stretch; width: 30px; height: 30px; max-width: 40px; max-height: 40px;" />
+                <ui:Label text="Wood" class="stat-label" />
+                <ui:Label name="wood-count" text="0" class="stat-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="stat-row">
+                <ui:VisualElement name="StoneIcon" class="stat-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/stone_01.png?fileID=2800000&amp;guid=1588f69f16805f045887a9c7b58912b2&amp;type=3#stone_01&quot;); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); position: relative; flex-direction: row; align-items: stretch; align-self: stretch; width: 30px; height: 30px; max-width: 40px; max-height: 40px;" />
+                <ui:Label text="Stone" class="stat-label" />
+                <ui:Label name="stone-count" text="0" class="stat-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="stat-row">
+                <ui:VisualElement name="EchoShardsIcon" class="stat-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/diamond.png?fileID=2800000&amp;guid=b8f3e61153bf3d946a2fed39d2b314d0&amp;type=3#diamond&quot;); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); position: relative; flex-direction: row; align-items: stretch; align-self: stretch; width: 30px; height: 30px; max-width: 40px; max-height: 40px;" />
+                <ui:Label text="ECHO Shards" class="stat-label" />
+                <ui:Label name="echo-count" text="0" class="stat-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="divider" />
+            <ui:VisualElement class="stat-row">
+                <ui:VisualElement name="BatteryIcon" class="stat-icon" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/battery.png?fileID=2800000&amp;guid=6057573c685bef94a9abed2f32bc8a66&amp;type=3#battery&quot;); border-left-color: rgba(0, 0, 0, 0); border-right-color: rgba(0, 0, 0, 0); border-top-color: rgba(0, 0, 0, 0); border-bottom-color: rgba(0, 0, 0, 0); position: relative; flex-direction: row; align-items: stretch; align-self: stretch; width: 30px; height: 30px; max-width: 40px; max-height: 40px;" />
+                <ui:Label text="Battery" class="stat-label" />
+                <ui:Label name="battery-count" text="0" class="stat-value" />
+            </ui:VisualElement>
+            <ui:VisualElement class="stat-row">
+                <ui:Label text="Charge" class="stat-label" />
+                <ui:Label name="charge-pct" text="100%" class="stat-value" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

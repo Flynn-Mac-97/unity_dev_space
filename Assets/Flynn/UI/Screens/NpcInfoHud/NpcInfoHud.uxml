@@ -1,71 +1,57 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="NpcInfoHud.uss" />
-
-    <ui:VisualElement name="hud-root" class="hud-root hidden" picking-mode="Ignore">
-        <ui:VisualElement name="panel" class="panel">
-            <ui:VisualElement class="header-row">
-                <ui:Label name="npc-name" class="text-xl token-text" text="Stranger" />
-                <ui:Label name="hotkey-hint" class="hotkey-hint" text="[E] Talk" />
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Screens/NpcInfoHud/NpcInfoHud.uss?fileID=7433441132597879392&amp;guid=d02a48013b823754990b7e5f4dbfbbfb&amp;type=3#NpcInfoHud" />
+    <ui:VisualElement name="hud-root" picking-mode="Ignore" class="hud-root hidden">
+        <ui:VisualElement name="panel" class="panel" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_02.png?fileID=2800000&amp;guid=3d9e06b1d7affc14e9087f02f6a9c6d7&amp;type=3#big_box_02&quot;); background-color: rgba(0, 0, 0, 0.02); border-left-color: rgba(255, 255, 255, 0.02); border-right-color: rgba(255, 255, 255, 0.02); border-top-color: rgba(255, 255, 255, 0.02); border-bottom-color: rgba(255, 255, 255, 0.02);">
+            <ui:VisualElement class="header-row" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/small_box_01.png?fileID=2800000&amp;guid=3e435dedb6f35b8418022c04cb88f594&amp;type=3#small_box_01&quot;);">
+                <ui:Label name="npc-name" text="Stranger" class="text-xl token-text" />
+                <ui:Label name="hotkey-hint" text="[E] Talk" class="hotkey-hint" />
             </ui:VisualElement>
-
-            <ui:Label name="role-tag" class="text-sm token-text-muted role-tag" text="Villager" />
-
+            <ui:Label name="role-tag" text="Villager" class="text-sm token-text-muted role-tag" />
             <ui:VisualElement class="divider" />
-
             <ui:VisualElement name="relationship-block" class="relationship-block">
                 <ui:VisualElement class="bar-row">
-                    <ui:Label class="bar-label" text="Trust" />
+                    <ui:Label text="Trust" class="bar-label" />
                     <ui:VisualElement class="bar-track">
                         <ui:VisualElement name="trust-fill" class="bar-fill" />
                     </ui:VisualElement>
-                    <ui:Label name="trust-value" class="bar-value text-mono" text="0" />
+                    <ui:Label name="trust-value" text="0" class="bar-value text-mono" />
                 </ui:VisualElement>
-
                 <ui:VisualElement class="bar-row">
-                    <ui:Label class="bar-label" text="Affection" />
+                    <ui:Label text="Affection" class="bar-label" />
                     <ui:VisualElement class="bar-track">
                         <ui:VisualElement name="affection-fill" class="bar-fill" />
                     </ui:VisualElement>
-                    <ui:Label name="affection-value" class="bar-value text-mono" text="0" />
+                    <ui:Label name="affection-value" text="0" class="bar-value text-mono" />
                 </ui:VisualElement>
-
                 <ui:VisualElement class="bar-row">
-                    <ui:Label class="bar-label" text="Suspicion" />
+                    <ui:Label text="Suspicion" class="bar-label" />
                     <ui:VisualElement class="bar-track">
                         <ui:VisualElement name="suspicion-fill" class="bar-fill suspicion" />
                     </ui:VisualElement>
-                    <ui:Label name="suspicion-value" class="bar-value text-mono" text="0" />
+                    <ui:Label name="suspicion-value" text="0" class="bar-value text-mono" />
                 </ui:VisualElement>
             </ui:VisualElement>
-
             <ui:VisualElement class="divider" />
-
-            <ui:Label class="section-header" text="Topics" />
+            <ui:Label text="Topics" class="section-header" />
             <ui:VisualElement name="known-topics" class="chip-row" />
-            <ui:Label name="avoided-header" class="section-header faint hidden" text="Avoids" />
+            <ui:Label name="avoided-header" text="Avoids" class="section-header faint hidden" />
             <ui:VisualElement name="avoided-topics" class="chip-row" />
-
             <ui:VisualElement class="divider" />
-
-            <ui:Label class="section-header" text="Fetched for last input [debug]" />
+            <ui:Label text="Fetched for last input [debug]" class="section-header" />
             <ui:VisualElement name="fetched-knowledge" class="chip-row" />
-
             <ui:VisualElement class="divider" />
-
             <ui:VisualElement class="memory-row">
-                <ui:Label name="memory-count" class="text-sm token-text-muted" text="No memories yet." />
+                <ui:Label name="memory-count" text="No memories yet." class="text-sm token-text-muted" />
             </ui:VisualElement>
-            <ui:Label name="last-turn" class="text-xs token-text-faint last-turn" text="" />
-
+            <ui:Label name="last-turn" class="text-xs token-text-faint last-turn" />
             <ui:VisualElement class="divider" />
-
-            <ui:Label class="section-header" text="Last LLM Update [debug]" />
+            <ui:Label text="Last LLM Update [debug]" class="section-header" />
             <ui:VisualElement name="debug-update" class="debug-update">
-                <ui:Label name="debug-topic"     class="debug-line text-mono" text="topic: —" />
+                <ui:Label name="debug-topic" text="topic: —" class="debug-line text-mono" />
                 <ui:VisualElement class="debug-deltas">
-                    <ui:Label name="debug-trust"     class="debug-delta text-mono" text="TRUST 0" />
-                    <ui:Label name="debug-affection" class="debug-delta text-mono" text="AFF 0" />
-                    <ui:Label name="debug-suspicion" class="debug-delta text-mono" text="SUSP 0" />
+                    <ui:Label name="debug-trust" text="TRUST 0" class="debug-delta text-mono" />
+                    <ui:Label name="debug-affection" text="AFF 0" class="debug-delta text-mono" />
+                    <ui:Label name="debug-suspicion" text="SUSP 0" class="debug-delta text-mono" />
                 </ui:VisualElement>
             </ui:VisualElement>
         </ui:VisualElement>

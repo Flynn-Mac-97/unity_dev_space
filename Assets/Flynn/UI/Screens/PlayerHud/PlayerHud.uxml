@@ -1,78 +1,61 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss" />
-    <ui:Style src="project://database/Assets/Flynn/UI/Screens/PlayerHud/PlayerHud.uss" />
-
-    <!-- picking-mode=Ignore everywhere: the HUD never eats gameplay clicks. -->
-    <ui:VisualElement name="HudRoot" class="hud-root" picking-mode="Ignore">
-
-        <!-- Robot battery plate, top-left -->
-        <ui:VisualElement name="Battery" class="battery hud-plate" picking-mode="Ignore">
-            <ui:VisualElement class="plate-head" picking-mode="Ignore">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7433441132597879392&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3#tokens" />
+    <Style src="project://database/Assets/Flynn/UI/Screens/PlayerHud/PlayerHud.uss?fileID=7433441132597879392&amp;guid=20fc5a8168c4a6b4e82e32fce748e12f&amp;type=3#PlayerHud" />
+    <ui:VisualElement name="HudRoot" picking-mode="Ignore" class="hud-root">
+        <ui:VisualElement name="Battery" picking-mode="Ignore" class="battery hud-plate" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/progress-bar.jpg?fileID=2800000&amp;guid=d1b6466d5e5909841a3e3f719a01344b&amp;type=3#progress-bar&quot;);">
+            <ui:VisualElement picking-mode="Ignore" class="plate-head">
                 <ui:Label text="BATTERY" class="plate-cap" />
                 <ui:Label name="BatteryLabel" text="100%" class="plate-value" />
             </ui:VisualElement>
-            <ui:VisualElement name="BatteryGauge" class="battery-gauge" picking-mode="Ignore">
-                <ui:VisualElement name="BatteryFill" class="battery-fill" picking-mode="Ignore" />
+            <ui:VisualElement name="BatteryGauge" picking-mode="Ignore" class="battery-gauge">
+                <ui:VisualElement name="BatteryFill" picking-mode="Ignore" class="battery-fill" style="background-color: rgb(222, 249, 13);" />
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <!-- Transmitter power (the world goal), top-center -->
-        <ui:VisualElement name="Transmitter" class="transmitter hud-plate" picking-mode="Ignore">
-            <ui:VisualElement class="plate-head" picking-mode="Ignore">
+        <ui:VisualElement name="Transmitter" picking-mode="Ignore" class="transmitter hud-plate" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/small_box_01.png?fileID=2800000&amp;guid=3e435dedb6f35b8418022c04cb88f594&amp;type=3#small_box_01&quot;); background-color: rgba(0, 0, 0, 0.71); border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
+            <ui:VisualElement picking-mode="Ignore" class="plate-head">
                 <ui:Label text="SIGNAL" class="plate-cap" />
                 <ui:Label name="TransmitterLabel" text="0%" class="plate-value" />
             </ui:VisualElement>
-            <ui:VisualElement name="TransmitterGauge" class="transmitter-gauge" picking-mode="Ignore">
-                <ui:VisualElement name="TransmitterFill" class="transmitter-fill" picking-mode="Ignore" />
-                <ui:VisualElement class="gauge-tick gauge-tick--25" picking-mode="Ignore" />
-                <ui:VisualElement class="gauge-tick gauge-tick--50" picking-mode="Ignore" />
-                <ui:VisualElement class="gauge-tick gauge-tick--75" picking-mode="Ignore" />
+            <ui:VisualElement name="TransmitterGauge" picking-mode="Ignore" class="transmitter-gauge">
+                <ui:VisualElement name="TransmitterFill" picking-mode="Ignore" class="transmitter-fill" />
+                <ui:VisualElement picking-mode="Ignore" class="gauge-tick gauge-tick--25" />
+                <ui:VisualElement picking-mode="Ignore" class="gauge-tick gauge-tick--50" />
+                <ui:VisualElement picking-mode="Ignore" class="gauge-tick gauge-tick--75" />
             </ui:VisualElement>
         </ui:VisualElement>
-
-        <!-- Echo shard counter, top-right -->
-        <ui:VisualElement name="Echo" class="echo hud-plate" picking-mode="Ignore">
+        <ui:VisualElement name="Echo" picking-mode="Ignore" class="echo hud-plate" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/echo_count.png?fileID=2800000&amp;guid=9acef58b9a1e0b349aa5e8a426465198&amp;type=3#echo_count&quot;); background-color: rgba(188, 188, 188, 0.91); border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);">
             <ui:Label text="◇" class="echo-icon" />
             <ui:Label name="EchoCount" text="0" class="echo-count" />
         </ui:VisualElement>
-
-        <!-- Power buildup bar — docks flush onto the hotbar plate -->
-        <ui:VisualElement name="PowerBuildup" class="power-buildup" picking-mode="Ignore" style="display: none;">
-            <ui:VisualElement name="PowerBuildupBar" class="power-buildup-bar" picking-mode="Ignore">
-                <ui:VisualElement name="PowerBuildupPerfect" class="power-buildup-perfect" picking-mode="Ignore" />
-                <ui:VisualElement name="PowerBuildupFill" class="power-buildup-fill" picking-mode="Ignore" />
+        <ui:VisualElement name="PowerBuildup" picking-mode="Ignore" class="power-buildup" style="display: none;">
+            <ui:VisualElement name="PowerBuildupBar" picking-mode="Ignore" class="power-buildup-bar">
+                <ui:VisualElement name="PowerBuildupPerfect" picking-mode="Ignore" class="power-buildup-perfect" />
+                <ui:VisualElement name="PowerBuildupFill" picking-mode="Ignore" class="power-buildup-fill" />
             </ui:VisualElement>
-            <ui:Label name="PowerBuildupLabel" text="" class="power-buildup-label" />
+            <ui:Label name="PowerBuildupLabel" class="power-buildup-label" />
         </ui:VisualElement>
-
-        <!-- Hotbar action block, bottom-center -->
-        <ui:VisualElement name="Hotbar" class="hotbar" picking-mode="Ignore">
-            <ui:VisualElement name="HotbarPlate" class="hotbar-plate" picking-mode="Ignore">
-
-                <ui:VisualElement name="Slot_0" class="hotbar-slot" picking-mode="Ignore">
+        <ui:VisualElement name="Hotbar" picking-mode="Ignore" class="hotbar">
+            <ui:VisualElement name="HotbarPlate" picking-mode="Ignore" class="hotbar-plate" style="background-color: rgba(0, 0, 0, 0.03);">
+                <ui:VisualElement name="Slot_0" picking-mode="Ignore" class="hotbar-slot">
                     <ui:Label name="SlotKey_0" text="1" class="slot-key" />
                     <ui:VisualElement name="Icon_0" class="slot-icon" />
-                    <ui:Label name="Count_0" text="" class="slot-count" />
+                    <ui:Label name="Count_0" class="slot-count" />
                 </ui:VisualElement>
-
-                <ui:VisualElement name="Slot_1" class="hotbar-slot" picking-mode="Ignore">
+                <ui:VisualElement name="Slot_1" picking-mode="Ignore" class="hotbar-slot">
                     <ui:Label name="SlotKey_1" text="2" class="slot-key" />
                     <ui:VisualElement name="Icon_1" class="slot-icon" />
-                    <ui:Label name="Count_1" text="" class="slot-count" />
+                    <ui:Label name="Count_1" class="slot-count" />
                 </ui:VisualElement>
-
-                <ui:VisualElement name="Slot_2" class="hotbar-slot" picking-mode="Ignore">
+                <ui:VisualElement name="Slot_2" picking-mode="Ignore" class="hotbar-slot">
                     <ui:Label name="SlotKey_2" text="3" class="slot-key" />
                     <ui:VisualElement name="Icon_2" class="slot-icon" />
-                    <ui:Label name="Count_2" text="" class="slot-count" />
+                    <ui:Label name="Count_2" class="slot-count" />
                 </ui:VisualElement>
-
-                <ui:VisualElement name="Slot_3" class="hotbar-slot" picking-mode="Ignore">
+                <ui:VisualElement name="Slot_3" picking-mode="Ignore" class="hotbar-slot">
                     <ui:Label name="SlotKey_3" text="4" class="slot-key" />
                     <ui:VisualElement name="Icon_3" class="slot-icon" />
-                    <ui:Label name="Count_3" text="" class="slot-count" />
+                    <ui:Label name="Count_3" class="slot-count" />
                 </ui:VisualElement>
-
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

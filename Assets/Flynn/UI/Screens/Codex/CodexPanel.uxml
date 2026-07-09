@@ -1,43 +1,35 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <ui:Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss" />
-    <ui:Style src="CodexPanel.uss" />
-
-    <ui:VisualElement name="codex-root" class="codex-root hidden">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7433441132597879392&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3#tokens" />
+    <Style src="project://database/Assets/Flynn/UI/Screens/Codex/CodexPanel.uss?fileID=7433441132597879392&amp;guid=0b3da7363a4d82142af032788e4259ad&amp;type=3#CodexPanel" />
+    <ui:VisualElement name="codex-root" class="codex-root hidden" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;); background-color: rgba(56, 56, 56, 0);">
         <ui:VisualElement class="codex-panel">
             <ui:VisualElement class="codex-header">
-                <ui:Label class="codex-title" text="CODEX" />
-                <ui:Button name="codex-close" class="codex-close" text="X" />
+                <ui:Label text="CODEX" class="codex-title" />
+                <ui:Button name="codex-close" text="X" class="codex-close" />
             </ui:VisualElement>
-
             <ui:VisualElement class="divider-faint" />
-
             <ui:VisualElement class="codex-tabs">
-                <ui:Button name="tab-npc" class="codex-tab active" text="The Station" />
-                <ui:Button name="tab-world" class="codex-tab" text="World" />
-                <ui:Button name="tab-tasks" class="codex-tab" text="Tasks" />
+                <ui:Button name="tab-npc" text="The Station" class="codex-tab active" />
+                <ui:Button name="tab-world" text="World" class="codex-tab" />
+                <ui:Button name="tab-tasks" text="Tasks" class="codex-tab" />
             </ui:VisualElement>
-
             <ui:VisualElement class="divider-faint" />
-
             <ui:ScrollView name="codex-content" class="codex-content">
                 <ui:VisualElement name="npc-section" class="codex-section">
                     <ui:VisualElement class="codex-progress-row">
-                        <ui:Label name="secrets-display" class="codex-progress-text" text="Secrets 0/0" />
-                        <ui:Label name="trust-display" class="codex-progress-text" text="Trust 0" />
+                        <ui:Label name="secrets-display" text="Secrets 0/0" class="codex-progress-text" />
+                        <ui:Label name="trust-display" text="Trust 0" class="codex-progress-text" />
                     </ui:VisualElement>
                     <ui:VisualElement name="npc-entries" class="codex-entry-list" />
                 </ui:VisualElement>
-
                 <ui:VisualElement name="world-section" class="codex-section" style="display: none;">
                     <ui:VisualElement name="world-entries" class="codex-entry-list" />
                 </ui:VisualElement>
-
                 <ui:VisualElement name="tasks-section" class="codex-section" style="display: none;">
                     <ui:VisualElement name="tasks-entries" class="codex-entry-list" />
                 </ui:VisualElement>
             </ui:ScrollView>
         </ui:VisualElement>
     </ui:VisualElement>
-
     <ui:VisualElement name="codex-toast" class="codex-toast hidden" />
 </ui:UXML>

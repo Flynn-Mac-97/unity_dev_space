@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/David/UI/PauseMenu/PauseMenu.uss?fileID=7433441132597879392&amp;guid=1283078f6b384b54e956fc50a89f5657&amp;type=3#PauseMenu" />
+    <ui:VisualElement name="pause-overlay" class="pause-overlay hidden" style="background-color: rgba(64, 62, 62, 0.1); background-image: none;">
+        <ui:VisualElement name="pause-panel" class="pause-panel" style="background-color: rgba(107, 104, 104, 0.1); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=f0b919600cb453f4896005b10703ba35&amp;type=3#big_box_01&quot;); border-left-color: rgba(255, 255, 255, 0.04); border-right-color: rgba(255, 255, 255, 0.04); border-top-color: rgba(255, 255, 255, 0.04); border-bottom-color: rgba(255, 255, 255, 0.04);">
+            <ui:Label text="PAUSED" class="pause-title" />
+            <ui:Button name="resume-button" text="Resume" class="resume-button" style="background-color: rgba(255, 255, 255, 0.04); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/blank_button.png?fileID=2800000&amp;guid=60348c12f932c424aa3ba71e10aab7ec&amp;type=3#blank_button&quot;); border-left-color: rgba(24, 24, 24, 0.04); border-right-color: rgba(24, 24, 24, 0.04); border-top-color: rgba(24, 24, 24, 0.04); border-bottom-color: rgba(24, 24, 24, 0.04);" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

@@ -1,28 +1,18 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements">
-    <Style src="DialogueUI.uss" />
-
-    <!-- Full-screen overlay root. The panel is hidden/shown by toggling the
-         "hidden" class on #dialogue-panel from DialogueManager. -->
-    <ui:VisualElement name="dialogue-root" class="dialogue-root">
-
-        <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden">
-
-            <ui:Button name="close-button" text="X" class="close-button" />
-
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/Flynn/UI/Screens/Dialogue/DialogueUI.uss?fileID=7433441132597879392&amp;guid=20623f5651c4a754a83474a8a95b25d3&amp;type=3#DialogueUI" />
+    <ui:VisualElement name="dialogue-root" class="dialogue-root" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;); background-color: rgba(45, 45, 45, 0);">
+        <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden" style="background-color: rgba(0, 0, 0, 0.07); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;);">
+            <ui:Button name="close-button" text="X" class="close-button" style="background-color: rgba(0, 0, 0, 0.07); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/close_button_enable.png?fileID=2800000&amp;guid=5dc8e0c6d5aa4434a9535cfdcd251baf&amp;type=3#close_button_enable&quot;);" />
             <ui:Label name="npc-name" text="Stranger" class="npc-name-badge" />
-
             <ui:VisualElement name="content-row" class="dialogue-content-row">
                 <ui:VisualElement name="npc-portrait" class="npc-portrait hidden" />
-                <ui:Label name="dialogue-text" text="" class="dialogue-text" />
+                <ui:Label name="dialogue-text" class="dialogue-text" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/dialogue_box_02.png?fileID=2800000&amp;guid=e9166fa5a67e571438e5e78e0caabe68&amp;type=3#dialogue_box_02&quot;);" />
             </ui:VisualElement>
-
             <ui:VisualElement name="suggestions-row" class="suggestions-row" />
-
             <ui:VisualElement name="input-row" class="input-row">
-                <ui:TextField name="player-input" class="player-input" />
-                <ui:Button name="send-button" text="Send" class="send-button" />
+                <ui:TextField name="player-input" class="player-input" style="background-color: rgba(0, 0, 0, 0.02); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/input_box_03.png?fileID=2800000&amp;guid=09777fa9412d29244b8f14d6243a0621&amp;type=3#input_box_03&quot;);" />
+                <ui:Button name="send-button" text="Send" class="send-button" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/send_button.png?fileID=2800000&amp;guid=59ad52bf0febeb243a925d153d2b5f15&amp;type=3#send_button&quot;); background-color: rgba(0, 0, 0, 0.01);" />
             </ui:VisualElement>
-
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
