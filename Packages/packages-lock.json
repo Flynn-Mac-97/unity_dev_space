@@ -1,25 +1,7 @@
 {
   "dependencies": {
-    "cn.tuanjie.ai.generators": {
-      "version": "file:../.codely-cli/extensions/unity-master-skill-library/Packages/cn.tuanjie.ai.generators",
-      "depth": 0,
-      "source": "local",
-      "dependencies": {
-        "cn.tuanjie.codely.bridge": "1.0.34",
-        "com.unity.cloud.gltfast": "6.8.0",
-        "com.unity.nuget.newtonsoft-json": "3.2.1",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.modules.unitywebrequesttexture": "1.0.0",
-        "com.unity.modules.unitywebrequestwww": "1.0.0",
-        "com.unity.modules.unitywebrequestaudio": "1.0.0",
-        "com.unity.mathematics": "1.3.1",
-        "com.unity.collections": "1.5.1",
-        "com.unity.editorcoroutines": "1.0.1"
-      }
-    },
     "cn.tuanjie.codely.bridge": {
-      "version": "1.0.67",
+      "version": "1.0.68",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -182,13 +164,6 @@
         "com.unity.nuget.mono-cecil": "1.11.4",
         "com.unity.test-framework": "1.1.31"
       },
-      "url": "https://packages.unity.cn"
-    },
-    "com.unity.editorcoroutines": {
-      "version": "1.0.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
       "url": "https://packages.unity.cn"
     },
     "com.unity.ext.nunit": {
