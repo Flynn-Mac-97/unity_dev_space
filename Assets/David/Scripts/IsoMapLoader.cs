@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 namespace David
 {
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    //  JSON data model (matches floating-island-third-map.json)
+    //  JSON data model (matches floating-island-*.json)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
     [Serializable]
@@ -166,6 +166,44 @@ namespace David
     {
         private const string DefaultPalettePath = "Assets/Flynn/TilePalettes/Ground.prefab";
 
+        // Ground IDs routed to the "Island Tops" tilemap
+        private static readonly HashSet<int> IslandTopsGrounds =
+            new HashSet<int> { 3, 4, 5, 7, 8, 9, 10, 11, 12 };
+
+        // Ground type ID → Z position (elevation) within the tilemap
+        private static readonly Dictionary<int, int> IslandTopsZPositions =
+            new Dictionary<int, int>
+            {
+                { 3,  1 },
+                { 4,  2 },
+                { 5,  3 },
+                { 7,  0 },
+                { 8,  1 },
+                { 9,  1 },
+                { 10, 2 },
+                { 11, 2 },
+                { 12, 3 },
+            };
+
+        // Ground type ID → palette tile name
+        private static readonly Dictionary<int, string> GroundTileNames =
+            new Dictionary<int, string>
+            {
+                { 0,  "Tileset_1" },
+                { 1,  "Tileset_9" },
+                { 2,  "Tileset_7" },
+                { 3,  "plains-sliced_54" },
+                { 4,  "plains-sliced_59" },
+                { 5,  "plains-sliced_62" },
+                { 6,  "Tileset_4" },
+                { 7,  "020-floating-set-variations-result-8_0" },
+                { 8,  "020-floating-set-variations-result-8_1" },
+                { 9,  "020-floating-set-variations-result-7_0" },
+                { 10, "020-floating-set-variations-result-7_1" },
+                { 11, "molten_center" },
+                { 12, "base08" },
+            };
+
         [Header("Map Data")]
         [Tooltip("JSON file containing the map data")]
         public TextAsset mapJsonFile;
@@ -179,17 +217,15 @@ namespace David
         public float tileWidth = 1f;
         [Tooltip("Height of each isometric tile in world units (typically half the width for 2:1 iso)")]
         public float tileHeight = 0.5f;
-        [Tooltip("Vertical offset per elevation level (0 = flat)")]
-        public float elevationStep = 0f;
 
         [Header("Options")]
         public bool generateOnStart = true;
         public bool centerAtOrigin = true;
 
-        private Dictionary<int, Color> _groundColors;
-        private Dictionary<int, int> _groundElevations;
         private Dictionary<int, TileBase> _groundTiles;
         private Transform _mapRoot;
+
+        // ── Public API ───────────────────────────────────
 
         void Start()
         {
@@ -212,96 +248,12 @@ namespace David
                 return;
             }
 
-            BuildGroundLookup(mapData);
             ClearMap();
 
-            // Load palette and build tile-color mapping
-            var palettePrefab = ResolvePalettePrefab();
-            if (palettePrefab == null)
-            {
-                Debug.LogError("[IsoMapLoader] No ground palette assigned or found!");
+            if (!TryLoadTiles(mapData))
                 return;
-            }
 
-            var paletteTiles = ExtractPaletteTiles(palettePrefab);
-            if (paletteTiles.Count == 0)
-            {
-                Debug.LogError("[IsoMapLoader] No tiles found in palette!");
-                return;
-            }
-
-            BuildGroundTileMapping(mapData, paletteTiles);
-
-            // Root
-            var rootObj = new GameObject("IsoMap_" + mapData.mapName);
-            rootObj.transform.SetParent(transform, false);
-            _mapRoot = rootObj.transform;
-
-            // Grid (isometric layout — matches palette settings)
-            var grid = rootObj.AddComponent<Grid>();
-            grid.cellSize = new Vector3(tileWidth, tileHeight, 1f);
-            grid.cellLayout = GridLayout.CellLayout.Isometric;
-            grid.cellSwizzle = GridLayout.CellSwizzle.XYZ;
-
-            // Tilemap "Ground_0"
-            var tilemapObj = new GameObject("Ground_0");
-            tilemapObj.transform.SetParent(rootObj.transform, false);
-            var tilemap = tilemapObj.AddComponent<Tilemap>();
-            tilemapObj.AddComponent<TilemapRenderer>();
-
-            // First pass: compute bounds for centering
-            int minX = int.MaxValue, maxX = int.MinValue;
-            int minY = int.MaxValue, maxY = int.MinValue;
-            int totalTiles = 0;
-
-            foreach (var island in mapData.islands)
-            {
-                if (island.tiles == null) continue;
-                foreach (var t in island.tiles)
-                {
-                    if (t.x < minX) minX = t.x;
-                    if (t.x > maxX) maxX = t.x;
-                    if (t.y < minY) minY = t.y;
-                    if (t.y > maxY) maxY = t.y;
-                    totalTiles++;
-                }
-            }
-
-            if (totalTiles == 0)
-            {
-                Debug.LogWarning("[IsoMapLoader] No tiles found in map data!");
-                return;
-            }
-
-            // Place tiles
-            int placed = 0;
-            foreach (var island in mapData.islands)
-            {
-                if (island.tiles == null) continue;
-                foreach (var tile in island.tiles)
-                {
-                    if (_groundTiles != null && _groundTiles.TryGetValue(tile.ground, out var tileBase))
-                    {
-                        tilemap.SetTile(new Vector3Int(tile.x, tile.y, 0), tileBase);
-                        placed++;
-                    }
-                }
-            }
-
-            // Center at origin using Grid's own world projection
-            if (centerAtOrigin)
-            {
-                float cx = (minX + maxX) * 0.5f;
-                float cy = (minY + maxY) * 0.5f;
-                var centerWorld = grid.CellToWorld(new Vector3Int(Mathf.RoundToInt(cx), Mathf.RoundToInt(cy), 0));
-                rootObj.transform.localPosition = new Vector3(-centerWorld.x, -centerWorld.y, 0f);
-            }
-
-            // Set active paint target to "Ground_0"
-            SetActivePaintTarget(tilemapObj);
-
-            Debug.Log($"[IsoMapLoader] Generated {placed}/{totalTiles} tiles from {mapData.islands.Count} islands. " +
-                      $"Grid bounds: X[{minX}..{maxX}] Y[{minY}..{maxY}]");
+            CreateGridAndTilemaps(mapData);
         }
 
         [ContextMenu("Clear Map")]
@@ -317,41 +269,27 @@ namespace David
             }
         }
 
-        // ── Private helpers ──────────────────────────────
+        // ── Tile loading ─────────────────────────────────
 
-        private void BuildGroundLookup(MapJsonData mapData)
+        private bool TryLoadTiles(MapJsonData mapData)
         {
-            _groundColors = new Dictionary<int, Color>();
-            _groundElevations = new Dictionary<int, int>();
-
-            if (mapData.toolset?.groundTypes == null) return;
-
-            foreach (var gt in mapData.toolset.groundTypes)
+            var palettePrefab = ResolvePalettePrefab();
+            if (palettePrefab == null)
             {
-                _groundColors[gt.id] = HexToColor(gt.color);
-                _groundElevations[gt.id] = InferElevation(gt.id, gt.name);
+                Debug.LogError("[IsoMapLoader] No ground palette assigned or found!");
+                return false;
             }
-        }
 
-        private static int InferElevation(int id, string name)
-        {
-            // Elevation inference from ground type id/name
-            return id switch
+            var paletteTiles = ExtractPaletteTiles(palettePrefab);
+            if (paletteTiles.Count == 0)
             {
-                0  => 0,   // Grass, Ground 0 elevation
-                3  => 1,   // Ground 1 elevation
-                4  => 2,   // Ground 2 elevation
-                5  => 3,   // Ground 3 elevation
-                7  => 0,   // Ground floor
-                8  => 1,   // 2nd floor
-                9  => 0,   // Stairs
-                11 => 2,   // 3rd floor
-                12 => 3,   // Building roof
-                _  => 0    // Mud, Ice, Water, Building outline, etc.
-            };
-        }
+                Debug.LogError("[IsoMapLoader] No tiles found in palette!");
+                return false;
+            }
 
-        // ── Palette loading & color matching ─────────────
+            BuildGroundTileMapping(paletteTiles);
+            return _groundTiles != null && _groundTiles.Count > 0;
+        }
 
         private GameObject ResolvePalettePrefab()
         {
@@ -371,7 +309,6 @@ namespace David
         {
             var result = new List<TileBase>();
 
-            // Instantiate temporarily to read Tilemap data
             var tempInstance = Instantiate(palettePrefab);
             tempInstance.hideFlags = HideFlags.HideAndDontSave;
 
@@ -398,29 +335,11 @@ namespace David
             return result;
         }
 
-        private static readonly Dictionary<int, string> GroundTileNames = new Dictionary<int, string>
-        {
-            { 0,  "Tileset_1" },
-            { 1,  "Tileset_9" },
-            { 2,  "Tileset_7" },
-            { 3,  "plains-sliced_54" },
-            { 4,  "plains-sliced_61" },
-            { 5,  "plains-sliced_57" },
-            { 6,  "Tileset_4" },
-            { 7,  "020-floating-set-variations-result-8_0" },
-            { 8,  "020-floating-set-variations-result-8_1" },
-            { 9,  "020-floating-set-variations-result-7_0" },
-            { 10, "020-floating-set-variations-result-7_1" },
-            { 11, "molten_center" },
-            { 12, "base08" },
-        };
-
-        private void BuildGroundTileMapping(MapJsonData mapData, List<TileBase> paletteTiles)
+        private void BuildGroundTileMapping(List<TileBase> paletteTiles)
         {
             _groundTiles = new Dictionary<int, TileBase>();
 
-            // Build name → TileBase lookup from palette
-            var byName = new Dictionary<string, TileBase>(System.StringComparer.Ordinal);
+            var byName = new Dictionary<string, TileBase>(StringComparer.Ordinal);
             if (paletteTiles != null)
             {
                 foreach (var tile in paletteTiles)
@@ -432,16 +351,9 @@ namespace David
 
             foreach (var kvp in GroundTileNames)
             {
-                TileBase tile = null;
-
-                if (byName.TryGetValue(kvp.Value, out var paletteTile))
-                {
-                    tile = paletteTile;
-                }
-                else
-                {
-                    tile = LoadTileFromProject(kvp.Value);
-                }
+                TileBase tile = byName.TryGetValue(kvp.Value, out var paletteTile)
+                    ? paletteTile
+                    : LoadTileFromProject(kvp.Value);
 
                 if (tile != null)
                 {
@@ -472,6 +384,117 @@ namespace David
         private static TileBase LoadTileFromProject(string tileName) => null;
 #endif
 
+        // ── Grid & tilemap creation ──────────────────────
+
+        private void CreateGridAndTilemaps(MapJsonData mapData)
+        {
+            // Root
+            var rootObj = new GameObject("IsoMap_" + mapData.mapName);
+            rootObj.transform.SetParent(transform, false);
+            _mapRoot = rootObj.transform;
+
+            // Grid (isometric layout — matches palette settings)
+            var grid = rootObj.AddComponent<Grid>();
+            grid.cellSize = new Vector3(tileWidth, tileHeight, 1f);
+            grid.cellLayout = GridLayout.CellLayout.Isometric;
+            grid.cellSwizzle = GridLayout.CellSwizzle.XYZ;
+
+            // Tilemap "Ground_0" (sortingOrder 0 — base layer)
+            var groundTilemap = CreateTilemap(rootObj.transform, "Ground_0", 0);
+
+            // Tilemap "Island Tops" (sortingOrder 1 — elevated layer, renders above Ground_0)
+            var islandTopsTilemap = CreateTilemap(rootObj.transform, "Island Tops", 1);
+
+            PlaceTiles(mapData, grid, groundTilemap, islandTopsTilemap);
+
+            // Set active paint target to "Island Tops"
+            SetActivePaintTarget(islandTopsTilemap.gameObject);
+        }
+
+        private static Tilemap CreateTilemap(Transform parent, string name, int sortingOrder)
+        {
+            var obj = new GameObject(name);
+            obj.transform.SetParent(parent, false);
+            var tilemap = obj.AddComponent<Tilemap>();
+            var renderer = obj.AddComponent<TilemapRenderer>();
+            renderer.sortOrder = TilemapRenderer.SortOrder.TopRight;
+            renderer.sortingOrder = sortingOrder;
+            return tilemap;
+        }
+
+        // ── Tile placement ──────────────────────────────
+
+        private void PlaceTiles(
+            MapJsonData mapData,
+            Grid grid,
+            Tilemap groundTilemap,
+            Tilemap islandTopsTilemap)
+        {
+            // First pass: compute bounds for centering
+            int minX = int.MaxValue, maxX = int.MinValue;
+            int minY = int.MaxValue, maxY = int.MinValue;
+            int totalTiles = 0;
+
+            foreach (var island in mapData.islands)
+            {
+                if (island.tiles == null) continue;
+                foreach (var t in island.tiles)
+                {
+                    // Map is mirrored across Y axis: (x, y) → (-x, y)
+                    int px = t.x;
+                    int py = t.y;
+                    if (px < minX) minX = px;
+                    if (px > maxX) maxX = px;
+                    if (py < minY) minY = py;
+                    if (py > maxY) maxY = py;
+                    totalTiles++;
+                }
+            }
+
+            if (totalTiles == 0)
+            {
+                Debug.LogWarning("[IsoMapLoader] No tiles found in map data!");
+                return;
+            }
+
+            // Second pass: place tiles
+            int placed = 0;
+            foreach (var island in mapData.islands)
+            {
+                if (island.tiles == null) continue;
+                foreach (var tile in island.tiles)
+                {
+                    if (_groundTiles == null || !_groundTiles.TryGetValue(tile.ground, out var tileBase))
+                        continue;
+
+                    int z = IslandTopsGrounds.Contains(tile.ground) &&
+                            IslandTopsZPositions.TryGetValue(tile.ground, out var zPos)
+                        ? zPos
+                        : 0;
+                    var cellPos = new Vector3Int(maxY - tile.y, maxX - tile.x, z);
+                    var target = IslandTopsGrounds.Contains(tile.ground)
+                        ? islandTopsTilemap
+                        : groundTilemap;
+                    target.SetTile(cellPos, tileBase);
+                    placed++;
+                }
+            }
+
+            // Center at origin using Grid's own world projection
+            if (centerAtOrigin)
+            {
+                float cx = (minX + maxX) * 0.5f;
+                float cy = (minY + maxY) * 0.5f;
+                var centerWorld = grid.CellToWorld(new Vector3Int(
+                    Mathf.RoundToInt(cx), Mathf.RoundToInt(cy), 0));
+                _mapRoot.localPosition = new Vector3(-centerWorld.x, -centerWorld.y, 0f);
+            }
+
+            Debug.Log($"[IsoMapLoader] Generated {placed}/{totalTiles} tiles from " +
+                      $"{mapData.islands.Count} islands. " +
+                      $"Grid bounds: X[{minX}..{maxX}] Y[{minY}..{maxY}]");
+        }
+
         // ── Active paint target ──────────────────────────
 
         private void SetActivePaintTarget(GameObject target)
@@ -495,20 +518,6 @@ namespace David
 
             Debug.Log($"[IsoMapLoader] Active paint target set to: {target.name}");
 #endif
-        }
-
-        // ── Utilities ────────────────────────────────────
-
-        private static Color HexToColor(string hex)
-        {
-            if (string.IsNullOrEmpty(hex)) return Color.white;
-            if (hex.StartsWith("#")) hex = hex.Substring(1);
-            if (hex.Length < 6) return Color.white;
-
-            byte r = byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber);
-            byte g = byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber);
-            byte b = byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber);
-            return new Color32(r, g, b, 255);
         }
     }
 }
