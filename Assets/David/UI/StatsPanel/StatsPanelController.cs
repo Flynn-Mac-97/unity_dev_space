@@ -104,6 +104,8 @@ public class StatsPanelController : MonoBehaviour
 
         _bound = true;
         RefreshAll();
+        if (_isOpen) _overlay.RemoveFromClassList(HiddenClass);
+        else _overlay.AddToClassList(HiddenClass);
     }
 
     private void Toggle()
@@ -112,16 +114,18 @@ public class StatsPanelController : MonoBehaviour
         else Open();
     }
 
-    private void Open()
+    public void Open()
     {
         _isOpen = true;
+        if (_overlay == null) return;
         RefreshAll();
         _overlay.RemoveFromClassList(HiddenClass);
     }
 
-    private void Close()
+    public void Close()
     {
         _isOpen = false;
+        if (_overlay == null) return;
         _overlay.AddToClassList(HiddenClass);
     }
 

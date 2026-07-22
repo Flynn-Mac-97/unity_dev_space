@@ -1,15 +1,15 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
     <Style src="project://database/Assets/Flynn/UI/Styles/tokens.uss?fileID=7433441132597879392&amp;guid=5a94661d7a83ddc41b41e78e89518e85&amp;type=3#tokens" />
     <Style src="project://database/Assets/UI%20Toolkit/DialogueBox.uss?fileID=7433441132597879392&amp;guid=cd4063a7a8cbcf646ad0fa62bdd615e7&amp;type=3#DialogueBox" />
-    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;);">
-        <ui:VisualElement class="dialogue-sheet">
+    <ui:VisualElement name="dialogue-panel" class="dialogue-panel hidden" style="background-image: none;">
+        <ui:VisualElement name="VisualElement" class="dialogue-sheet" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_01.png?fileID=2800000&amp;guid=10279171e6b31e74d878e6a65a0fd31f&amp;type=3#big_box_01&quot;); background-color: rgba(0, 0, 0, 0.01);">
             <ui:VisualElement class="dialogue-header">
                 <ui:Label name="npc-name" text="Stranger" class="nameplate-text" />
-                <ui:VisualElement class="trust-section">
+                <ui:VisualElement name="VisualElement" class="trust-section">
                     <ui:Label text="TRUST" class="trust-label" />
                     <ui:VisualElement class="trust-bar-track">
                         <ui:VisualElement name="trust-bar-fill" class="trust-bar-fill" />
-                        <ui:VisualElement class="gauge-tick-d gauge-tick-d--25" />
+                        <ui:VisualElement name="VisualElement" class="gauge-tick-d gauge-tick-d--25" />
                         <ui:VisualElement class="gauge-tick-d gauge-tick-d--50" />
                         <ui:VisualElement class="gauge-tick-d gauge-tick-d--75" />
                     </ui:VisualElement>
@@ -23,35 +23,35 @@
                 </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement class="dialogue-body">
-                <ui:VisualElement class="portrait-col">
-                    <ui:VisualElement class="portrait-frame">
+                <ui:VisualElement name="VisualElement" class="portrait-col" style="background-image: none;">
+                    <ui:VisualElement class="portrait-frame" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/blank_button.png?fileID=2800000&amp;guid=31f37cf633a6e254b9c2fde13bc5538e&amp;type=3#blank_button&quot;);">
                         <ui:VisualElement name="player-portrait" class="portrait-image" />
                     </ui:VisualElement>
                     <ui:Label text="YOU" class="portrait-cap" />
                 </ui:VisualElement>
                 <ui:VisualElement name="VisualElement" class="dialogue-center">
-                    <ui:ScrollView name="conversation-scroll" class="conversation-scroll">
+                    <ui:ScrollView name="conversation-scroll" class="conversation-scroll" style="background-image: none;">
                         <ui:Label name="dialogue-text" text="..." class="dialogue-text" />
                     </ui:ScrollView>
                     <ui:VisualElement name="suggestions-row" class="suggestions-row" style="display: none;" />
                     <ui:VisualElement name="context-strip" class="context-strip">
-                        <ui:VisualElement class="context-group">
+                        <ui:VisualElement class="context-group" style="background-image: none;">
                             <ui:Label text="TOPICS" class="context-cap" />
-                            <ui:VisualElement name="topics-row" class="topics-row" style="display: none;" />
+                            <ui:VisualElement name="topics-row" class="topics-row" style="display: none; background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/small_box_01.png?fileID=2800000&amp;guid=3e435dedb6f35b8418022c04cb88f594&amp;type=3#small_box_01&quot;);" />
                         </ui:VisualElement>
-                        <ui:VisualElement class="context-group">
+                        <ui:VisualElement class="context-group" style="background-image: none;">
                             <ui:Label text="ITEMS" class="context-cap" />
-                            <ui:VisualElement name="items-row" class="items-row" style="display: none;" />
+                            <ui:VisualElement name="items-row" class="items-row" style="display: none; background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/small_box_01.png?fileID=2800000&amp;guid=3e435dedb6f35b8418022c04cb88f594&amp;type=3#small_box_01&quot;);" />
                         </ui:VisualElement>
                     </ui:VisualElement>
                     <ui:VisualElement class="input-row">
                         <ui:Label text="&gt;" class="input-caret" />
-                        <ui:TextField name="player-input" class="player-input" />
-                        <ui:Button name="send-button" text="▶" class="send-button" />
+                        <ui:TextField name="player-input" class="player-input" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/input_box_03.png?fileID=2800000&amp;guid=09777fa9412d29244b8f14d6243a0621&amp;type=3#input_box_03&quot;);" />
+                        <ui:Button name="send-button" text="▶" class="send-button" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/send_button.png?fileID=2800000&amp;guid=59ad52bf0febeb243a925d153d2b5f15&amp;type=3#send_button&quot;); border-left-color: rgba(149, 149, 149, 0.03); border-right-color: rgba(149, 149, 149, 0.03); border-top-color: rgba(149, 149, 149, 0.03); border-bottom-color: rgba(149, 149, 149, 0.03); background-color: rgba(255, 255, 255, 0.04);" />
                     </ui:VisualElement>
                 </ui:VisualElement>
                 <ui:VisualElement class="portrait-col">
-                    <ui:VisualElement class="portrait-frame">
+                    <ui:VisualElement class="portrait-frame" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/blank_button.png?fileID=2800000&amp;guid=31f37cf633a6e254b9c2fde13bc5538e&amp;type=3#blank_button&quot;);">
                         <ui:VisualElement name="npc-portrait" class="portrait-image hidden" />
                     </ui:VisualElement>
                     <ui:Label name="npc-portrait-cap" text="THEM" class="portrait-cap" />
