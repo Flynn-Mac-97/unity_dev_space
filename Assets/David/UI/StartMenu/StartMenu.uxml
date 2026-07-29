@@ -1,0 +1,10 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/David/UI/StartMenu/StartMenu.uss?fileID=7433441132597879392&amp;guid=5557b42924fc8ac47a7f86bf1c53ef65&amp;type=3#StartMenu" />
+    <ui:VisualElement name="start-overlay" class="start-overlay" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/background/Solarpunk%20Island%20Start%20Menu%20Background.png?fileID=2800000&amp;guid=5bab7f6e9e1ced14d8ffb243ab78ed23&amp;type=3#Solarpunk Island Start Menu Background&quot;);">
+        <ui:Label text="Solarpunk Island" class="start-title" />
+        <ui:VisualElement class="button-container">
+            <ui:Button name="start-button" text="Start" class="menu-button" style="background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/blank_button.png?fileID=2800000&amp;guid=31f37cf633a6e254b9c2fde13bc5538e&amp;type=3#blank_button&quot;); border-left-color: rgba(255, 255, 255, 0.03); border-right-color: rgba(255, 255, 255, 0.03); border-top-color: rgba(255, 255, 255, 0.03); border-bottom-color: rgba(255, 255, 255, 0.03); background-color: rgba(0, 0, 0, 0);" />
+            <ui:Button name="quit-button" text="Quit" class="menu-button" style="background-color: rgba(0, 0, 0, 0.02); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/blank_button.png?fileID=2800000&amp;guid=31f37cf633a6e254b9c2fde13bc5538e&amp;type=3#blank_button&quot;); border-left-color: rgba(255, 255, 255, 0); border-right-color: rgba(255, 255, 255, 0); border-top-color: rgba(255, 255, 255, 0); border-bottom-color: rgba(255, 255, 255, 0);" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
