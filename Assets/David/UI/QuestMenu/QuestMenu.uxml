@@ -1,0 +1,46 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/David/UI/QuestMenu/QuestMenu.uss?fileID=7433441132597879392&amp;guid=1522d4e6dc1bba249bcf9f2917210058&amp;type=3#QuestMenu" />
+    <ui:VisualElement name="quest-overlay" class="quest-overlay hidden">
+        <ui:VisualElement name="quest-panel" class="quest-panel" style="background-color: rgba(56, 56, 56, 0); background-image: url(&quot;project://database/Assets/David/UI/UI-Sprites/big_box_02.png?fileID=2800000&amp;guid=3d9e06b1d7affc14e9087f02f6a9c6d7&amp;type=3#big_box_02&quot;);">
+            <ui:Label text="QUESTS" class="quest-title" />
+            <ui:Label text="MAIN QUESTS" class="section-header" />
+            <ui:VisualElement class="quest-item">
+                <ui:VisualElement class="quest-status quest-status--active" />
+                <ui:VisualElement class="quest-text">
+                    <ui:Label text="Repair the Transmitter" class="quest-name" />
+                    <ui:Label text="Find replacement parts and restore the main transmitter" class="quest-desc" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="quest-item">
+                <ui:VisualElement class="quest-status quest-status--completed" />
+                <ui:VisualElement class="quest-text">
+                    <ui:Label text="Reach the Island" class="quest-name" />
+                    <ui:Label text="Cross the broken bridge to the second island" class="quest-desc" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="quest-item">
+                <ui:VisualElement class="quest-status quest-status--locked" />
+                <ui:VisualElement class="quest-text">
+                    <ui:Label text="Activate the Gate" class="quest-name quest-name--locked" />
+                    <ui:Label text="Unlock the gate to proceed further" class="quest-desc" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="divider" />
+            <ui:Label text="SIDE QUESTS" class="section-header" />
+            <ui:VisualElement class="quest-item">
+                <ui:VisualElement class="quest-status quest-status--active" />
+                <ui:VisualElement class="quest-text">
+                    <ui:Label text="Collect Echo Shards" class="quest-name" />
+                    <ui:Label text="Gather 10 Echo Shards scattered across the islands" class="quest-desc" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="quest-item">
+                <ui:VisualElement class="quest-status quest-status--locked" />
+                <ui:VisualElement class="quest-text">
+                    <ui:Label text="Lost Treasure" class="quest-name quest-name--locked" />
+                    <ui:Label text="Find the hidden treasure chest" class="quest-desc" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

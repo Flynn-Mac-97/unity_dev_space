@@ -11,4 +11,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/PuzzleSandbox.unity
     guid: e06360a77f7d8654b8020aadf57040eb
+  - enabled: 1
+    path: Assets/David/Scenes/Start Menu.unity
+    guid: 17f9cb143ccf4314ab1869dedbe664e3
+  - enabled: 1
+    path: Assets/David/Scenes/2D_Lighting_Demo.unity
+    guid: 076010148f5305843a0178a8f0c0a8b0
   m_configObjects: {}
